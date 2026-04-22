@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "AgroVision Mobile",
+    "slug": "agrovision-mobile",
+    "version": "1.0.0",
+    "sdkVersion": "54.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "runtimeVersion": "54.0.0",
+    "ios": {
+      "supportsTabletMode": true,
+      "bundleIdentifier": "com.agrovision.mobile",
+      "infoPlist": {
+        "NSCameraUsageDescription": "AgroVision needs access to your camera to analyze plants",
+        "NSPhotoLibraryUsageDescription": "AgroVision needs access to your photo library",
+        "NSPhotoLibraryAddUsageDescription": "AgroVision needs permission to save photos"
+      }
+    },
+    "android": {
+      "package": "com.agrovision.mobile",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "AgroVision needs access to your camera to analyze plants",
+          "recordAudioAndroid": false
+        }
+      ]
+    ]
+  }
+}

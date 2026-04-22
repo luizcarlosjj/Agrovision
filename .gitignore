@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+*.pem
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+
+# Production
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+.DS_Store
+
+# Expo
+.expo/
+.expo-shared/
+dist/
+npm-debug.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+
+# Babel
+.babelrc
+.babelrc.js
+babel.config.js
+
+# Misc
+*.log
+yarn-error.log
+npm-debug.log*
+
+# OS
+Thumbs.db
+.DS_Store
