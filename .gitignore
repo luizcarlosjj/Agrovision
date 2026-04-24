@@ -53,3 +53,23 @@ Thumbs.db
 
 # Claude Code (configurações locais de agente)
 .claude/
+
+# Python / ML backend (agrovision-ml-service)
+agrovision-ml-service/venv_agro/
+agrovision-ml-service/venv/
+agrovision-ml-service/.venv/
+agrovision-ml-service/datasets/
+agrovision-ml-service/__pycache__/
+agrovision-ml-service/**/__pycache__/
+agrovision-ml-service/**/*.pyc
+agrovision-ml-service/.pytest_cache/
+
+# Modelos treinados (grandes, gerados pelo treino)
+agrovision-ml-service/*.keras
+agrovision-ml-service/*.h5
+agrovision-ml-service/*.tflite
+agrovision-ml-service/*.pb
+agrovision-ml-service/*.ckpt
+
+# Assets intermediários do gerador de PDF (regeneráveis)
+docs/_assets/

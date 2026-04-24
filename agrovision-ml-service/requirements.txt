@@ -1,0 +1,12 @@
+# Image processing and ML training
+tensorflow==2.15.0
+datasets==2.18.0
+pillow==10.1.0
+numpy==1.26.4
+opencv-python==4.8.1.78
+tqdm==4.66.1
+
+# XAI backend (FastAPI + Grad-CAM)
+fastapi==0.110.0
+uvicorn[standard]==0.29.0
+python-multipart==0.0.9

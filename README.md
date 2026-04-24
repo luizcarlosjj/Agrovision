@@ -68,7 +68,7 @@ modelo Keras original (não o TFLite) e calcula **Attention Leakage (AL)** e
 corretamente na planta.
 
 Como é feature opt-in e requer gradientes (impossível no TFLite), há um
-backend Python separado em [`agrovision-ml-service/api/`](../agrovision-ml-service/api/README.md).
+backend Python separado em [`agrovision-ml-service/api/`](agrovision-ml-service/api/README.md).
 
 ```bash
 # Treine o modelo (gera .keras + .tflite + labels.json)
