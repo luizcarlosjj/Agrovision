@@ -23,6 +23,7 @@ export type RootStackParamList = {
   Result: {
     analysis: Analysis;
   };
+  TestMode: undefined;
   InstitutionalHome: undefined;
   InstitutionalCategory: {
     category: Category;
@@ -40,6 +41,7 @@ export type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'>
 export type CameraScreenProps = NativeStackScreenProps<RootStackParamList, 'Camera'>;
 export type ProcessingScreenProps = NativeStackScreenProps<RootStackParamList, 'Processing'>;
 export type ResultScreenProps = NativeStackScreenProps<RootStackParamList, 'Result'>;
+export type TestModeScreenProps = NativeStackScreenProps<RootStackParamList, 'TestMode'>;
 
 /**
  * Type-safe navigation prop

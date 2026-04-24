@@ -10,3 +10,4 @@ export { ResultScreen } from './ResultScreen';
 export { InstitutionalScreen } from './InstitutionalScreen';
 export { CategoryScreen } from './CategoryScreen';
 export { ArticleScreen } from './ArticleScreen';
+export { TestModeScreen } from './TestModeScreen';

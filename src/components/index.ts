@@ -17,3 +17,9 @@ export {
   SafeAreaWrapper,
   Header,
 } from './common';
+
+// XAI Components
+export {
+  HeatmapOverlay,
+  MetricsPanel,
+} from './xai';

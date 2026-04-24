@@ -34,6 +34,10 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
     navigation.navigate('Camera', { analysisType: 'species' });
   };
 
+  const handleOpenTestMode = () => {
+    navigation.navigate('TestMode');
+  };
+
   return (
     <SafeAreaWrapper scrollable padding={SPACING_MD}>
       {/* Header */}
@@ -74,6 +78,22 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
         <View style={[styles.ctaButton, { backgroundColor: SPECIES_COLOR.accent }]}>
           <Text style={styles.ctaButtonText}>Iniciar Análise</Text>
         </View>
+      </TouchableOpacity>
+
+      {/* XAI / Scientific Mode entry */}
+      <TouchableOpacity
+        activeOpacity={0.75}
+        onPress={handleOpenTestMode}
+        style={styles.xaiCard}
+      >
+        <Text style={styles.xaiEmoji}>🔬</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.xaiTitle}>Modo Científico (XAI)</Text>
+          <Text style={styles.xaiDescription}>
+            Grad-CAM + Attention Leakage para avaliar onde o modelo realmente olha.
+          </Text>
+        </View>
+        <Text style={styles.xaiArrow}>›</Text>
       </TouchableOpacity>
 
       {/* Info Cards */}
@@ -167,6 +187,38 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: FONT_BASE,
     letterSpacing: 0.5,
+  },
+  xaiCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EDE7F6',
+    borderRadius: RADIUS_MD,
+    borderLeftWidth: 4,
+    borderLeftColor: '#5E35B1',
+    padding: SPACING_MD,
+    marginTop: SPACING_SM,
+    gap: SPACING_SM,
+  },
+  xaiEmoji: {
+    fontSize: 28,
+    marginRight: SPACING_SM,
+  },
+  xaiTitle: {
+    fontSize: FONT_BASE,
+    fontWeight: '700',
+    color: '#4527A0',
+  },
+  xaiDescription: {
+    fontSize: FONT_SM,
+    color: '#4527A0',
+    marginTop: SPACING_XS,
+    lineHeight: 18,
+  },
+  xaiArrow: {
+    fontSize: 28,
+    color: '#5E35B1',
+    fontWeight: '700',
+    marginLeft: SPACING_SM,
   },
   infoSection: {
     gap: SPACING_MD,

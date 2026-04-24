@@ -45,3 +45,15 @@ export type {
   CategoryItem,
   Category,
 } from './institutional';
+
+// XAI (Grad-CAM + Attention Leakage) Types
+export type {
+  BBoxStrategy,
+  BoundingBox,
+  FramingLabel,
+  XAIRequest,
+  XAIBackendResponse,
+  XAIResult,
+  XAITestRecord,
+  XAIHealth,
+} from './xai';

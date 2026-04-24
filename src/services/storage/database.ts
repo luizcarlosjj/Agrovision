@@ -5,7 +5,7 @@
  */
 
 import * as SQLite from 'expo-sqlite';
-import { Analysis, AnalysisType } from '@models';
+import { Analysis, AnalysisType, XAITestRecord, FramingLabel } from '@models';
 import { logger } from '@utils/logger';
 
 /**
@@ -68,7 +68,106 @@ class DatabaseService {
       CREATE INDEX IF NOT EXISTS idx_analyses_timestamp ON analyses(timestamp);
     `);
 
+    // XAI test runs (Grad-CAM + Attention Leakage scientific mode)
+    await this.db.execAsync(`
+      CREATE TABLE IF NOT EXISTS xai_tests (
+        id TEXT PRIMARY KEY,
+        imageUri TEXT NOT NULL,
+        prediction TEXT NOT NULL,
+        confidence REAL NOT NULL,
+        al REAL NOT NULL,
+        afs REAL NOT NULL,
+        threshold REAL NOT NULL,
+        bboxJson TEXT NOT NULL,
+        bboxStrategy TEXT NOT NULL,
+        overlayB64 TEXT NOT NULL,
+        label TEXT NOT NULL,
+        createdAt TEXT NOT NULL
+      );
+    `);
+    await this.db.execAsync(`
+      CREATE INDEX IF NOT EXISTS idx_xai_tests_created ON xai_tests(createdAt);
+      CREATE INDEX IF NOT EXISTS idx_xai_tests_label ON xai_tests(label);
+    `);
+
     logger.log('[Database] Tables created successfully');
+  }
+
+  async saveXAITest(record: XAITestRecord): Promise<void> {
+    if (!this.db) throw new Error('Database not initialized');
+    await this.db.runAsync(
+      `INSERT INTO xai_tests (
+        id, imageUri, prediction, confidence, al, afs, threshold,
+        bboxJson, bboxStrategy, overlayB64, label, createdAt
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        record.id,
+        record.imageUri,
+        record.prediction,
+        record.confidence,
+        record.al,
+        record.afs,
+        record.threshold,
+        JSON.stringify(record.bbox),
+        record.bboxStrategy,
+        record.overlayB64,
+        record.label,
+        record.createdAt,
+      ],
+    );
+    logger.log(`[Database] XAI test saved: ${record.id}`);
+  }
+
+  async getAllXAITests(limit = 200): Promise<XAITestRecord[]> {
+    if (!this.db) throw new Error('Database not initialized');
+    const rows = await this.db.getAllAsync<any>(
+      `SELECT * FROM xai_tests ORDER BY createdAt DESC LIMIT ?`,
+      [limit],
+    );
+    return rows.map((r) => this.mapRowToXAITest(r));
+  }
+
+  async deleteXAITest(id: string): Promise<void> {
+    if (!this.db) throw new Error('Database not initialized');
+    await this.db.runAsync(`DELETE FROM xai_tests WHERE id = ?`, [id]);
+    logger.log(`[Database] XAI test deleted: ${id}`);
+  }
+
+  async clearAllXAITests(): Promise<void> {
+    if (!this.db) throw new Error('Database not initialized');
+    await this.db.runAsync(`DELETE FROM xai_tests`);
+    logger.log('[Database] All XAI tests cleared');
+  }
+
+  async updateXAITestLabel(id: string, label: FramingLabel): Promise<void> {
+    if (!this.db) throw new Error('Database not initialized');
+    await this.db.runAsync(
+      `UPDATE xai_tests SET label = ? WHERE id = ?`,
+      [label, id],
+    );
+  }
+
+  private mapRowToXAITest(row: any): XAITestRecord {
+    let bbox = { x: 0, y: 0, width: 0, height: 0 };
+    try {
+      bbox = JSON.parse(row.bboxJson);
+    } catch {
+      // ignore malformed bbox
+    }
+    return {
+      id: row.id,
+      imageUri: row.imageUri,
+      prediction: row.prediction,
+      confidence: row.confidence,
+      al: row.al,
+      afs: row.afs,
+      threshold: row.threshold,
+      bbox,
+      bboxStrategy: row.bboxStrategy,
+      overlayB64: row.overlayB64,
+      label: row.label as FramingLabel,
+      createdAt: row.createdAt,
+    };
   }
 
   /**

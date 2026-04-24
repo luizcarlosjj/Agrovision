@@ -9,7 +9,10 @@
       "Bash(npx tsc --noEmit src/services/api/institutionalService.ts)",
       "Bash(python inspect_datasets.py)",
       "Bash(python prepare_local_datasets.py)",
-      "Bash(python symlink_datasets.py)"
+      "Bash(python symlink_datasets.py)",
+      "Bash(npx tsc *)",
+      "Bash(python -c \"import json; d=json.load\\(open\\('/c/Users/Auvo/Desktop/Luiz/Agrovision/assets/models/labels_species.json'\\)\\); print\\(f'num_classes={len\\(d\\)}'\\)\")",
+      "Bash(python -c \"import json; d=json.load\\(open\\(r'c:\\\\Users\\\\Auvo\\\\Desktop\\\\Luiz\\\\Agrovision\\\\assets\\\\models\\\\labels_species.json', encoding='utf-8'\\)\\); print\\(f'num_classes={len\\(d\\)}'\\); print\\('first:', list\\(d.values\\(\\)\\)[:3]\\); print\\('last:', list\\(d.values\\(\\)\\)[-3:]\\)\")"
     ]
   }
 }

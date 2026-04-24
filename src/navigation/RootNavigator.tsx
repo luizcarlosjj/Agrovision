@@ -16,6 +16,7 @@ import {
   InstitutionalScreen,
   CategoryScreen,
   ArticleScreen,
+  TestModeScreen,
 } from '@screens';
 import { RootStackParamList } from './types';
 import { COLORS } from '@utils/constants';
@@ -74,6 +75,14 @@ function AnalysisNavigator() {
         options={{
           title: 'Resultado',
           animationEnabled: true,
+        }}
+      />
+
+      <Stack.Screen
+        name="TestMode"
+        component={TestModeScreen}
+        options={{
+          title: 'Modo Científico',
         }}
       />
     </Stack.Navigator>

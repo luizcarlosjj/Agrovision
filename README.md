@@ -19,6 +19,9 @@ App (React Native/Expo)
   ├─ TFLite Inference (100% offline)
   │  └─ Identifica espécies de plantas
   │
+  ├─ Modo Científico / XAI (opt-in, online)
+  │  └─ Grad-CAM + Attention Leakage via backend Python
+  │
   └─ Institutional Tab (Biblioteca agronômica)
      └─ AGRIS + OpenAgriData
 ```
@@ -55,6 +58,29 @@ python train_species.py
 - ✅ ML training pipeline
 - ✅ TFLite integration
 - ✅ Offline-first architecture
+- ✅ Modo Científico com Grad-CAM + Attention Leakage (backend opcional)
+
+## Modo Científico (XAI)
+
+O app tem um card "🔬 Modo Científico" na Home que roda **Grad-CAM** sobre o
+modelo Keras original (não o TFLite) e calcula **Attention Leakage (AL)** e
+**Attention Focus Score (AFS)** para avaliar quanto o modelo foca
+corretamente na planta.
+
+Como é feature opt-in e requer gradientes (impossível no TFLite), há um
+backend Python separado em [`agrovision-ml-service/api/`](../agrovision-ml-service/api/README.md).
+
+```bash
+# Treine o modelo (gera .keras + .tflite + labels.json)
+cd agrovision-ml-service
+python train_species.py
+
+# Suba o backend XAI
+uvicorn api.server:app --host 0.0.0.0 --port 5000 --reload
+
+# No app, configure a URL do backend antes do expo start:
+#   EXPO_PUBLIC_XAI_URL=http://<IP-da-máquina>:5000
+```
 
 ## Contribuindo
 
