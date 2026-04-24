@@ -50,3 +50,6 @@ npm-debug.log*
 # OS
 Thumbs.db
 .DS_Store
+
+# Claude Code (configurações locais de agente)
+.claude/
