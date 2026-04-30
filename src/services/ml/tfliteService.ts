@@ -1,14 +1,23 @@
 /**
- * TFLite Service — Inferência real via @tensorflow/tfjs-react-native
- * Carrega o modelo TFJS de assets/models/tfjs_model/ e roda offline.
+ * Serviço de inferência — 100% JavaScript, sem módulos nativos.
+ * Funciona direto no Expo Go.
  *
- * Pré-requisito: converter o modelo com
- *   experiments/soy_roboflow_test/convert_to_tfjs.py
- *
- * Se o modelo não estiver disponível, cai em modo simulado (desenvolvimento).
+ * Stack:
+ *   @tensorflow/tfjs          → motor de inferência (CPU backend)
+ *   expo-asset                → lê arquivos do bundle (.bin)
+ *   expo-file-system          → lê bytes dos assets
+ *   expo-image-manipulator    → redimensiona imagem para 224×224
+ *   jpeg-js                   → decodifica JPEG → pixels RGB (pure JS)
  */
 
+// Explicitly load CPU backend BEFORE importing tf to avoid Metro circular-dep
+// issue where util module resolves to undefined and isTypedArray fails.
+import '@tensorflow/tfjs-backend-cpu';
+import * as tf from '@tensorflow/tfjs';
+import { Asset } from 'expo-asset';
 import * as FileSystem from 'expo-file-system';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import * as jpeg from 'jpeg-js';
 
 export interface PredictionResult {
   result: string;
@@ -18,192 +27,216 @@ export interface PredictionResult {
   processingTime: number;
 }
 
-// Descrições detalhadas para as espécies do modelo original
-const SPECIES_INFO: Record<string, { name: string; description: string; recommendations: string[] }> = {
-  'Solanum lycopersicum': {
-    name: 'Tomate',
-    description: 'Solanácea cultivada amplamente no Brasil. Planta herbácea com crescimento determinado ou indeterminado que produz frutos vermelhos com alto valor nutricional.',
-    recommendations: ['Plantar em local com 6-8 horas de luz solar direta', 'Usar solo fértil, bem drenado com pH 6,0-6,8', 'Regar regularmente (1-2 cm/semana) mantendo consistência', 'Tutor e podas para melhor circulação de ar', 'Adubação quinzenal com fertilizante balanceado'],
+type Labels = Record<string, string>;
+
+// ─── Assets do modelo ────────────────────────────────────────────────────────
+// model.json  → Metro devolve objeto JS (JSON parseado automaticamente)
+// .bin        → Metro devolve asset ID (carregado via expo-asset)
+const MODEL_JSON    = require('../../../assets/models/tfjs_model/model.json');
+const MODEL_BIN     = require('../../../assets/models/tfjs_model/group1-shard1of1.bin');
+const LABELS: Labels = require('../../../assets/models/labels_species.json');
+
+const INPUT_SIZE = 224;
+
+// ─── Descrições por classe ───────────────────────────────────────────────────
+const CLASS_INFO: Record<string, { description: string; recommendations: string[] }> = {
+  healthy: {
+    description: 'Folha de soja saudável, sem sinais visíveis de doença ou estresse.',
+    recommendations: [
+      'Manter monitoramento regular da lavoura',
+      'Continuar o programa de adubação e irrigação',
+      'Inspecionar semanalmente para detecção precoce de problemas',
+    ],
   },
-  'Glycine max': {
-    name: 'Soja',
-    description: 'Leguminosa de alto valor proteico e grande importância no agronegócio brasileiro.',
-    recommendations: ['Plantar em épocas adequadas (setembro-dezembro)', 'Solos com boa drenagem e pH 6,0-7,0', 'Inoculação com Bradyrhizobium japonicum', 'Espaçamento de 45-50cm entre linhas', 'Monitorar pragas como lagarta-da-soja'],
+  frog_eye: {
+    description: 'Olho-de-rã (Cercospora sojina): lesões circulares com centro cinza e bordas marrons.',
+    recommendations: [
+      'Aplicar fungicida à base de trifloxistrobina + protioconazol',
+      'Reduzir adensamento para melhorar circulação de ar',
+      'Evitar irrigação por aspersão no período noturno',
+      'Usar sementes tratadas com fungicidas na próxima safra',
+    ],
   },
-  'Zea mays': {
-    name: 'Milho',
-    description: 'Cereal de maior produção no Brasil com aplicações alimentares, industriais e forrageiras.',
-    recommendations: ['Plantar em períodos com temperatura >15°C', 'Solo fértil com boa drenagem, pH 6,0-7,5', 'Espaçamento de 80-100cm entre linhas', 'Irrigação em períodos secos (5-7mm/dia)'],
+  target_spot: {
+    description: 'Mancha-alvo (Corynespora cassiicola): lesões concêntricas causadas por fungo.',
+    recommendations: [
+      'Aplicar fungicida preventivo antes do fechamento das linhas',
+      'Monitorar condições de alta umidade e temperatura acima de 25°C',
+      'Fazer rotação de culturas na próxima safra',
+      'Eliminar restos culturais após a colheita',
+    ],
+  },
+  'soybean-leaf': {
+    description: 'Folha de soja identificada. Verifique sinais de doença ou estresse hídrico.',
+    recommendations: [
+      'Inspecionar visualmente toda a planta',
+      'Verificar pH e nutrição do solo',
+      'Monitorar umidade do solo',
+    ],
   },
 };
 
-// Recomendações genéricas para doenças identificadas pelo modelo de soja
-const DISEASE_RECOMMENDATIONS = [
-  'Isolar a área afetada para evitar propagação',
-  'Consultar um engenheiro agrônomo para diagnóstico preciso',
-  'Registrar a ocorrência com foto e data para histórico',
-  'Avaliar aplicação de fungicida/bactericida conforme indicação técnica',
-  'Monitorar plantas vizinhas para detectar disseminação',
-];
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function buildResult(
-  className: string,
-  confidence: number,
-  processingTime: number,
-): PredictionResult {
-  // Tenta casar com INFO de espécies conhecidas
-  const speciesKey = Object.keys(SPECIES_INFO).find(
-    k => k === className || SPECIES_INFO[k].name === className,
-  );
+// Pure-JS base64 decoder — avoids atob() quirks in Hermes / React Native
+const _B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+const _B64_LUT = new Uint8Array(256);
+for (let _i = 0; _i < _B64.length; _i++) _B64_LUT[_B64.charCodeAt(_i)] = _i;
 
-  if (speciesKey) {
-    const info = SPECIES_INFO[speciesKey];
-    return { result: info.name, confidence, description: info.description, recommendations: info.recommendations, processingTime };
+function base64ToUint8Array(base64: string): Uint8Array {
+  const src = base64.replace(/=+$/, '');
+  const len = src.length;
+  const out = new Uint8Array(Math.floor(len * 3 / 4));
+  let j = 0;
+  for (let i = 0; i < len; i += 4) {
+    const a = _B64_LUT[src.charCodeAt(i)];
+    const b = _B64_LUT[src.charCodeAt(i + 1)];
+    const c = _B64_LUT[src.charCodeAt(i + 2)];
+    const d = _B64_LUT[src.charCodeAt(i + 3)];
+    out[j++] = (a << 2) | (b >> 4);
+    if (j < out.length) out[j++] = ((b & 0xf) << 4) | (c >> 2);
+    if (j < out.length) out[j++] = ((c & 0x3) << 6) | d;
   }
+  return out;
+}
 
-  // Classe não mapeada (doença ou espécie nova): exibe o nome retornado pelo modelo
-  const displayName = className.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+async function buildIOHandler(): Promise<tf.io.IOHandler> {
+  // Carrega o arquivo .bin do bundle via expo-asset
+  const [asset] = await Asset.loadAsync(MODEL_BIN);
+  const base64 = await FileSystem.readAsStringAsync(asset.localUri!, {
+    encoding: FileSystem.EncodingType.Base64,
+  });
+  const weightData = base64ToUint8Array(base64).buffer;
+
   return {
-    result: displayName,
-    confidence,
-    description: `Diagnóstico: ${displayName}. Confiança: ${(confidence * 100).toFixed(1)}%. Consulte um especialista para confirmação e plano de manejo.`,
-    recommendations: DISEASE_RECOMMENDATIONS,
-    processingTime,
+    load: async (): Promise<tf.io.ModelArtifacts> => ({
+      modelTopology: MODEL_JSON.modelTopology,
+      weightSpecs:   MODEL_JSON.weightsManifest[0].weights,
+      weightData,
+      format:        MODEL_JSON.format,
+      generatedBy:   MODEL_JSON.generatedBy,
+      convertedBy:   MODEL_JSON.convertedBy,
+    }),
   };
 }
 
-// ─── Núcleo de inferência ─────────────────────────────────────────────────────
+async function preprocessImage(uri: string): Promise<tf.Tensor4D> {
+  // 1. Redimensiona para 224×224 e obtém base64 JPEG
+  const resized = await manipulateAsync(
+    uri,
+    [{ resize: { width: INPUT_SIZE, height: INPUT_SIZE } }],
+    { format: SaveFormat.JPEG, base64: true },
+  );
+  if (!resized.base64) throw new Error('[TFLite] manipulateAsync não retornou base64');
 
-const INPUT_SIZE = 224;
-type TF = typeof import('@tensorflow/tfjs');
-type LayersModel = import('@tensorflow/tfjs').LayersModel;
-type Labels = Record<string, string>;
+  // 2. Decodifica JPEG → pixels RGBA (pure JS via jpeg-js)
+  const bytes = base64ToUint8Array(resized.base64);
+  console.log(`[TFLite] bytes JPEG: ${bytes.length}`);
+
+  const decoded = jpeg.decode(bytes, { useTArray: true });
+  if (!decoded || !decoded.data) throw new Error('[TFLite] jpeg.decode falhou — dados inválidos');
+  const rgba = decoded.data as Uint8Array;
+  console.log(`[TFLite] pixels RGBA: ${rgba.length} (esperado: ${INPUT_SIZE * INPUT_SIZE * 4})`);
+
+  // 3. RGBA → Float32 RGB normalizado [0, 1]
+  const float32 = new Float32Array(INPUT_SIZE * INPUT_SIZE * 3);
+  for (let i = 0, j = 0; i < rgba.length; i += 4, j += 3) {
+    float32[j]     = rgba[i]     / 255; // R
+    float32[j + 1] = rgba[i + 1] / 255; // G
+    float32[j + 2] = rgba[i + 2] / 255; // B
+  }
+
+  // 4. Cria tensor CPU — usa tf.tensor() em vez de tf.tensor4d() para evitar
+  //    bug de resolução circular do Metro com util.isTypedArray
+  return tf.tensor(float32, [1, INPUT_SIZE, INPUT_SIZE, 3], 'float32') as tf.Tensor4D;
+}
+
+// ─── Serviço principal ────────────────────────────────────────────────────────
 
 class TFLiteService {
-  private model: LayersModel | null = null;
-  private labels: Labels = {};
-  private tf: TF | null = null;
-  private isInitialized = false;
-  private usingFallback = false;
+  private model: tf.LayersModel | null = null;
+  private ready = false;
 
-  async init() {
-    try {
-      // Importação dinâmica para não quebrar em ambientes sem native GL
-      const tfModule   = await import('@tensorflow/tfjs');
-      const tfRNModule = await import('@tensorflow/tfjs-react-native');
+  async init(): Promise<void> {
+    await tf.setBackend('cpu');
+    await tf.ready();
+    console.log(`[TFLite] Backend: ${tf.getBackend()}`);
 
-      await tfModule.ready();
-      this.tf = tfModule;
+    const handler = await buildIOHandler();
+    this.model = await tf.loadLayersModel(handler);
+    this.ready = true;
 
-      // Carrega o modelo bundled
-      const modelJson    = require('../../../assets/models/tfjs_model/model.json');
-      const modelWeights = [require('../../../assets/models/tfjs_model/group1-shard1of1.bin')];
+    const classes = Object.values(LABELS).join(', ');
+    console.log(`[TFLite] Modelo carregado — classes: ${classes}`);
 
-      this.model = await tfModule.loadLayersModel(
-        tfRNModule.bundleResourceIO(modelJson, modelWeights),
-      );
-
-      // Carrega labels
-      this.labels = require('../../../assets/models/labels_species.json') as Labels;
-
-      this.isInitialized = true;
-      console.log('[TFLite] Modelo carregado. Classes:', Object.keys(this.labels).length);
-    } catch (err) {
-      console.warn('[TFLite] Modelo TFJS não disponível — usando modo simulado.', err);
-      this.usingFallback = true;
-      this.isInitialized = true;
-    }
+    // Aquece o modelo (elimina latência na primeira predição real)
+    const dummy = tf.zeros([1, INPUT_SIZE, INPUT_SIZE, 3]);
+    (this.model.predict(dummy) as tf.Tensor).dispose();
+    dummy.dispose();
   }
 
   async predict(
     imageUri: string,
     _modelType: 'disease' | 'health' | 'species' | 'pest',
   ): Promise<PredictionResult | null> {
-    const startTime = Date.now();
-
-    if (!imageUri) return null;
-
-    if (this.usingFallback || !this.model || !this.tf) {
-      return this.simulatePredict(startTime);
+    if (!this.ready || !this.model) {
+      throw new Error('[TFLite] Modelo não carregado. Aguarde a inicialização.');
+    }
+    if (!imageUri) {
+      throw new Error('[TFLite] imageUri não fornecido.');
     }
 
+    const t0 = Date.now();
+
+    const input = await preprocessImage(imageUri);
+    console.log(`[TFLite] tensor shape: ${input.shape}`);
+
+    // tf.tidy disposes intermediate tensors automatically
+    let probs: number[];
     try {
-      const input = await this.preprocessImage(imageUri);
-      const outputTensor = this.model.predict(input) as import('@tensorflow/tfjs').Tensor;
-      const probs = Array.from(await outputTensor.data() as Float32Array);
-
+      const output = this.model.predict(input) as tf.Tensor;
+      probs = Array.from(await output.data() as Float32Array);
+      output.dispose();
+    } finally {
       input.dispose();
-      outputTensor.dispose();
-
-      const topIdx   = probs.indexOf(Math.max(...probs));
-      const className = this.labels[String(topIdx)] ?? `class_${topIdx}`;
-      const confidence = probs[topIdx];
-
-      return buildResult(className, confidence, Date.now() - startTime);
-    } catch (err) {
-      console.error('[TFLite] Erro na predição:', err);
-      return null;
     }
-  }
+    console.log(`[TFLite] probs (${probs!.length}): ${probs!.map(p => p.toFixed(3)).join(', ')}`);
 
-  private async preprocessImage(uri: string): Promise<import('@tensorflow/tfjs').Tensor4D> {
-    const tf = this.tf!;
-    const { decodeJpeg } = await import('@tensorflow/tfjs-react-native');
+    const topIdx    = probs.indexOf(Math.max(...probs));
+    const className = LABELS[String(topIdx)] ?? `class_${topIdx}`;
+    const info      = CLASS_INFO[className] ?? CLASS_INFO['soybean-leaf'];
+    const display   = className.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
-    // Lê a imagem como base64
-    const base64 = await FileSystem.readAsStringAsync(uri, {
-      encoding: FileSystem.EncodingType.Base64,
-    });
-
-    // Decodifica JPEG → tensor [H, W, 3]
-    const rawBytes = tf.util.encodeString(base64, 'base64') as Uint8Array;
-    const decoded  = decodeJpeg(rawBytes, 3);
-
-    // Redimensiona para 224×224, normaliza e adiciona dimensão de batch
-    const resized     = tf.image.resizeBilinear(decoded as import('@tensorflow/tfjs').Tensor3D, [INPUT_SIZE, INPUT_SIZE]);
-    const normalized  = tf.div(resized, 255.0);
-    const batched     = normalized.expandDims(0) as import('@tensorflow/tfjs').Tensor4D;
-
-    decoded.dispose();
-    resized.dispose();
-    normalized.dispose();
-
-    return batched;
-  }
-
-  private simulatePredict(startTime: number): PredictionResult {
-    const classes = Object.values(SPECIES_INFO);
-    const picked  = classes[Math.floor(Math.random() * classes.length)];
     return {
-      result: picked.name,
-      confidence: 0.85 + Math.random() * 0.12,
-      description: `[SIMULADO] ${picked.description}`,
-      recommendations: picked.recommendations,
-      processingTime: Date.now() - startTime,
+      result:          display,
+      confidence:      probs[topIdx],
+      description:     info.description,
+      recommendations: info.recommendations,
+      processingTime:  Date.now() - t0,
     };
   }
 
   isModelLoaded(_modelType: string): boolean {
-    return this.isInitialized;
+    return this.ready;
   }
 
-  getStatus(): Record<string, boolean> {
+  getStatus() {
     return {
-      initialized: this.isInitialized,
-      realModel: !this.usingFallback && this.model !== null,
-      fallback: this.usingFallback,
+      ready:   this.ready,
+      backend: tf.getBackend() ?? 'não inicializado',
+      classes: Object.keys(LABELS).length,
     };
   }
 }
 
-let tfliteService: TFLiteService | null = null;
+let instance: TFLiteService | null = null;
 
 export async function getTFLiteService(): Promise<TFLiteService> {
-  if (!tfliteService) {
-    tfliteService = new TFLiteService();
-    await tfliteService.init();
+  if (!instance) {
+    instance = new TFLiteService();
+    await instance.init();
   }
-  return tfliteService;
+  return instance;
 }
 
 export default TFLiteService;

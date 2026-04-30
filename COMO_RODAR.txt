@@ -1,0 +1,42 @@
+== COMO RODAR O AGROVISION ==
+
+PRÉ-REQUISITO: estar na pasta do projeto
+  cd C:\Users\Auvo\Desktop\Luiz\Agrovision
+
+
+--- 1. BACKEND XAI (Grad-CAM) ---
+
+Abra um terminal e rode:
+
+  cd agrovision-ml-service
+  venv_agro\Scripts\activate
+  uvicorn api.server:app --host 0.0.0.0 --port 5000 --reload
+
+Deixe esse terminal aberto.
+
+
+--- 2. APP (Expo) ---
+
+Abra outro terminal e rode:
+
+  npx expo start
+
+Escaneie o QR code com o Expo Go no celular.
+Celular e PC precisam estar na mesma rede Wi-Fi.
+
+
+--- 3. CONECTAR APP AO BACKEND ---
+
+Antes do "npx expo start", descubra o IP da sua máquina:
+  ipconfig   (procure "Endereço IPv4", ex: 192.168.1.10)
+
+Depois rode:
+  set EXPO_PUBLIC_XAI_URL=http://192.168.1.10:5000
+  npx expo start
+
+
+--- RESUMO ---
+
+Terminal 1  →  backend Python (porta 5000)
+Terminal 2  →  app Expo (QR code)
+Celular     →  Expo Go escaneando o QR

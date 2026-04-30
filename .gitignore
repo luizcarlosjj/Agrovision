@@ -64,12 +64,14 @@ agrovision-ml-service/**/__pycache__/
 agrovision-ml-service/**/*.pyc
 agrovision-ml-service/.pytest_cache/
 
-# Modelos treinados (grandes, gerados pelo treino)
-agrovision-ml-service/*.keras
-agrovision-ml-service/*.h5
+# Modelos treinados intermediários (experimentos)
+experiments/**/*.keras
+experiments/**/*.h5
+experiments/**/*.tflite
 agrovision-ml-service/*.tflite
 agrovision-ml-service/*.pb
 agrovision-ml-service/*.ckpt
+# model_species.keras é incluído no repo — necessário para deploy no Railway
 
 # Assets intermediários do gerador de PDF (regeneráveis)
 docs/_assets/
