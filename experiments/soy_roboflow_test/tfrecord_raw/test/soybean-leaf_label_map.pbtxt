@@ -1,0 +1,20 @@
+item {
+    name: "frog_eye",
+    id: 1,
+    display_name: "frog_eye"
+}
+item {
+    name: "healthy",
+    id: 2,
+    display_name: "healthy"
+}
+item {
+    name: "soybean-leaf",
+    id: 3,
+    display_name: "soybean-leaf"
+}
+item {
+    name: "target_spot",
+    id: 4,
+    display_name: "target_spot"
+}
