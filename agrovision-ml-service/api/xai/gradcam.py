@@ -13,7 +13,7 @@ from typing import Optional, Tuple
 
 import numpy as np
 import tensorflow as tf
-from tensorflow import keras
+import tf_keras as keras
 
 
 def _find_layer(model: keras.Model, name: str) -> keras.layers.Layer:
