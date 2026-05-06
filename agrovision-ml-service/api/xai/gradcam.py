@@ -54,62 +54,19 @@ def _build_grad_model(
     model: keras.Model, target_layer: keras.layers.Layer
 ) -> keras.Model:
     """
-    Build a sub-model exposing (feature_maps_of_target_layer, model_output)
-    given a single input tensor. Handles the case where the target layer is
-    inside a nested sub-model (common with MobileNetV2 embedded as a block).
+    Build a sub-model exposing (feature_maps_of_target_layer, model_output).
+    Works for both flat and nested functional-API Keras models.
     """
-    # Case 1: target layer is a direct top-level layer.
-    if target_layer in model.layers:
+    try:
         return keras.Model(
             inputs=model.inputs,
             outputs=[target_layer.output, model.output],
         )
-
-    # Case 2: target layer lives inside a nested sub-model.
-    # Find the parent sub-model that owns it.
-    parent: Optional[keras.Model] = None
-    for layer in model.layers:
-        if isinstance(layer, keras.Model):
-            if target_layer in layer.layers:
-                parent = layer
-                break
-    if parent is None:
+    except Exception as exc:
         raise RuntimeError(
-            f"Could not locate parent sub-model for layer '{target_layer.name}'"
-        )
-
-    # Build a sub-model of the parent that outputs the target feature maps.
-    feature_extractor = keras.Model(
-        inputs=parent.inputs,
-        outputs=target_layer.output,
-        name=f"feat_extractor_{target_layer.name}",
-    )
-
-    # Recreate the forward pass: inputs -> (top-level layers until parent)
-    # -> parent/feature_extractor -> (remaining top-level layers).
-    inputs = model.inputs
-    x = inputs[0] if isinstance(inputs, list) and len(inputs) == 1 else inputs
-    feature_maps = None
-    passed_parent = False
-    for layer in model.layers:
-        if layer is parent:
-            feature_maps = feature_extractor(x)
-            x = layer(x)
-            passed_parent = True
-            continue
-        # Skip the InputLayer (it's already `inputs`)
-        if isinstance(layer, keras.layers.InputLayer):
-            continue
-        if not passed_parent:
-            # Pre-parent layers may include things like a preprocessing Lambda.
-            x = layer(x)
-        else:
-            x = layer(x)
-
-    if feature_maps is None:
-        raise RuntimeError("Failed to re-route through parent sub-model")
-
-    return keras.Model(inputs=model.inputs, outputs=[feature_maps, x])
+            f"Cannot build Grad-CAM model for layer '{target_layer.name}': {exc}. "
+            "Try specifying a top-level conv layer via layer_name."
+        ) from exc
 
 
 def generate_gradcam(
