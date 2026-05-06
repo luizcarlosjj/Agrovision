@@ -21,7 +21,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { v4 as uuidv4 } from 'uuid';
+const genId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
 import { SafeAreaWrapper, Button, HeatmapOverlay, MetricsPanel } from '@components';
 import { Header } from '@components/common/Header';
@@ -107,7 +107,7 @@ export function TestModeScreen() {
       });
       if (res.canceled) return;
       const entries: RunEntry[] = res.assets.map((a) => ({
-        id: uuidv4(),
+        id: genId(),
         imageUri: a.uri,
         status: 'pending',
         label: 'nao_classificada',
