@@ -93,25 +93,29 @@ export function TestModeScreen() {
   }, [refreshHealth, refreshHistoryCount]);
 
   const pickImages = useCallback(async () => {
-    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) {
-      Alert.alert('Permissão negada', 'Conceda acesso à galeria para continuar.');
-      return;
+    try {
+      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) {
+        Alert.alert('Permissão negada', 'Conceda acesso à galeria para continuar.');
+        return;
+      }
+      const res = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'] as any,
+        allowsMultipleSelection: true,
+        selectionLimit: 20,
+        quality: 0.9,
+      });
+      if (res.canceled) return;
+      const entries: RunEntry[] = res.assets.map((a) => ({
+        id: uuidv4(),
+        imageUri: a.uri,
+        status: 'pending',
+        label: 'nao_classificada',
+      }));
+      setRuns((prev) => [...entries, ...prev]);
+    } catch (err: any) {
+      Alert.alert('Erro ao abrir galeria', err?.message ?? 'Erro desconhecido');
     }
-    const res = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsMultipleSelection: true,
-      selectionLimit: 20,
-      quality: 0.9,
-    });
-    if (res.canceled) return;
-    const entries: RunEntry[] = res.assets.map((a) => ({
-      id: uuidv4(),
-      imageUri: a.uri,
-      status: 'pending',
-      label: 'nao_classificada',
-    }));
-    setRuns((prev) => [...entries, ...prev]);
   }, []);
 
   const runOne = useCallback(
