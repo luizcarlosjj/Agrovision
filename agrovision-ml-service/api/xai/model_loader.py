@@ -16,10 +16,10 @@ import tf_keras as keras
 
 
 DEFAULT_MODEL_CANDIDATES = [
-    Path("model_species.keras"),
     Path("model_species.h5"),
-    Path("../model_species.keras"),
+    Path("model_species.keras"),
     Path("../model_species.h5"),
+    Path("../model_species.keras"),
 ]
 
 DEFAULT_LABELS_CANDIDATES = [

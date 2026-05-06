@@ -71,7 +71,7 @@ experiments/**/*.tflite
 agrovision-ml-service/*.tflite
 agrovision-ml-service/*.pb
 agrovision-ml-service/*.ckpt
-# model_species.keras é incluído no repo — necessário para deploy no Railway
+# model_species.keras e model_species.h5 são incluídos no repo — necessários para deploy no Railway
 
 # Assets intermediários do gerador de PDF (regeneráveis)
 docs/_assets/
