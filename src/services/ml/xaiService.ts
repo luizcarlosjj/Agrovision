@@ -18,7 +18,7 @@ import {
 } from '@models/xai';
 import { logger } from '@utils/logger';
 
-const DEFAULT_XAI_URL = 'http://localhost:5000';
+const DEFAULT_XAI_URL = 'https://agrovision-production-bdc3.up.railway.app';
 const XAI_TIMEOUT_MS = 60_000;
 
 function resolveBaseUrl(): string {
