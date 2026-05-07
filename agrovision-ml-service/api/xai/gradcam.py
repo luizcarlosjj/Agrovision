@@ -55,18 +55,80 @@ def _build_grad_model(
 ) -> keras.Model:
     """
     Build a sub-model exposing (feature_maps_of_target_layer, model_output).
-    Works for both flat and nested functional-API Keras models.
+
+    When the target layer is inside a nested sub-model (e.g. Conv_1 inside
+    MobileNetV2), a naïve keras.Model(outer_inputs, [conv.output, outer.output])
+    creates two disconnected graph paths — GradientTape then returns None for
+    the gradient.  The fix: build a single inner_grad model that outputs BOTH
+    the feature maps AND the sub-model output in one forward pass, then wire
+    that into a reconstructed outer model so feature_maps → predictions is one
+    connected computation.
     """
+    # Case 1: target layer is directly inside the top-level model.
+    if any(layer is target_layer for layer in model.layers):
+        try:
+            return keras.Model(
+                inputs=model.inputs,
+                outputs=[target_layer.output, model.output],
+            )
+        except Exception as exc:
+            raise RuntimeError(
+                f"Cannot build Grad-CAM model for layer '{target_layer.name}': {exc}. "
+                "Try specifying a different conv layer via layer_name."
+            ) from exc
+
+    # Case 2: target layer lives inside a nested sub-model (common with
+    # MobileNetV2 embedded as a block).  Find the immediate parent sub-model.
+    parent: Optional[keras.Model] = None
+    for layer in model.layers:
+        if isinstance(layer, keras.Model):
+            if any(l is target_layer for l in layer.layers):
+                parent = layer
+                break
+
+    if parent is None:
+        raise RuntimeError(
+            f"Layer '{target_layer.name}' not found at the top level or inside any "
+            "direct sub-model.  Try specifying a top-level layer via layer_name."
+        )
+
+    # Build an inner grad model that, in ONE forward pass, outputs both the
+    # target feature maps and the parent sub-model's final output.
     try:
-        return keras.Model(
-            inputs=model.inputs,
-            outputs=[target_layer.output, model.output],
+        inner_grad = keras.Model(
+            inputs=parent.inputs,
+            outputs=[target_layer.output, parent.output],
         )
     except Exception as exc:
         raise RuntimeError(
-            f"Cannot build Grad-CAM model for layer '{target_layer.name}': {exc}. "
-            "Try specifying a top-level conv layer via layer_name."
+            f"Cannot build inner grad model for layer '{target_layer.name}': {exc}"
         ) from exc
+
+    # Reconstruct the outer forward pass symbolically, substituting the parent
+    # sub-model with inner_grad so that feature_maps flows into predictions.
+    x: keras.backend.KerasTensor = (
+        model.inputs[0] if len(model.inputs) == 1 else model.inputs
+    )
+    feature_maps_sym = None
+
+    for layer in model.layers:
+        if isinstance(layer, keras.layers.InputLayer):
+            continue
+        if layer is parent:
+            feature_maps_sym, x = inner_grad(x)
+        else:
+            x = layer(x)
+
+    if feature_maps_sym is None:
+        raise RuntimeError(
+            f"Sub-model '{parent.name}' was not encountered while reconstructing "
+            "the outer forward pass."
+        )
+
+    try:
+        return keras.Model(inputs=model.inputs, outputs=[feature_maps_sym, x])
+    except Exception as exc:
+        raise RuntimeError(f"Cannot build outer Grad-CAM model: {exc}") from exc
 
 
 def generate_gradcam(
