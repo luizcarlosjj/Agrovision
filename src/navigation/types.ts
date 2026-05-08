@@ -27,6 +27,7 @@ export type RootStackParamList = {
   AuditarModelo: {
     imageUri: string;
     prediction: string;
+    classKey: string;
     confidence: number;
   };
   TestMode: undefined;

@@ -12,6 +12,7 @@ export interface Analysis {
   id: string;
   type: AnalysisType;
   result: string;
+  classKey: string;
   confidence: number;
   description: string;
   recommendations: string[];

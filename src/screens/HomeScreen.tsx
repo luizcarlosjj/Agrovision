@@ -58,22 +58,6 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
           </View>
         </TouchableOpacity>
 
-        {/* ── Scientific Mode ── */}
-        <TouchableOpacity
-          activeOpacity={0.82}
-          onPress={() => navigation.navigate('TestMode')}
-          style={styles.sciCard}
-        >
-          <View style={styles.sciIconWrap}>
-            <Text style={styles.sciEmoji}>🔬</Text>
-          </View>
-          <View style={styles.sciText}>
-            <Text style={styles.sciTitle}>Modo Científico (lote)</Text>
-            <Text style={styles.sciDesc}>Grad-CAM em múltiplas imagens + exportação CSV</Text>
-          </View>
-          <Text style={styles.sciArrow}>›</Text>
-        </TouchableOpacity>
-
         {/* ── How it works ── */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Como funciona</Text>
@@ -213,52 +197,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: FONT_BASE,
     letterSpacing: 0.3,
-  },
-
-  sciCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.SURFACE,
-    borderRadius: RADIUS_LG,
-    padding: SPACING_MD,
-    gap: SPACING_MD,
-    borderWidth: 1,
-    borderColor: COLORS.BORDER,
-    shadowColor: '#1C2B22',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-  sciIconWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: '#EDE7F6',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sciEmoji: {
-    fontSize: 24,
-  },
-  sciText: {
-    flex: 1,
-  },
-  sciTitle: {
-    fontSize: FONT_BASE,
-    fontWeight: '700',
-    color: COLORS.TEXT_PRIMARY,
-  },
-  sciDesc: {
-    fontSize: FONT_SM,
-    color: COLORS.TEXT_SECONDARY,
-    marginTop: 2,
-    lineHeight: 18,
-  },
-  sciArrow: {
-    fontSize: 24,
-    color: COLORS.TEXT_SECONDARY,
-    fontWeight: '300',
   },
 
   section: {

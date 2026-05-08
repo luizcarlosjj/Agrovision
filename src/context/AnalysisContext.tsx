@@ -108,6 +108,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
           id: classifyResult.id,
           type: classifyResult.type as AnalysisType,
           result: classifyResult.result,
+          classKey: classifyResult.classKey,
           confidence: classifyResult.confidence,
           description: classifyResult.description,
           recommendations: classifyResult.recommendations,

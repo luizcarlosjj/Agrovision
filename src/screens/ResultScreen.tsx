@@ -105,6 +105,7 @@ export function ResultScreen({ route, navigation }: ResultScreenProps) {
             onPress={() => navigation.navigate('AuditarModelo', {
               imageUri: analysis.imageUri,
               prediction: analysis.result,
+              classKey: analysis.classKey,
               confidence: analysis.confidence,
             })}
           >

@@ -21,7 +21,7 @@ import { Header } from '@components/common/Header';
 import { analyzeWithXAIWS, XAIProgressCallback } from '@services/ml/xaiService';
 import { databaseService } from '@services/storage';
 import { BBoxStrategy, FramingLabel, XAIResult } from '@models';
-import { COLORS, SPACING_LG, SPACING_MD, SPACING_SM, RADIUS_MD, FONT_BASE, FONT_SM, FONT_LG } from '@utils/constants';
+import { COLORS, SPACING_LG, SPACING_MD, SPACING_SM, RADIUS_MD, RADIUS_LG, FONT_BASE, FONT_SM, FONT_LG } from '@utils/constants';
 import { logger } from '@utils/logger';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@navigation/types';
@@ -46,7 +46,7 @@ const LABEL_OPTIONS: { value: FramingLabel; label: string; color: string }[] = [
 ];
 
 export function AuditarModeloScreen({ route, navigation }: Props) {
-  const { imageUri, prediction, confidence } = route.params;
+  const { imageUri, prediction, classKey, confidence } = route.params;
 
   const [status,   setStatus]   = useState<'running' | 'done' | 'error'>('running');
   const [step,     setStep]     = useState('Conectando ao backend...');
@@ -76,7 +76,7 @@ export function AuditarModeloScreen({ route, navigation }: Props) {
           bboxStrategy: 'fixed' as BBoxStrategy,
           threshold: 0.5,
           coverage: 0.8,
-          predictedClass: prediction,
+          predictedClass: classKey,
         },
         onProgress,
       );
@@ -166,7 +166,15 @@ export function AuditarModeloScreen({ route, navigation }: Props) {
             overlayB64={result.overlayB64}
           />
 
-          <MetricsPanel result={result} />
+          <MetricsPanel
+            prediction={result.prediction}
+            confidence={result.confidence}
+            al={result.al}
+            afs={result.afs}
+            processingTimeMs={result.processingTimeMs}
+            bboxStrategy={result.bboxStrategy}
+            layerUsed={result.layerUsed}
+          />
 
           {/* Rótulo de enquadramento */}
           <View style={styles.labelSection}>

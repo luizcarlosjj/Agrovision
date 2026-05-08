@@ -21,6 +21,7 @@ import * as jpeg from 'jpeg-js';
 
 export interface PredictionResult {
   result: string;
+  classKey: string;
   confidence: number;
   description: string;
   recommendations: string[];
@@ -39,8 +40,9 @@ const LABELS: Labels = require('../../../assets/models/labels_species.json');
 const INPUT_SIZE = 224;
 
 // ─── Descrições por classe ───────────────────────────────────────────────────
-const CLASS_INFO: Record<string, { description: string; recommendations: string[] }> = {
+const CLASS_INFO: Record<string, { label: string; description: string; recommendations: string[] }> = {
   healthy: {
+    label: 'Soja Saudável',
     description: 'Folha de soja saudável, sem sinais visíveis de doença ou estresse.',
     recommendations: [
       'Manter monitoramento regular da lavoura',
@@ -49,6 +51,7 @@ const CLASS_INFO: Record<string, { description: string; recommendations: string[
     ],
   },
   frog_eye: {
+    label: 'Olho-de-Rã',
     description: 'Olho-de-rã (Cercospora sojina): lesões circulares com centro cinza e bordas marrons.',
     recommendations: [
       'Aplicar fungicida à base de trifloxistrobina + protioconazol',
@@ -58,6 +61,7 @@ const CLASS_INFO: Record<string, { description: string; recommendations: string[
     ],
   },
   target_spot: {
+    label: 'Mancha-Alvo',
     description: 'Mancha-alvo (Corynespora cassiicola): lesões concêntricas causadas por fungo.',
     recommendations: [
       'Aplicar fungicida preventivo antes do fechamento das linhas',
@@ -67,6 +71,7 @@ const CLASS_INFO: Record<string, { description: string; recommendations: string[
     ],
   },
   'soybean-leaf': {
+    label: 'Folha de Soja',
     description: 'Folha de soja identificada. Verifique sinais de doença ou estresse hídrico.',
     recommendations: [
       'Inspecionar visualmente toda a planta',
@@ -205,10 +210,10 @@ class TFLiteService {
     const topIdx    = probs.indexOf(Math.max(...probs));
     const className = LABELS[String(topIdx)] ?? `class_${topIdx}`;
     const info      = CLASS_INFO[className] ?? CLASS_INFO['soybean-leaf'];
-    const display   = className.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
     return {
-      result:          display,
+      result:          info.label,
+      classKey:        className,
       confidence:      probs[topIdx],
       description:     info.description,
       recommendations: info.recommendations,

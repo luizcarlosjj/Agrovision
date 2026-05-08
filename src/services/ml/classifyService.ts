@@ -28,6 +28,7 @@ export interface ClassifyResult {
   id: string;
   type: string;
   result: string;
+  classKey: string;
   confidence: number;
   description: string;
   recommendations: string[];
@@ -40,8 +41,9 @@ export type ProgressCallback = (step: string, pct: number) => void;
 
 // ─── Descrições e recomendações por classe (mesmo conteúdo do tfliteService) ─
 
-const CLASS_INFO: Record<string, { description: string; recommendations: string[] }> = {
+const CLASS_INFO: Record<string, { label: string; description: string; recommendations: string[] }> = {
   healthy: {
+    label: 'Soja Saudável',
     description: 'Folha de soja saudável, sem sinais visíveis de doença ou estresse.',
     recommendations: [
       'Manter monitoramento regular da lavoura',
@@ -50,6 +52,7 @@ const CLASS_INFO: Record<string, { description: string; recommendations: string[
     ],
   },
   frog_eye: {
+    label: 'Olho-de-Rã',
     description: 'Olho-de-rã (Cercospora sojina): lesões circulares com centro cinza e bordas marrons.',
     recommendations: [
       'Aplicar fungicida à base de trifloxistrobina + protioconazol',
@@ -59,6 +62,7 @@ const CLASS_INFO: Record<string, { description: string; recommendations: string[
     ],
   },
   target_spot: {
+    label: 'Mancha-Alvo',
     description: 'Mancha-alvo (Corynespora cassiicola): lesões com anéis concêntricos.',
     recommendations: [
       'Aplicar fungicida à base de azoxistrobina + benzovindiflupir',
@@ -68,6 +72,7 @@ const CLASS_INFO: Record<string, { description: string; recommendations: string[
     ],
   },
   'soybean-leaf': {
+    label: 'Folha de Soja',
     description: 'Folha de soja identificada. Análise visual não detectou doença específica.',
     recommendations: [
       'Manter monitoramento regular',
@@ -133,7 +138,8 @@ async function classifyViaRailway(
           resolve({
             id: genId(),
             type: analysisType,
-            result: msg.prediction,
+            result: info.label,
+            classKey: msg.prediction,
             confidence: msg.confidence,
             description: info.description,
             recommendations: info.recommendations,
@@ -189,6 +195,7 @@ export async function classify(
       id: genId(),
       type: analysisType,
       result: tflite.result,
+      classKey: tflite.classKey,
       confidence: tflite.confidence,
       description: tflite.description,
       recommendations: tflite.recommendations,
