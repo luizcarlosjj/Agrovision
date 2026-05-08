@@ -13,6 +13,7 @@ import {
   CameraScreen,
   ProcessingScreen,
   ResultScreen,
+  AuditarModeloScreen,
   InstitutionalScreen,
   CategoryScreen,
   ArticleScreen,
@@ -79,10 +80,19 @@ function AnalysisNavigator() {
       />
 
       <Stack.Screen
+        name="AuditarModelo"
+        component={AuditarModeloScreen}
+        options={{
+          title: 'Auditar Modelo',
+          animationEnabled: true,
+        }}
+      />
+
+      <Stack.Screen
         name="TestMode"
         component={TestModeScreen}
         options={{
-          title: 'Modo Científico',
+          title: 'Modo Científico (lote)',
         }}
       />
     </Stack.Navigator>

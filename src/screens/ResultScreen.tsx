@@ -91,10 +91,25 @@ export function ResultScreen({ route, navigation }: ResultScreenProps) {
 
       {/* Action Buttons */}
       <View style={styles.actionsContainer}>
+        {/* Botão principal: Auditar Modelo (Grad-CAM) */}
+        <Button
+          title="🔬  Auditar Modelo (Grad-CAM)"
+          onPress={() =>
+            navigation.navigate('AuditarModelo', {
+              imageUri: analysis.imageUri,
+              prediction: analysis.result,
+              confidence: analysis.confidence,
+            })
+          }
+          variant="primary"
+          size="lg"
+          fullWidth
+          style={styles.button}
+        />
         <Button
           title="📷  Fazer Nova Análise"
           onPress={() => navigation.popToTop()}
-          variant="primary"
+          variant="secondary"
           size="lg"
           fullWidth
           style={styles.button}
@@ -102,7 +117,7 @@ export function ResultScreen({ route, navigation }: ResultScreenProps) {
         <Button
           title="← Voltar ao Menu"
           onPress={() => navigation.popToTop()}
-          variant="secondary"
+          variant="outline"
           size="lg"
           fullWidth
           style={styles.button}

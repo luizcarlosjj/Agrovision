@@ -5,7 +5,8 @@
 
 import React, { createContext, useContext, useReducer, ReactNode, useCallback } from 'react';
 import { Analysis, AnalysisAction, AnalysisState, AnalysisType } from '@models';
-import { analysisService, databaseService } from '@services';
+import { databaseService } from '@services';
+import { classify } from '@services/ml/classifyService';
 import { logger } from '@utils/logger';
 
 /**
@@ -100,13 +101,19 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
 
         logger.log(`[AnalysisContext] Starting analysis: ${type}`);
 
-        // Call analysis service
-        const analysisResult = await analysisService.analyzeImage(imageUri, type);
+        // Online-first: Railway WS → TFLite fallback
+        const classifyResult = await classify(imageUri, type);
 
-        // Create full analysis object with metadata
         const analysis: Analysis = {
-          ...analysisResult,
+          id: classifyResult.id,
+          type: classifyResult.type as AnalysisType,
+          result: classifyResult.result,
+          confidence: classifyResult.confidence,
+          description: classifyResult.description,
+          recommendations: classifyResult.recommendations,
           imageUri,
+          timestamp: classifyResult.timestamp,
+          processingTime: classifyResult.processingTime,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };

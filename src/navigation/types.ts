@@ -23,6 +23,12 @@ export type RootStackParamList = {
   Result: {
     analysis: Analysis;
   };
+  /** Modo Científico inline — acesso via botão "Auditar Modelo" na ResultScreen. */
+  AuditarModelo: {
+    imageUri: string;
+    prediction: string;
+    confidence: number;
+  };
   TestMode: undefined;
   InstitutionalHome: undefined;
   InstitutionalCategory: {
@@ -41,6 +47,7 @@ export type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'>
 export type CameraScreenProps = NativeStackScreenProps<RootStackParamList, 'Camera'>;
 export type ProcessingScreenProps = NativeStackScreenProps<RootStackParamList, 'Processing'>;
 export type ResultScreenProps = NativeStackScreenProps<RootStackParamList, 'Result'>;
+export type AuditarModeloScreenProps = NativeStackScreenProps<RootStackParamList, 'AuditarModelo'>;
 export type TestModeScreenProps = NativeStackScreenProps<RootStackParamList, 'TestMode'>;
 
 /**

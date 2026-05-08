@@ -27,6 +27,8 @@ export interface XAIRequest {
   threshold?: number;
   coverage?: number;
   layerName?: string;
+  /** Classe predita (do classificador) passada ao Grad-CAM como alvo. */
+  predictedClass?: string;
 }
 
 /**
