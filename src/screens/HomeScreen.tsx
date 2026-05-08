@@ -17,7 +17,6 @@ import {
   FONT_SM,
   FONT_XS,
   RADIUS_LG,
-  RADIUS_MD,
   RADIUS_XL,
   UI,
 } from '@utils/constants';
@@ -73,14 +72,6 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
           </View>
         </View>
 
-        {/* ── Info strip ── */}
-        <View style={styles.infoStrip}>
-          <InfoChip emoji="🤖" text="IA Roboflow" />
-          <View style={styles.infoDivider} />
-          <InfoChip emoji="📊" text="Grad-CAM XAI" />
-          <View style={styles.infoDivider} />
-          <InfoChip emoji="📱" text="Offline fallback" />
-        </View>
       </View>
     </SafeAreaWrapper>
   );
@@ -91,15 +82,6 @@ const STEPS = [
   { emoji: '🧠', label: 'IA analisa\na imagem' },
   { emoji: '📋', label: 'Receba o\ndiagnóstico' },
 ];
-
-function InfoChip({ emoji, text }: { emoji: string; text: string }) {
-  return (
-    <View style={styles.infoChip}>
-      <Text style={styles.infoChipEmoji}>{emoji}</Text>
-      <Text style={styles.infoChipText}>{text}</Text>
-    </View>
-  );
-}
 
 const styles = StyleSheet.create({
   brandHeader: {
@@ -242,34 +224,4 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 
-  infoStrip: {
-    flexDirection: 'row',
-    backgroundColor: COLORS.SURFACE_2,
-    borderRadius: RADIUS_MD,
-    padding: SPACING_MD,
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    borderWidth: 1,
-    borderColor: COLORS.BORDER,
-    marginBottom: SPACING_SM,
-  },
-  infoChip: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  infoChipEmoji: {
-    fontSize: 20,
-    marginBottom: 4,
-  },
-  infoChipText: {
-    fontSize: FONT_XS,
-    color: COLORS.PRIMARY,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  infoDivider: {
-    width: 1,
-    height: 32,
-    backgroundColor: COLORS.BORDER,
-  },
 });

@@ -16,6 +16,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 import { SafeAreaWrapper, HeatmapOverlay, MetricsPanel } from '@components';
 import { Header } from '@components/common/Header';
 import { analyzeWithXAIWS, XAIProgressCallback } from '@services/ml/xaiService';
@@ -122,6 +124,52 @@ export function AuditarModeloScreen({ route, navigation }: Props) {
     }
   }, [result, imageUri, label]);
 
+  const handleExport = useCallback(async () => {
+    if (!result) return;
+    try {
+      const isAvailable = await Sharing.isAvailableAsync();
+      if (!isAvailable) {
+        Alert.alert('Indisponível', 'Compartilhamento não está disponível neste dispositivo.');
+        return;
+      }
+
+      // Salva overlay como PNG temporário
+      const tmpPath = `${FileSystem.cacheDirectory}agrovision_gradcam_${Date.now()}.png`;
+      await FileSystem.writeAsStringAsync(tmpPath, result.overlayB64, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      // Gera relatório de texto junto ao arquivo
+      const report = [
+        '=== AgroVision — Relatório Grad-CAM ===',
+        `Data: ${new Date().toLocaleString('pt-BR')}`,
+        '',
+        `Predição: ${result.prediction}`,
+        `Confiança: ${(result.confidence * 100).toFixed(1)}%`,
+        '',
+        `AL (Atenção Extravasada): ${(result.al * 100).toFixed(1)}%`,
+        `AFS (Foco na Área): ${(result.afs * 100).toFixed(1)}%`,
+        `Threshold: ${result.threshold}`,
+        `Estratégia BBox: ${result.bboxStrategy}`,
+        `Camada usada: ${result.layerUsed}`,
+        `Tempo de processamento: ${result.processingTimeMs}ms`,
+        `Enquadramento: ${label}`,
+      ].join('\n');
+
+      const reportPath = `${FileSystem.cacheDirectory}agrovision_relatorio_${Date.now()}.txt`;
+      await FileSystem.writeAsStringAsync(reportPath, report, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+
+      await Sharing.shareAsync(tmpPath, {
+        mimeType: 'image/png',
+        dialogTitle: 'Exportar resultado Grad-CAM',
+      });
+    } catch (err: any) {
+      Alert.alert('Erro ao exportar', err?.message ?? 'Não foi possível exportar o resultado.');
+    }
+  }, [result, label]);
+
   return (
     <SafeAreaWrapper scrollable>
       <Header title="Auditar Modelo (Grad-CAM)" />
@@ -197,7 +245,7 @@ export function AuditarModeloScreen({ route, navigation }: Props) {
             </View>
           </View>
 
-          {/* Botão salvar */}
+          {/* Botão salvar / exportar */}
           {!saved ? (
             <TouchableOpacity
               style={[styles.saveBtn, saving && styles.saveBtnDisabled]}
@@ -210,8 +258,13 @@ export function AuditarModeloScreen({ route, navigation }: Props) {
               }
             </TouchableOpacity>
           ) : (
-            <View style={styles.savedBadge}>
-              <Text style={styles.savedText}>✅  Salvo no histórico científico</Text>
+            <View style={styles.savedActions}>
+              <View style={styles.savedBadge}>
+                <Text style={styles.savedText}>✅  Salvo no histórico científico</Text>
+              </View>
+              <TouchableOpacity style={styles.exportBtn} onPress={handleExport}>
+                <Text style={styles.exportBtnText}>📤  Exportar resultado</Text>
+              </TouchableOpacity>
             </View>
           )}
         </>
@@ -307,16 +360,28 @@ const styles = StyleSheet.create({
   saveBtnDisabled: { opacity: 0.5 },
   saveBtnText: { color: '#FFF', fontWeight: '700', fontSize: FONT_BASE },
 
+  savedActions: {
+    marginTop: SPACING_LG,
+    gap: SPACING_SM,
+  },
   savedBadge: {
     backgroundColor: COLORS.SURFACE_2,
     borderRadius: RADIUS_LG,
     paddingVertical: SPACING_MD,
     alignItems: 'center',
-    marginTop: SPACING_LG,
     borderWidth: 1,
     borderColor: COLORS.BORDER,
   },
   savedText: { color: COLORS.PRIMARY, fontWeight: '700', fontSize: FONT_BASE },
+  exportBtn: {
+    backgroundColor: COLORS.SURFACE,
+    borderRadius: RADIUS_LG,
+    paddingVertical: 15,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: COLORS.PRIMARY,
+  },
+  exportBtnText: { color: COLORS.PRIMARY, fontWeight: '700', fontSize: FONT_BASE },
 
   backBtn: { alignItems: 'center', paddingVertical: SPACING_LG, marginTop: SPACING_SM },
   backText: { color: COLORS.TEXT_SECONDARY, fontSize: FONT_SM, fontWeight: '500' },
