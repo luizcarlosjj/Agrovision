@@ -50,7 +50,10 @@ def classify(image_bytes: bytes) -> dict:
     else:
         raise RuntimeError(f"Invalid ROBOFLOW_MODEL_ID format: {_MODEL_ID!r}")
 
-    url = f"https://classify.roboflow.com/{slug}/{version}?api_key={_API_KEY}"
+    if workspace:
+        url = f"https://classify.roboflow.com/{workspace}/{slug}/{version}?api_key={_API_KEY}"
+    else:
+        url = f"https://classify.roboflow.com/{slug}/{version}?api_key={_API_KEY}"
 
     resp = _requests.post(
         url,

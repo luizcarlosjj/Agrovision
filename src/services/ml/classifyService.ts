@@ -10,7 +10,7 @@
  */
 
 import * as FileSystem from 'expo-file-system';
-import { predict as tflitePredict } from './tfliteService';
+import { getTFLiteService } from './tfliteService';
 import { logger } from '@utils/logger';
 
 const BASE_URL   = (process.env.EXPO_PUBLIC_API_URL ?? 'https://agrovision-production-bdc3.up.railway.app').replace(/\/+$/, '');
@@ -192,7 +192,8 @@ export async function classify(
   } catch (err) {
     logger.warn('[ClassifyService] Railway failed, using TFLite fallback:', err);
     const t0 = Date.now();
-    const tflite = await tflitePredict(imageUri);
+    const svc = await getTFLiteService();
+    const tflite = await svc.predict(imageUri);
     return {
       id: genId(),
       type: analysisType,
