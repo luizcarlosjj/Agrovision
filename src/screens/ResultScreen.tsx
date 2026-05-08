@@ -94,7 +94,13 @@ export function ResultScreen({ route, navigation }: ResultScreenProps) {
         <View style={[styles.section, styles.metaSection]}>
           <MetaRow label="Tipo de análise" value={analysis.type} />
           <MetaRow label="Data" value={formatDateTime(analysis.timestamp)} />
-          <MetaRow label="Processamento" value={`${analysis.processingTime}ms`} last />
+          <MetaRow label="Processamento" value={`${analysis.processingTime}ms`} />
+          <MetaRow
+            label="Fonte"
+            value={analysis.source === 'railway' ? '🌐 Roboflow (online)' : '📱 TFLite (offline)'}
+            valueColor={analysis.source === 'railway' ? COLORS.SUCCESS : COLORS.WARNING}
+            last
+          />
         </View>
 
         {/* ── Actions ── */}
@@ -133,11 +139,11 @@ export function ResultScreen({ route, navigation }: ResultScreenProps) {
   );
 }
 
-function MetaRow({ label, value, last }: { label: string; value: string; last?: boolean }) {
+function MetaRow({ label, value, valueColor, last }: { label: string; value: string; valueColor?: string; last?: boolean }) {
   return (
     <View style={[styles.metaRow, last && styles.metaRowLast]}>
       <Text style={styles.metaLabel}>{label}</Text>
-      <Text style={styles.metaValue}>{value}</Text>
+      <Text style={[styles.metaValue, valueColor ? { color: valueColor } : undefined]}>{value}</Text>
     </View>
   );
 }

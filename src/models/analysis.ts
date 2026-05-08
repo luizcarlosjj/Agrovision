@@ -13,6 +13,7 @@ export interface Analysis {
   type: AnalysisType;
   result: string;
   classKey: string;
+  source: 'railway' | 'tflite';
   confidence: number;
   description: string;
   recommendations: string[];
