@@ -1,245 +1,337 @@
 /**
  * Home Screen
- * Main menu for selecting analysis type with colorful gradient cards
  */
 
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import { SafeAreaWrapper } from '@components';
 import { HomeScreenProps } from '@navigation/types';
 import {
-  ANALYSIS_DESCRIPTIONS,
   COLORS,
   SPACING_MD,
   SPACING_LG,
   SPACING_SM,
-  SPACING_XS,
+  SPACING_XL,
   FONT_2XL,
   FONT_XL,
   FONT_BASE,
   FONT_SM,
-  RADIUS_MD,
+  FONT_XS,
   RADIUS_LG,
+  RADIUS_MD,
+  RADIUS_XL,
+  UI,
 } from '@utils/constants';
-import { getAnalysisTypeLabel } from '@utils/format';
-
-// Cores e gradiente para identificação de espécie
-const SPECIES_COLOR = {
-  gradient: ['#E5F5E5', '#B3FFB3'],
-  accent: '#28A745',
-  textColor: '#1B6B2B',
-};
 
 export function HomeScreen({ navigation }: HomeScreenProps) {
-  const handleStartAnalysis = () => {
-    navigation.navigate('Camera', { analysisType: 'species' });
-  };
-
-  const handleOpenTestMode = () => {
-    navigation.navigate('TestMode');
-  };
-
   return (
-    <SafeAreaWrapper scrollable padding={SPACING_MD}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>🌾 AgroVision</Text>
-        <Text style={styles.subtitle}>Identificação de Espécies Vegetais</Text>
+    <SafeAreaWrapper scrollable padding={0}>
+      <StatusBar barStyle="dark-content" backgroundColor={COLORS.BACKGROUND} />
+
+      {/* ── Brand Header ── */}
+      <View style={styles.brandHeader}>
+        <View style={styles.logoWrap}>
+          <Text style={styles.logoEmoji}>🌾</Text>
+        </View>
+        <View>
+          <Text style={styles.brandName}>AgroVision</Text>
+          <Text style={styles.brandTagline}>Diagnóstico vegetal por IA</Text>
+        </View>
       </View>
 
-      {/* Main Card */}
-      <TouchableOpacity
-        activeOpacity={0.75}
-        onPress={handleStartAnalysis}
-        style={[
-          styles.mainCard,
-          {
-            backgroundColor: SPECIES_COLOR.gradient[0],
-            borderColor: SPECIES_COLOR.accent,
-          },
-        ]}
-      >
-        {/* Accent bar */}
-        <View style={[styles.accentBar, { backgroundColor: SPECIES_COLOR.accent }]} />
+      <View style={styles.content}>
+        {/* ── Main Action Card ── */}
+        <TouchableOpacity
+          activeOpacity={0.82}
+          onPress={() => navigation.navigate('Camera', { analysisType: 'species' })}
+          style={styles.mainCard}
+        >
+          <View style={styles.mainCardTopBar} />
+          <View style={styles.mainCardBody}>
+            <Text style={styles.mainCardEmoji}>🌱</Text>
+            <Text style={styles.mainCardTitle}>Identificar Espécie</Text>
+            <Text style={styles.mainCardDesc}>
+              Fotografe uma folha e a IA identifica a espécie, detecta doenças e sugere tratamento em segundos.
+            </Text>
+            <View style={styles.mainCardCta}>
+              <Text style={styles.mainCardCtaText}>Iniciar análise →</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
 
-        {/* Emoji */}
-        <Text style={styles.cardEmoji}>🌱</Text>
+        {/* ── Scientific Mode ── */}
+        <TouchableOpacity
+          activeOpacity={0.82}
+          onPress={() => navigation.navigate('TestMode')}
+          style={styles.sciCard}
+        >
+          <View style={styles.sciIconWrap}>
+            <Text style={styles.sciEmoji}>🔬</Text>
+          </View>
+          <View style={styles.sciText}>
+            <Text style={styles.sciTitle}>Modo Científico (lote)</Text>
+            <Text style={styles.sciDesc}>Grad-CAM em múltiplas imagens + exportação CSV</Text>
+          </View>
+          <Text style={styles.sciArrow}>›</Text>
+        </TouchableOpacity>
 
-        {/* Title */}
-        <Text style={[styles.cardTitle, { color: SPECIES_COLOR.textColor }]}>
-          Identificar Espécie
-        </Text>
-
-        {/* Description */}
-        <Text style={styles.cardDescription}>
-          {ANALYSIS_DESCRIPTIONS.species}
-        </Text>
-
-        {/* CTA Button */}
-        <View style={[styles.ctaButton, { backgroundColor: SPECIES_COLOR.accent }]}>
-          <Text style={styles.ctaButtonText}>Iniciar Análise</Text>
-        </View>
-      </TouchableOpacity>
-
-      {/* XAI / Scientific Mode entry */}
-      <TouchableOpacity
-        activeOpacity={0.75}
-        onPress={handleOpenTestMode}
-        style={styles.xaiCard}
-      >
-        <Text style={styles.xaiEmoji}>🔬</Text>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.xaiTitle}>Modo Científico (XAI)</Text>
-          <Text style={styles.xaiDescription}>
-            Grad-CAM + Attention Leakage para avaliar onde o modelo realmente olha.
-          </Text>
-        </View>
-        <Text style={styles.xaiArrow}>›</Text>
-      </TouchableOpacity>
-
-      {/* Info Cards */}
-      <View style={styles.infoSection}>
-        <View style={styles.infoCard}>
-          <Text style={styles.infoTitle}>📸 Como Usar</Text>
-          <Text style={styles.infoText}>
-            Tire uma foto clara da folha ou da planta em boa iluminação para obter melhores resultados.
-          </Text>
+        {/* ── How it works ── */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Como funciona</Text>
+          <View style={styles.stepsRow}>
+            {STEPS.map((s, i) => (
+              <View key={i} style={styles.stepItem}>
+                <View style={styles.stepCircle}>
+                  <Text style={styles.stepEmoji}>{s.emoji}</Text>
+                </View>
+                <Text style={styles.stepLabel}>{s.label}</Text>
+              </View>
+            ))}
+          </View>
         </View>
 
-        <View style={styles.infoCard}>
-          <Text style={styles.infoTitle}>✨ Recurso</Text>
-          <Text style={styles.infoText}>
-            100% offline - sem necessidade de conexão com internet para análise.
-          </Text>
+        {/* ── Info strip ── */}
+        <View style={styles.infoStrip}>
+          <InfoChip emoji="🤖" text="IA Roboflow" />
+          <View style={styles.infoDivider} />
+          <InfoChip emoji="📊" text="Grad-CAM XAI" />
+          <View style={styles.infoDivider} />
+          <InfoChip emoji="📱" text="Offline fallback" />
         </View>
       </View>
     </SafeAreaWrapper>
   );
 }
 
+const STEPS = [
+  { emoji: '📸', label: 'Fotografe\na folha' },
+  { emoji: '🧠', label: 'IA analisa\na imagem' },
+  { emoji: '📋', label: 'Receba o\ndiagnóstico' },
+];
+
+function InfoChip({ emoji, text }: { emoji: string; text: string }) {
+  return (
+    <View style={styles.infoChip}>
+      <Text style={styles.infoChipEmoji}>{emoji}</Text>
+      <Text style={styles.infoChipText}>{text}</Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  header: {
+  brandHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: SPACING_LG,
+    paddingHorizontal: SPACING_LG,
+    paddingTop: SPACING_LG,
+    paddingBottom: SPACING_MD,
+    backgroundColor: COLORS.SURFACE,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.BORDER,
+    gap: SPACING_MD,
   },
-  title: {
-    fontSize: FONT_2XL,
-    fontWeight: '700',
-    color: COLORS.PRIMARY,
-  },
-  subtitle: {
-    fontSize: FONT_BASE,
-    color: COLORS.TEXT_SECONDARY,
-    marginTop: SPACING_SM,
-  },
-  mainCard: {
-    borderRadius: RADIUS_LG,
-    borderWidth: 2,
-    padding: SPACING_LG,
+  logoWrap: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: COLORS.SURFACE_2,
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'hidden',
-    elevation: 6,
-    shadowColor: COLORS.BLACK,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    marginVertical: SPACING_LG,
-    minHeight: 280,
+    borderWidth: 1.5,
+    borderColor: COLORS.BORDER,
   },
-  accentBar: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 6,
+  logoEmoji: {
+    fontSize: 28,
   },
-  cardEmoji: {
-    fontSize: 64,
-    marginBottom: SPACING_MD,
-    marginTop: SPACING_MD,
-  },
-  cardTitle: {
+  brandName: {
     fontSize: FONT_XL,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: SPACING_SM,
+    fontWeight: '800',
+    color: COLORS.PRIMARY,
+    letterSpacing: -0.5,
   },
-  cardDescription: {
+  brandTagline: {
+    fontSize: FONT_XS,
+    color: COLORS.TEXT_SECONDARY,
+    marginTop: 2,
+    fontWeight: '500',
+  },
+
+  content: {
+    padding: SPACING_MD,
+    gap: SPACING_MD,
+  },
+
+  mainCard: {
+    backgroundColor: COLORS.SURFACE,
+    borderRadius: RADIUS_XL,
+    overflow: 'hidden',
+    shadowColor: COLORS.PRIMARY_DARK,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.14,
+    shadowRadius: 16,
+    elevation: 6,
+    marginTop: SPACING_SM,
+  },
+  mainCardTopBar: {
+    height: 5,
+    backgroundColor: COLORS.PRIMARY,
+  },
+  mainCardBody: {
+    padding: SPACING_LG,
+    alignItems: 'center',
+  },
+  mainCardEmoji: {
+    fontSize: 72,
+    marginBottom: SPACING_MD,
+  },
+  mainCardTitle: {
+    fontSize: FONT_2XL,
+    fontWeight: '800',
+    color: COLORS.TEXT_PRIMARY,
+    marginBottom: SPACING_SM,
+    letterSpacing: -0.5,
+  },
+  mainCardDesc: {
     fontSize: FONT_BASE,
     color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
-    marginBottom: SPACING_LG,
     lineHeight: 22,
+    marginBottom: SPACING_LG,
   },
-  ctaButton: {
-    borderRadius: RADIUS_MD,
-    paddingHorizontal: SPACING_LG,
-    paddingVertical: SPACING_MD,
-    alignItems: 'center',
+  mainCardCta: {
+    backgroundColor: COLORS.PRIMARY,
+    paddingHorizontal: SPACING_XL,
+    paddingVertical: 14,
+    borderRadius: UI.borderRadius.round,
+    shadowColor: COLORS.PRIMARY_DARK,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
     elevation: 4,
-    shadowColor: COLORS.BLACK,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
   },
-  ctaButtonText: {
+  mainCardCtaText: {
     color: COLORS.WHITE,
     fontWeight: '700',
     fontSize: FONT_BASE,
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
   },
-  xaiCard: {
+
+  sciCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#EDE7F6',
-    borderRadius: RADIUS_MD,
-    borderLeftWidth: 4,
-    borderLeftColor: '#5E35B1',
+    backgroundColor: COLORS.SURFACE,
+    borderRadius: RADIUS_LG,
     padding: SPACING_MD,
-    marginTop: SPACING_SM,
-    gap: SPACING_SM,
+    gap: SPACING_MD,
+    borderWidth: 1,
+    borderColor: COLORS.BORDER,
+    shadowColor: '#1C2B22',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
   },
-  xaiEmoji: {
-    fontSize: 28,
-    marginRight: SPACING_SM,
+  sciIconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: '#EDE7F6',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  xaiTitle: {
+  sciEmoji: {
+    fontSize: 24,
+  },
+  sciText: {
+    flex: 1,
+  },
+  sciTitle: {
     fontSize: FONT_BASE,
     fontWeight: '700',
-    color: '#4527A0',
+    color: COLORS.TEXT_PRIMARY,
   },
-  xaiDescription: {
+  sciDesc: {
     fontSize: FONT_SM,
-    color: '#4527A0',
-    marginTop: SPACING_XS,
+    color: COLORS.TEXT_SECONDARY,
+    marginTop: 2,
     lineHeight: 18,
   },
-  xaiArrow: {
-    fontSize: 28,
-    color: '#5E35B1',
-    fontWeight: '700',
-    marginLeft: SPACING_SM,
+  sciArrow: {
+    fontSize: 24,
+    color: COLORS.TEXT_SECONDARY,
+    fontWeight: '300',
   },
-  infoSection: {
-    gap: SPACING_MD,
-    marginTop: SPACING_LG,
-  },
-  infoCard: {
-    backgroundColor: '#E8F5E9',
-    borderRadius: RADIUS_MD,
-    borderLeftWidth: 4,
-    borderLeftColor: COLORS.SUCCESS,
+
+  section: {
+    backgroundColor: COLORS.SURFACE,
+    borderRadius: RADIUS_LG,
     padding: SPACING_MD,
+    borderWidth: 1,
+    borderColor: COLORS.BORDER,
   },
-  infoTitle: {
+  sectionTitle: {
     fontSize: FONT_BASE,
-    fontWeight: '600',
-    color: COLORS.SUCCESS,
+    fontWeight: '700',
+    color: COLORS.TEXT_PRIMARY,
+    marginBottom: SPACING_MD,
+  },
+  stepsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  stepItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  stepCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: COLORS.SURFACE_2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: SPACING_SM,
+    borderWidth: 1.5,
+    borderColor: COLORS.BORDER,
+  },
+  stepEmoji: {
+    fontSize: 26,
+  },
+  stepLabel: {
+    fontSize: FONT_XS,
+    color: COLORS.TEXT_SECONDARY,
+    textAlign: 'center',
+    lineHeight: 16,
+    fontWeight: '500',
+  },
+
+  infoStrip: {
+    flexDirection: 'row',
+    backgroundColor: COLORS.SURFACE_2,
+    borderRadius: RADIUS_MD,
+    padding: SPACING_MD,
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    borderWidth: 1,
+    borderColor: COLORS.BORDER,
     marginBottom: SPACING_SM,
   },
-  infoText: {
-    fontSize: FONT_SM,
-    color: COLORS.SUCCESS,
-    lineHeight: 20,
+  infoChip: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  infoChipEmoji: {
+    fontSize: 20,
+    marginBottom: 4,
+  },
+  infoChipText: {
+    fontSize: FONT_XS,
+    color: COLORS.PRIMARY,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  infoDivider: {
+    width: 1,
+    height: 32,
+    backgroundColor: COLORS.BORDER,
   },
 });

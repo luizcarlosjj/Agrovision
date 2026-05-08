@@ -5,28 +5,31 @@
 
 export const COLORS = {
   PRIMARY: '#2D7A4F',
+  PRIMARY_DARK: '#1A5C3A',
+  PRIMARY_LIGHT: '#52B788',
   SECONDARY: '#7CB342',
   ACCENT: '#FFA726',
 
   WHITE: '#FFFFFF',
   BLACK: '#000000',
   LIGHT_GRAY: '#F5F5F5',
-  GRAY_100: '#F9F9F9',
+  GRAY_100: '#F4F8F5',
   GRAY: '#E0E0E0',
   GRAY_200: '#EEEEEE',
   DARK_GRAY: '#424242',
 
-  SUCCESS: '#4CAF50',
-  ERROR: '#F44336',
-  DANGER: '#F44336',
-  WARNING: '#FF9800',
-  INFO: '#2196F3',
+  SUCCESS: '#2D7A4F',
+  ERROR: '#D32F2F',
+  DANGER: '#D32F2F',
+  WARNING: '#E65100',
+  INFO: '#1565C0',
 
-  BACKGROUND: '#FFFFFF',
-  SURFACE: '#FAFAFA',
-  TEXT_PRIMARY: '#212121',
-  TEXT_SECONDARY: '#757575',
-  BORDER: '#E0E0E0',
+  BACKGROUND: '#F5F9F6',
+  SURFACE: '#FFFFFF',
+  SURFACE_2: '#EEF6F1',
+  TEXT_PRIMARY: '#1C2B22',
+  TEXT_SECONDARY: '#5A7366',
+  BORDER: '#D8EAE0',
 };
 
 export const UI = {
@@ -47,36 +50,36 @@ export const UI = {
     xxl: 32,
   },
   borderRadius: {
-    sm: 4,
-    md: 8,
-    lg: 12,
-    xl: 16,
+    sm: 6,
+    md: 12,
+    lg: 16,
+    xl: 24,
     round: 999,
   },
   shadows: {
     small: {
-      shadowColor: '#000',
-      shadowOpacity: 0.1,
-      shadowRadius: 2,
-      shadowOffset: { width: 0, height: 1 },
+      shadowColor: '#1C2B22',
+      shadowOpacity: 0.08,
+      shadowRadius: 4,
+      shadowOffset: { width: 0, height: 2 },
       elevation: 2,
     },
     medium: {
-      shadowColor: '#000',
-      shadowOpacity: 0.15,
-      shadowRadius: 4,
-      shadowOffset: { width: 0, height: 2 },
+      shadowColor: '#1C2B22',
+      shadowOpacity: 0.12,
+      shadowRadius: 8,
+      shadowOffset: { width: 0, height: 4 },
       elevation: 4,
     },
     large: {
-      shadowColor: '#000',
-      shadowOpacity: 0.2,
-      shadowRadius: 8,
-      shadowOffset: { width: 0, height: 4 },
+      shadowColor: '#1C2B22',
+      shadowOpacity: 0.16,
+      shadowRadius: 16,
+      shadowOffset: { width: 0, height: 6 },
       elevation: 8,
     },
   },
-  MIN_TOUCH_TARGET: 44,
+  MIN_TOUCH_TARGET: 48,
 };
 
 // Flat aliases for backward compatibility
@@ -114,5 +117,5 @@ export const CONFIDENCE_THRESHOLDS = {
 
 // Analysis Descriptions
 export const ANALYSIS_DESCRIPTIONS = {
-  species: 'Identifica a espécie de sua planta com inteligência artificial',
+  species: 'Identifica espécies e doenças de plantas com IA',
 };

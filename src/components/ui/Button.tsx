@@ -1,6 +1,6 @@
 /**
  * Button Component
- * Reusable button with multiple variants - Modern & Spacious Design
+ * Reusable button with multiple variants
  */
 
 import React from 'react';
@@ -11,20 +11,21 @@ import {
   TouchableOpacityProps,
   ActivityIndicator,
   View,
-  Platform,
 } from 'react-native';
 import { COLORS, UI } from '@utils/constants';
 
 interface ButtonProps extends TouchableOpacityProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'danger' | 'success';
+  variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'success';
   disabled?: boolean;
   loading?: boolean;
   size?: 'sm' | 'md' | 'lg';
   fullWidth?: boolean;
   icon?: React.ReactNode;
 }
+
+const LIGHT_VARIANTS = ['secondary', 'outline'];
 
 export function Button({
   title,
@@ -35,9 +36,11 @@ export function Button({
   size = 'md',
   fullWidth = false,
   icon,
+  style,
   ...props
 }: ButtonProps) {
   const isDisabled = disabled || loading;
+  const isLight = LIGHT_VARIANTS.includes(variant);
 
   return (
     <TouchableOpacity
@@ -47,19 +50,26 @@ export function Button({
         styles[`size_${size}`],
         fullWidth && styles.fullWidth,
         isDisabled && styles.disabled,
+        style,
       ]}
       onPress={onPress}
       disabled={isDisabled}
-      activeOpacity={0.7}
+      activeOpacity={0.75}
       {...props}
     >
       {loading ? (
-        <ActivityIndicator color="#FFF" size="small" />
+        <ActivityIndicator color={isLight ? COLORS.PRIMARY : '#FFF'} size="small" />
       ) : (
-        <>
-          {icon && icon}
-          <Text style={[styles.text, styles[`textSize_${size}`]]}>{title}</Text>
-        </>
+        <View style={styles.inner}>
+          {icon && <View style={styles.iconWrap}>{icon}</View>}
+          <Text style={[
+            styles.text,
+            styles[`textSize_${size}`],
+            isLight && styles.textDark,
+          ]}>
+            {title}
+          </Text>
+        </View>
       )}
     </TouchableOpacity>
   );
@@ -67,36 +77,50 @@ export function Button({
 
 const styles = StyleSheet.create({
   button: {
-    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 18,
+    borderRadius: UI.borderRadius.xl,
     minHeight: UI.MIN_TOUCH_TARGET,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.18,
-        shadowRadius: 10,
-      },
-      android: {
-        elevation: 8,
-      },
-    }),
+    shadowColor: '#1C2B22',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  inner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconWrap: {
+    marginRight: 8,
   },
   text: {
     fontWeight: '700',
     color: '#FFF',
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
   },
-  // Variants - Modern Colors
+  textDark: {
+    color: COLORS.PRIMARY,
+  },
+
+  // Variants
   primary: {
     backgroundColor: COLORS.PRIMARY,
   },
   secondary: {
-    backgroundColor: COLORS.SECONDARY,
-    borderWidth: 2,
+    backgroundColor: COLORS.SURFACE_2,
+    borderWidth: 1.5,
     borderColor: COLORS.PRIMARY,
+    shadowOpacity: 0.05,
+    elevation: 1,
+  },
+  outline: {
+    backgroundColor: 'transparent',
+    borderWidth: 1.5,
+    borderColor: COLORS.BORDER,
+    shadowOpacity: 0,
+    elevation: 0,
   },
   danger: {
     backgroundColor: COLORS.DANGER,
@@ -104,35 +128,37 @@ const styles = StyleSheet.create({
   success: {
     backgroundColor: COLORS.SUCCESS,
   },
-  // Sizes - More Spacious
+
+  // Sizes
   size_sm: {
-    paddingHorizontal: UI.SPACING_MD,
-    paddingVertical: 10,
+    paddingHorizontal: UI.spacing.md,
+    paddingVertical: 9,
+    minHeight: 38,
   },
   size_md: {
-    paddingHorizontal: UI.SPACING_LG,
-    paddingVertical: 14,
+    paddingHorizontal: UI.spacing.lg,
+    paddingVertical: 13,
   },
   size_lg: {
     paddingHorizontal: 28,
-    paddingVertical: 22,
-    minHeight: 64,
+    paddingVertical: 16,
+    minHeight: 56,
   },
+
   // Text sizes
   textSize_sm: {
-    fontSize: UI.FONT_SM,
+    fontSize: UI.fontSize.sm,
   },
   textSize_md: {
-    fontSize: UI.FONT_BASE,
+    fontSize: UI.fontSize.md,
   },
   textSize_lg: {
-    fontSize: 18,
-    fontWeight: '700',
-    letterSpacing: 0.3,
+    fontSize: UI.fontSize.lg,
+    letterSpacing: 0.2,
   },
-  // Disabled state
+
   disabled: {
-    opacity: 0.6,
+    opacity: 0.5,
   },
   fullWidth: {
     width: '100%',

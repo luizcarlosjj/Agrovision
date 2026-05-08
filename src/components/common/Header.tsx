@@ -1,6 +1,6 @@
 /**
  * Header Component
- * Common header for screens with title and back button
+ * Common header for screens
  */
 
 import React, { ReactNode } from 'react';
@@ -30,22 +30,21 @@ export function Header({
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={styles.backButton}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Text style={styles.backText}>‹</Text>
+            <Text style={styles.backArrow}>‹</Text>
           </TouchableOpacity>
         )}
       </View>
 
       <View style={styles.titleSection}>
-        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.title} numberOfLines={1}>{title}</Text>
         {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
       </View>
 
-      {rightComponent && (
-        <View style={styles.rightSection}>
-          {rightComponent}
-        </View>
-      )}
+      <View style={styles.rightSection}>
+        {rightComponent ?? null}
+      </View>
     </View>
   );
 }
@@ -54,36 +53,49 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: UI.SPACING_MD,
-    paddingVertical: UI.SPACING_MD,
+    paddingHorizontal: UI.spacing.md,
+    paddingVertical: 12,
+    backgroundColor: COLORS.SURFACE,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.BORDER,
-    backgroundColor: COLORS.WHITE,
+    shadowColor: '#1C2B22',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
   },
   leftSection: {
     width: 44,
     alignItems: 'flex-start',
   },
   backButton: {
-    padding: UI.SPACING_SM,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: COLORS.SURFACE_2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  backText: {
-    fontSize: UI.FONT_2XL,
+  backArrow: {
+    fontSize: 26,
     color: COLORS.PRIMARY,
     fontWeight: '600',
+    lineHeight: 30,
+    marginTop: -2,
   },
   titleSection: {
     flex: 1,
     alignItems: 'center',
+    paddingHorizontal: 4,
   },
   title: {
-    fontSize: UI.FONT_LG,
-    fontWeight: '600',
+    fontSize: UI.fontSize.md,
+    fontWeight: '700',
     color: COLORS.TEXT_PRIMARY,
+    letterSpacing: 0.1,
   },
   subtitle: {
-    fontSize: UI.FONT_SM,
+    fontSize: UI.fontSize.xs,
     color: COLORS.TEXT_SECONDARY,
     marginTop: 2,
   },

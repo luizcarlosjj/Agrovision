@@ -1,234 +1,359 @@
 /**
  * Result Screen
- * Displays analysis results
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { SafeAreaWrapper, Button, Card, ImagePreview } from '@components';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { SafeAreaWrapper, ImagePreview } from '@components';
 import { Header } from '@components/common/Header';
 import { ResultScreenProps } from '@navigation/types';
 import { formatConfidence, formatDateTime, getAnalysisTypeEmoji } from '@utils/format';
-import { COLORS, UI } from '@utils/constants';
+import {
+  COLORS,
+  UI,
+  SPACING_MD,
+  SPACING_LG,
+  SPACING_SM,
+  SPACING_XS,
+  FONT_BASE,
+  FONT_SM,
+  FONT_LG,
+  FONT_XL,
+  FONT_XS,
+  RADIUS_LG,
+  RADIUS_MD,
+  RADIUS_XL,
+} from '@utils/constants';
 
 export function ResultScreen({ route, navigation }: ResultScreenProps) {
   const { analysis } = route.params;
 
-  const confidenceColor = analysis.confidence > 0.8 ? COLORS.SUCCESS :
-                         analysis.confidence > 0.6 ? COLORS.WARNING :
-                         COLORS.DANGER;
+  const conf = analysis.confidence;
+  const confColor = conf > 0.8 ? COLORS.SUCCESS : conf > 0.6 ? COLORS.WARNING : COLORS.DANGER;
+  const confLabel = conf > 0.8 ? 'Alta' : conf > 0.6 ? 'Média' : 'Baixa';
+  const confBg = conf > 0.8 ? '#E8F5E0' : conf > 0.6 ? '#FFF3E0' : '#FFEBEE';
 
   return (
-    <SafeAreaWrapper scrollable>
+    <SafeAreaWrapper scrollable padding={0}>
       <Header title="Resultado da Análise" />
 
-      {/* Image Preview */}
-      <ImagePreview
-        uri={analysis.imageUri}
-        caption="Imagem analisada"
-      />
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        {/* Image */}
+        <ImagePreview uri={analysis.imageUri} caption="Imagem analisada" />
 
-      {/* Main Result Card */}
-      <Card style={styles.resultCard}>
-        <View style={styles.resultHeader}>
-          <Text style={styles.emoji}>
-            {getAnalysisTypeEmoji(analysis.type)}
-          </Text>
-          <View style={styles.resultInfo}>
-            <Text style={styles.resultTitle}>{analysis.result}</Text>
-            <View style={styles.confidenceContainer}>
-              <View
-                style={[
-                  styles.confidenceBar,
-                  { width: `${analysis.confidence * 100}%`, backgroundColor: confidenceColor },
-                ]}
-              />
+        {/* ── Result hero ── */}
+        <View style={styles.heroCard}>
+          <View style={styles.heroTop}>
+            <View style={styles.heroIconWrap}>
+              <Text style={styles.heroEmoji}>{getAnalysisTypeEmoji(analysis.type)}</Text>
             </View>
-            <Text style={[styles.confidence, { color: confidenceColor }]}>
-              Confiança: {formatConfidence(analysis.confidence)}
-            </Text>
+            <View style={styles.heroInfo}>
+              <Text style={styles.heroResult}>{analysis.result}</Text>
+              <View style={[styles.confBadge, { backgroundColor: confBg }]}>
+                <View style={[styles.confDot, { backgroundColor: confColor }]} />
+                <Text style={[styles.confBadgeText, { color: confColor }]}>
+                  {confLabel} confiança · {formatConfidence(conf)}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Confidence bar */}
+          <View style={styles.barWrap}>
+            <View style={styles.barBg}>
+              <View style={[styles.barFill, { width: `${conf * 100}%`, backgroundColor: confColor }]} />
+            </View>
+            <Text style={[styles.barPct, { color: confColor }]}>{formatConfidence(conf)}</Text>
           </View>
         </View>
 
-        {/* Description */}
-        <View style={styles.descriptionContainer}>
-          <Text style={styles.sectionTitle}>Descrição</Text>
-          <Text style={styles.description}>{analysis.description}</Text>
+        {/* ── Description ── */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionIcon}>📋</Text>
+            <Text style={styles.sectionTitle}>Descrição</Text>
+          </View>
+          <Text style={styles.sectionText}>{analysis.description}</Text>
         </View>
 
-        {/* Recommendations */}
-        <View style={styles.recommendationsContainer}>
-          <Text style={styles.sectionTitle}>Recomendações</Text>
-          {analysis.recommendations.map((rec, index) => (
-            <View key={index} style={styles.recommendationItem}>
-              <Text style={styles.bullet}>•</Text>
-              <Text style={styles.recommendationText}>{rec}</Text>
+        {/* ── Recommendations ── */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionIcon}>💡</Text>
+            <Text style={styles.sectionTitle}>Recomendações</Text>
+          </View>
+          {analysis.recommendations.map((rec, i) => (
+            <View key={i} style={styles.recItem}>
+              <View style={styles.recBullet} />
+              <Text style={styles.recText}>{rec}</Text>
             </View>
           ))}
         </View>
 
-        {/* Metadata */}
-        <View style={styles.metadataContainer}>
-          <Text style={styles.sectionTitle}>Informações</Text>
-          <View style={styles.metadataRow}>
-            <Text style={styles.metadataLabel}>Tipo de análise:</Text>
-            <Text style={styles.metadataValue}>{analysis.type}</Text>
-          </View>
-          <View style={styles.metadataRow}>
-            <Text style={styles.metadataLabel}>Data:</Text>
-            <Text style={styles.metadataValue}>
-              {formatDateTime(analysis.timestamp)}
-            </Text>
-          </View>
-          <View style={styles.metadataRow}>
-            <Text style={styles.metadataLabel}>Tempo de processamento:</Text>
-            <Text style={styles.metadataValue}>
-              {analysis.processingTime}ms
-            </Text>
-          </View>
+        {/* ── Metadata ── */}
+        <View style={[styles.section, styles.metaSection]}>
+          <MetaRow label="Tipo de análise" value={analysis.type} />
+          <MetaRow label="Data" value={formatDateTime(analysis.timestamp)} />
+          <MetaRow label="Processamento" value={`${analysis.processingTime}ms`} last />
         </View>
-      </Card>
 
-      {/* Action Buttons */}
-      <View style={styles.actionsContainer}>
-        {/* Botão principal: Auditar Modelo (Grad-CAM) */}
-        <Button
-          title="🔬  Auditar Modelo (Grad-CAM)"
-          onPress={() =>
-            navigation.navigate('AuditarModelo', {
+        {/* ── Actions ── */}
+        <View style={styles.actions}>
+          <TouchableOpacity
+            style={styles.btnPrimary}
+            activeOpacity={0.82}
+            onPress={() => navigation.navigate('AuditarModelo', {
               imageUri: analysis.imageUri,
               prediction: analysis.result,
               confidence: analysis.confidence,
-            })
-          }
-          variant="primary"
-          size="lg"
-          fullWidth
-          style={styles.button}
-        />
-        <Button
-          title="📷  Fazer Nova Análise"
-          onPress={() => navigation.popToTop()}
-          variant="secondary"
-          size="lg"
-          fullWidth
-          style={styles.button}
-        />
-        <Button
-          title="← Voltar ao Menu"
-          onPress={() => navigation.popToTop()}
-          variant="outline"
-          size="lg"
-          fullWidth
-          style={styles.button}
-        />
-      </View>
+            })}
+          >
+            <Text style={styles.btnPrimaryText}>🔬  Auditar Modelo (Grad-CAM)</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.btnSecondary}
+            activeOpacity={0.82}
+            onPress={() => navigation.popToTop()}
+          >
+            <Text style={styles.btnSecondaryText}>📷  Nova Análise</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.btnGhost}
+            activeOpacity={0.75}
+            onPress={() => navigation.popToTop()}
+          >
+            <Text style={styles.btnGhostText}>← Voltar ao início</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </SafeAreaWrapper>
   );
 }
 
+function MetaRow({ label, value, last }: { label: string; value: string; last?: boolean }) {
+  return (
+    <View style={[styles.metaRow, last && styles.metaRowLast]}>
+      <Text style={styles.metaLabel}>{label}</Text>
+      <Text style={styles.metaValue}>{value}</Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  resultCard: {
-    marginVertical: UI.SPACING_MD,
+  scroll: {
+    paddingBottom: SPACING_LG * 2,
   },
-  resultHeader: {
+
+  // Hero card
+  heroCard: {
+    backgroundColor: COLORS.SURFACE,
+    margin: SPACING_MD,
+    borderRadius: RADIUS_XL,
+    padding: SPACING_LG,
+    shadowColor: '#1C2B22',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: COLORS.BORDER,
+  },
+  heroTop: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: UI.SPACING_LG,
+    marginBottom: SPACING_MD,
+    gap: SPACING_MD,
   },
-  emoji: {
-    fontSize: 48,
-    marginRight: UI.SPACING_MD,
+  heroIconWrap: {
+    width: 60,
+    height: 60,
+    borderRadius: 18,
+    backgroundColor: COLORS.SURFACE_2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: COLORS.BORDER,
   },
-  resultInfo: {
+  heroEmoji: {
+    fontSize: 32,
+  },
+  heroInfo: {
     flex: 1,
+    gap: SPACING_SM,
   },
-  resultTitle: {
-    fontSize: UI.FONT_LG,
-    fontWeight: '700',
+  heroResult: {
+    fontSize: FONT_XL,
+    fontWeight: '800',
     color: COLORS.TEXT_PRIMARY,
-    marginBottom: UI.SPACING_SM,
+    letterSpacing: -0.3,
   },
-  confidenceContainer: {
+  confBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: UI.borderRadius.round,
+    alignSelf: 'flex-start',
+    gap: 5,
+  },
+  confDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+  },
+  confBadgeText: {
+    fontSize: FONT_XS,
+    fontWeight: '700',
+  },
+  barWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING_SM,
+  },
+  barBg: {
+    flex: 1,
     height: 8,
-    backgroundColor: COLORS.GRAY_200,
-    borderRadius: UI.RADIUS_SM,
-    marginBottom: UI.SPACING_SM,
+    backgroundColor: COLORS.SURFACE_2,
+    borderRadius: 4,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: COLORS.BORDER,
   },
-  confidenceBar: {
+  barFill: {
     height: '100%',
-    borderRadius: UI.RADIUS_SM,
+    borderRadius: 4,
   },
-  confidence: {
-    fontSize: UI.FONT_SM,
-    fontWeight: '600',
+  barPct: {
+    fontSize: FONT_SM,
+    fontWeight: '700',
+    width: 44,
+    textAlign: 'right',
   },
-  descriptionContainer: {
-    marginBottom: UI.SPACING_LG,
-    paddingTop: UI.SPACING_LG,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.BORDER,
+
+  // Sections
+  section: {
+    backgroundColor: COLORS.SURFACE,
+    marginHorizontal: SPACING_MD,
+    marginBottom: SPACING_SM,
+    borderRadius: RADIUS_LG,
+    padding: SPACING_MD,
+    borderWidth: 1,
+    borderColor: COLORS.BORDER,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: SPACING_SM,
+    gap: SPACING_SM,
+  },
+  sectionIcon: {
+    fontSize: 18,
   },
   sectionTitle: {
-    fontSize: UI.FONT_BASE,
-    fontWeight: '600',
+    fontSize: FONT_BASE,
+    fontWeight: '700',
     color: COLORS.TEXT_PRIMARY,
-    marginBottom: UI.SPACING_SM,
   },
-  description: {
-    fontSize: UI.FONT_SM,
+  sectionText: {
+    fontSize: FONT_SM,
     color: COLORS.TEXT_SECONDARY,
     lineHeight: 20,
   },
-  recommendationsContainer: {
-    marginBottom: UI.SPACING_LG,
-    paddingTop: UI.SPACING_LG,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.BORDER,
-  },
-  recommendationItem: {
+
+  recItem: {
     flexDirection: 'row',
-    marginBottom: UI.SPACING_SM,
+    alignItems: 'flex-start',
+    marginBottom: SPACING_SM,
+    gap: SPACING_SM,
   },
-  bullet: {
-    color: COLORS.PRIMARY,
-    fontWeight: 'bold',
-    marginRight: UI.SPACING_SM,
-    fontSize: UI.FONT_BASE,
+  recBullet: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: COLORS.PRIMARY,
+    marginTop: 6,
+    flexShrink: 0,
   },
-  recommendationText: {
+  recText: {
     flex: 1,
-    fontSize: UI.FONT_SM,
+    fontSize: FONT_SM,
     color: COLORS.TEXT_SECONDARY,
     lineHeight: 20,
   },
-  metadataContainer: {
-    paddingTop: UI.SPACING_LG,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.BORDER,
+
+  // Metadata
+  metaSection: {
+    padding: 0,
+    overflow: 'hidden',
   },
-  metadataRow: {
+  metaRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: UI.SPACING_SM,
+    alignItems: 'center',
+    paddingHorizontal: SPACING_MD,
+    paddingVertical: 11,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.BORDER,
   },
-  metadataLabel: {
-    fontSize: UI.FONT_SM,
+  metaRowLast: {
+    borderBottomWidth: 0,
+  },
+  metaLabel: {
+    fontSize: FONT_SM,
     color: COLORS.TEXT_SECONDARY,
     fontWeight: '500',
   },
-  metadataValue: {
-    fontSize: UI.FONT_SM,
+  metaValue: {
+    fontSize: FONT_SM,
     color: COLORS.TEXT_PRIMARY,
     fontWeight: '600',
   },
-  actionsContainer: {
-    gap: UI.SPACING_LG,
-    marginVertical: UI.SPACING_LG,
-    paddingHorizontal: UI.SPACING_LG,
+
+  // Actions
+  actions: {
+    paddingHorizontal: SPACING_MD,
+    paddingTop: SPACING_MD,
+    gap: SPACING_SM,
   },
-  button: {
-    marginBottom: 0,
+  btnPrimary: {
+    backgroundColor: COLORS.PRIMARY,
+    borderRadius: RADIUS_XL,
+    paddingVertical: 16,
+    alignItems: 'center',
+    shadowColor: COLORS.PRIMARY_DARK,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  btnPrimaryText: {
+    color: COLORS.WHITE,
+    fontWeight: '700',
+    fontSize: FONT_BASE,
+    letterSpacing: 0.2,
+  },
+  btnSecondary: {
+    backgroundColor: COLORS.SURFACE_2,
+    borderRadius: RADIUS_XL,
+    paddingVertical: 15,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: COLORS.BORDER,
+  },
+  btnSecondaryText: {
+    color: COLORS.PRIMARY,
+    fontWeight: '700',
+    fontSize: FONT_BASE,
+  },
+  btnGhost: {
+    paddingVertical: SPACING_SM,
+    alignItems: 'center',
+  },
+  btnGhostText: {
+    color: COLORS.TEXT_SECONDARY,
+    fontSize: FONT_SM,
+    fontWeight: '500',
   },
 });
