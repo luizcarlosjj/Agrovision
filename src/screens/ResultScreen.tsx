@@ -97,8 +97,16 @@ export function ResultScreen({ route, navigation }: ResultScreenProps) {
           <MetaRow label="Processamento" value={`${analysis.processingTime}ms`} />
           <MetaRow
             label="Fonte"
-            value={analysis.source === 'railway' ? '🌐 Roboflow (online)' : '📱 TFLite (offline)'}
-            valueColor={analysis.source === 'railway' ? COLORS.SUCCESS : COLORS.WARNING}
+            value={
+              analysis.source === 'roboflow' ? '🌐 Roboflow (online)' :
+              analysis.source === 'local'    ? '⚠️ Modelo local Railway' :
+                                               '📱 TFLite (offline)'
+            }
+            valueColor={
+              analysis.source === 'roboflow' ? COLORS.SUCCESS :
+              analysis.source === 'local'    ? COLORS.WARNING :
+                                               COLORS.DANGER
+            }
             last
           />
         </View>

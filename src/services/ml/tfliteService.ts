@@ -41,42 +41,43 @@ const INPUT_SIZE = 224;
 
 // ─── Descrições por classe ───────────────────────────────────────────────────
 const CLASS_INFO: Record<string, { label: string; description: string; recommendations: string[] }> = {
-  healthy: {
-    label: 'Soja Saudável',
-    description: 'Folha de soja saudável, sem sinais visíveis de doença ou estresse.',
+  Blight: {
+    label: 'Helmintosporiose',
+    description: 'Helmintosporiose (Exserohilum turcicum): lesões alongadas cinza-esverdeadas a marrons, com formato elíptico nas folhas.',
+    recommendations: [
+      'Aplicar fungicida à base de azoxistrobina + propiconazol',
+      'Usar híbridos resistentes na próxima safra',
+      'Evitar plantio em áreas com histórico da doença sem rotação de culturas',
+      'Monitorar umidade — doença favorecida por noites frias e úmidas',
+    ],
+  },
+  Common_Rust: {
+    label: 'Ferrugem-Comum',
+    description: 'Ferrugem-comum (Puccinia sorghi): pústulas marrom-alaranjadas (urédias) distribuídas em ambas as faces da folha.',
+    recommendations: [
+      'Aplicar fungicida triazol + estrobilurina no início da infecção',
+      'Monitorar a lavoura semanalmente no período crítico (V6 a VT)',
+      'Preferir híbridos com resistência genética à ferrugem',
+      'Realizar controle preventivo em anos com histórico da doença',
+    ],
+  },
+  Gray_Leaf_Spot: {
+    label: 'Mancha-Cinzenta',
+    description: 'Mancha-cinzenta (Cercospora zeae-maydis): lesões retangulares cinza a marrons, delimitadas pelas nervuras da folha.',
+    recommendations: [
+      'Aplicar fungicida à base de trifloxistrobina + protioconazol',
+      'Realizar rotação de culturas para reduzir inóculo no solo',
+      'Evitar irrigação por aspersão no período noturno',
+      'Usar híbridos com tolerância à mancha-cinzenta',
+    ],
+  },
+  Healthy: {
+    label: 'Milho Saudável',
+    description: 'Planta de milho saudável, sem sinais visíveis de doença ou estresse foliar.',
     recommendations: [
       'Manter monitoramento regular da lavoura',
       'Continuar o programa de adubação e irrigação',
       'Inspecionar semanalmente para detecção precoce de problemas',
-    ],
-  },
-  frog_eye: {
-    label: 'Olho-de-Rã',
-    description: 'Olho-de-rã (Cercospora sojina): lesões circulares com centro cinza e bordas marrons.',
-    recommendations: [
-      'Aplicar fungicida à base de trifloxistrobina + protioconazol',
-      'Reduzir adensamento para melhorar circulação de ar',
-      'Evitar irrigação por aspersão no período noturno',
-      'Usar sementes tratadas com fungicidas na próxima safra',
-    ],
-  },
-  target_spot: {
-    label: 'Mancha-Alvo',
-    description: 'Mancha-alvo (Corynespora cassiicola): lesões concêntricas causadas por fungo.',
-    recommendations: [
-      'Aplicar fungicida preventivo antes do fechamento das linhas',
-      'Monitorar condições de alta umidade e temperatura acima de 25°C',
-      'Fazer rotação de culturas na próxima safra',
-      'Eliminar restos culturais após a colheita',
-    ],
-  },
-  'soybean-leaf': {
-    label: 'Folha de Soja',
-    description: 'Folha de soja identificada. Verifique sinais de doença ou estresse hídrico.',
-    recommendations: [
-      'Inspecionar visualmente toda a planta',
-      'Verificar pH e nutrição do solo',
-      'Monitorar umidade do solo',
     ],
   },
 };
@@ -209,7 +210,7 @@ class TFLiteService {
 
     const topIdx    = probs.indexOf(Math.max(...probs));
     const className = LABELS[String(topIdx)] ?? `class_${topIdx}`;
-    const info      = CLASS_INFO[className] ?? CLASS_INFO['soybean-leaf'];
+    const info      = CLASS_INFO[className] ?? CLASS_INFO['Healthy'];
 
     return {
       result:          info.label,

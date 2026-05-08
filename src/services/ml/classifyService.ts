@@ -22,7 +22,7 @@ function toWsUrl(url: string): string {
   return url.replace(/^https?/, (m) => (m === 'https' ? 'wss' : 'ws'));
 }
 
-export type ClassifySource = 'railway' | 'tflite';
+export type ClassifySource = 'roboflow' | 'local' | 'tflite';
 
 export interface ClassifyResult {
   id: string;
@@ -42,41 +42,43 @@ export type ProgressCallback = (step: string, pct: number) => void;
 // ─── Descrições e recomendações por classe (mesmo conteúdo do tfliteService) ─
 
 const CLASS_INFO: Record<string, { label: string; description: string; recommendations: string[] }> = {
-  healthy: {
-    label: 'Soja Saudável',
-    description: 'Folha de soja saudável, sem sinais visíveis de doença ou estresse.',
+  Blight: {
+    label: 'Helmintosporiose',
+    description: 'Helmintosporiose (Exserohilum turcicum): lesões alongadas cinza-esverdeadas a marrons, com formato elíptico nas folhas.',
+    recommendations: [
+      'Aplicar fungicida à base de azoxistrobina + propiconazol',
+      'Usar híbridos resistentes na próxima safra',
+      'Evitar plantio em áreas com histórico da doença sem rotação de culturas',
+      'Monitorar umidade — doença favorecida por noites frias e úmidas',
+    ],
+  },
+  Common_Rust: {
+    label: 'Ferrugem-Comum',
+    description: 'Ferrugem-comum (Puccinia sorghi): pústulas marrom-alaranjadas (urédias) distribuídas em ambas as faces da folha.',
+    recommendations: [
+      'Aplicar fungicida triazol + estrobilurina no início da infecção',
+      'Monitorar a lavoura semanalmente no período crítico (V6 a VT)',
+      'Preferir híbridos com resistência genética à ferrugem',
+      'Realizar controle preventivo em anos com histórico da doença',
+    ],
+  },
+  Gray_Leaf_Spot: {
+    label: 'Mancha-Cinzenta',
+    description: 'Mancha-cinzenta (Cercospora zeae-maydis): lesões retangulares cinza a marrons, delimitadas pelas nervuras da folha.',
+    recommendations: [
+      'Aplicar fungicida à base de trifloxistrobina + protioconazol',
+      'Realizar rotação de culturas para reduzir inóculo no solo',
+      'Evitar irrigação por aspersão no período noturno',
+      'Usar híbridos com tolerância à mancha-cinzenta',
+    ],
+  },
+  Healthy: {
+    label: 'Milho Saudável',
+    description: 'Planta de milho saudável, sem sinais visíveis de doença ou estresse foliar.',
     recommendations: [
       'Manter monitoramento regular da lavoura',
       'Continuar o programa de adubação e irrigação',
       'Inspecionar semanalmente para detecção precoce de problemas',
-    ],
-  },
-  frog_eye: {
-    label: 'Olho-de-Rã',
-    description: 'Olho-de-rã (Cercospora sojina): lesões circulares com centro cinza e bordas marrons.',
-    recommendations: [
-      'Aplicar fungicida à base de trifloxistrobina + protioconazol',
-      'Reduzir adensamento para melhorar circulação de ar',
-      'Evitar irrigação por aspersão no período noturno',
-      'Usar sementes tratadas com fungicidas na próxima safra',
-    ],
-  },
-  target_spot: {
-    label: 'Mancha-Alvo',
-    description: 'Mancha-alvo (Corynespora cassiicola): lesões com anéis concêntricos.',
-    recommendations: [
-      'Aplicar fungicida à base de azoxistrobina + benzovindiflupir',
-      'Monitorar níveis de potássio no solo',
-      'Evitar excesso de nitrogênio',
-      'Rotacionar culturas para reduzir inóculo',
-    ],
-  },
-  'soybean-leaf': {
-    label: 'Folha de Soja',
-    description: 'Folha de soja identificada. Análise visual não detectou doença específica.',
-    recommendations: [
-      'Manter monitoramento regular',
-      'Consultar agrônomo para inspeção presencial',
     ],
   },
 };
@@ -86,7 +88,7 @@ function getClassInfo(className: string) {
   return (
     CLASS_INFO[className] ??
     CLASS_INFO[normalized] ??
-    CLASS_INFO['soybean-leaf']
+    CLASS_INFO['Healthy']
   );
 }
 
@@ -145,7 +147,7 @@ async function classifyViaRailway(
             recommendations: info.recommendations,
             timestamp: new Date().toISOString(),
             processingTime: Date.now() - t0,
-            source: 'railway',
+            source: (msg.source === 'roboflow' ? 'roboflow' : 'local') as ClassifySource,
           });
         } else if (msg.event === 'error') {
           if (settled) return;

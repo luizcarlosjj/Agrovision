@@ -1,6 +1,6 @@
 {
-  "0": "frog_eye",
-  "1": "healthy",
-  "2": "soybean-leaf",
-  "3": "target_spot"
+  "0": "Blight",
+  "1": "Common_Rust",
+  "2": "Gray_Leaf_Spot",
+  "3": "Healthy"
 }
