@@ -111,18 +111,17 @@ def _heatmap_to_gray_b64(heatmap: np.ndarray) -> str:
 # ─── Sync computation functions (executadas em threadpool) ────────────────────
 
 def _classify_sync(image_bytes: bytes) -> dict:
-    """Classifica imagem: tenta Roboflow, cai no modelo Keras local."""
+    """Classifica imagem via Roboflow (prioritário). Erro sobe se Roboflow falhar."""
     if roboflow_mod.is_configured():
-        try:
-            result = roboflow_mod.classify(image_bytes)
-            return {
-                "prediction": result["prediction"],
-                "confidence": result["confidence"],
-                "source": "roboflow",
-            }
-        except Exception as exc:
-            print(f"[classify] Roboflow failed ({exc}), falling back to local model")
+        result = roboflow_mod.classify(image_bytes)
+        return {
+            "prediction": result["prediction"],
+            "confidence": result["confidence"],
+            "source": "roboflow",
+        }
 
+    # Roboflow não configurado: usa modelo Keras local como último recurso
+    print("[classify] Roboflow not configured — using local Keras model")
     image_bgr = _read_image_bytes(image_bytes)
     input_tensor = _preprocess_for_model(image_bgr)
     preds = registry.model(input_tensor, training=False).numpy()
