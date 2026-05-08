@@ -1,28 +1,41 @@
 """
 Roboflow classification proxy.
 
-Calls the Roboflow Hosted Inference API for classification and returns a
-normalised result dict.  Falls back gracefully when env vars are absent.
+Calls the Roboflow Serverless Inference API for classification and returns a
+normalised result dict.
 
 Required Railway env vars:
-    ROBOFLOW_API_KEY   — rf_xxxxx…
-    ROBOFLOW_MODEL_ID  — workspace/model-slug/version  e.g. "luiz/soja/1"
+    ROBOFLOW_API_KEY   — e.g. "nCS2G2BqZxMZoEJxLKGZ"
+    ROBOFLOW_MODEL_ID  — workspace/model-slug/version  e.g. "apscivil/corn-maize-leaf-disease-kmpiq/2"
 """
 
 from __future__ import annotations
 
 import base64
+import io
 import os
-from typing import Optional
 
 import requests as _requests
+from PIL import Image
 
 _API_KEY  = os.environ.get("ROBOFLOW_API_KEY", "")
 _MODEL_ID = os.environ.get("ROBOFLOW_MODEL_ID", "")
 
+_MAX_SIDE = 640  # px — keeps payload under Roboflow's 1.5 MB limit
+
 
 def is_configured() -> bool:
     return bool(_API_KEY and _MODEL_ID)
+
+
+def _resize_image(image_bytes: bytes) -> bytes:
+    """Resize to at most _MAX_SIDE on the longest side and re-encode as JPEG."""
+    pil = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    if pil.width > _MAX_SIDE or pil.height > _MAX_SIDE:
+        pil.thumbnail((_MAX_SIDE, _MAX_SIDE), Image.LANCZOS)
+    buf = io.BytesIO()
+    pil.save(buf, format="JPEG", quality=85)
+    return buf.getvalue()
 
 
 def classify(image_bytes: bytes) -> dict:
@@ -38,22 +51,20 @@ def classify(image_bytes: bytes) -> dict:
     if not is_configured():
         raise RuntimeError("Roboflow not configured (ROBOFLOW_API_KEY / ROBOFLOW_MODEL_ID missing)")
 
+    image_bytes = _resize_image(image_bytes)
     b64 = base64.b64encode(image_bytes).decode("ascii")
 
-    # Roboflow classification endpoint
+    # MODEL_ID may be "workspace/slug/version" or "slug/version"
     parts = _MODEL_ID.strip("/").split("/")
     if len(parts) == 3:
-        workspace, slug, version = parts
+        _workspace, slug, version = parts
     elif len(parts) == 2:
         slug, version = parts
-        workspace = ""
     else:
         raise RuntimeError(f"Invalid ROBOFLOW_MODEL_ID format: {_MODEL_ID!r}")
 
-    if workspace:
-        url = f"https://classify.roboflow.com/{workspace}/{slug}/{version}?api_key={_API_KEY}"
-    else:
-        url = f"https://classify.roboflow.com/{slug}/{version}?api_key={_API_KEY}"
+    # Roboflow Serverless API — workspace is NOT part of the URL
+    url = f"https://serverless.roboflow.com/{slug}/{version}?api_key={_API_KEY}"
 
     resp = _requests.post(
         url,

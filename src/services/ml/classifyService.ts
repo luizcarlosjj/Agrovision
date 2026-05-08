@@ -10,7 +10,6 @@
  */
 
 import * as FileSystem from 'expo-file-system';
-import { getTFLiteService } from './tfliteService';
 import { logger } from '@utils/logger';
 
 const BASE_URL   = (process.env.EXPO_PUBLIC_API_URL ?? 'https://agrovision-production-bdc3.up.railway.app').replace(/\/+$/, '');
@@ -186,25 +185,6 @@ export async function classify(
   analysisType: string,
   onProgress?: ProgressCallback,
 ): Promise<ClassifyResult> {
-  try {
-    logger.log('[ClassifyService] Trying Railway WebSocket...');
-    return await classifyViaRailway(imageUri, analysisType, onProgress);
-  } catch (err) {
-    logger.warn('[ClassifyService] Railway failed, using TFLite fallback:', err);
-    const t0 = Date.now();
-    const svc = await getTFLiteService();
-    const tflite = await svc.predict(imageUri);
-    return {
-      id: genId(),
-      type: analysisType,
-      result: tflite.result,
-      classKey: tflite.classKey,
-      confidence: tflite.confidence,
-      description: tflite.description,
-      recommendations: tflite.recommendations,
-      timestamp: new Date().toISOString(),
-      processingTime: Date.now() - t0,
-      source: 'tflite',
-    };
-  }
+  logger.log('[ClassifyService] Calling Railway WebSocket...');
+  return await classifyViaRailway(imageUri, analysisType, onProgress);
 }
