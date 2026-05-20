@@ -1,11 +1,8 @@
-# Image processing and ML training
-tensorflow==2.15.0
-tf-keras==2.15.1
-datasets==2.18.0
+# ML runtime (Keras 3 nativo — carrega .keras salvos no Colab)
+tensorflow==2.18.0
 pillow==10.1.0
 numpy==1.26.4
 opencv-python-headless==4.8.1.78
-tqdm==4.66.1
 
 # XAI backend (FastAPI + Grad-CAM)
 fastapi==0.110.0

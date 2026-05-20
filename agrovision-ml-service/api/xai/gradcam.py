@@ -13,7 +13,7 @@ from typing import Optional, Tuple
 
 import numpy as np
 import tensorflow as tf
-import tf_keras as keras
+from tensorflow import keras
 
 
 def _find_layer(model: keras.Model, name: str) -> keras.layers.Layer:
@@ -106,9 +106,7 @@ def _build_grad_model(
 
     # Reconstruct the outer forward pass symbolically, substituting the parent
     # sub-model with inner_grad so that feature_maps flows into predictions.
-    x: keras.backend.KerasTensor = (
-        model.inputs[0] if len(model.inputs) == 1 else model.inputs
-    )
+    x = model.inputs[0] if len(model.inputs) == 1 else model.inputs
     feature_maps_sym = None
 
     for layer in model.layers:

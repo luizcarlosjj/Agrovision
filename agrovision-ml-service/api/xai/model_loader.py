@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 import tensorflow as tf
-import tf_keras as keras
+from tensorflow import keras
 
 
 DEFAULT_MODEL_CANDIDATES = [
