@@ -1,6 +1,7 @@
-# ML runtime (Keras 3 nativo — carrega .keras salvos no Colab)
-# CPU-only: sem libs CUDA/cuDNN, ~250MB em vez de ~600MB
-tensorflow-cpu==2.18.0
+# ML runtime — versoes alinhadas com o Colab que treinou o modelo
+# CPU-only: sem libs CUDA/cuDNN, build mais leve no Railway
+tensorflow-cpu==2.20.0
+keras==3.13.2
 pillow==10.1.0
 numpy==1.26.4
 opencv-python-headless==4.8.1.78
