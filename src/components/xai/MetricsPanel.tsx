@@ -31,6 +31,17 @@ interface MetricsPanelProps {
   layerUsed?: string;
 }
 
+const CLASS_LABELS_PT: Record<string, string> = {
+  Blight: 'Helmintosporiose',
+  Common_Rust: 'Ferrugem-Comum',
+  Gray_Leaf_Spot: 'Mancha-Cinzenta',
+  Healthy: 'Milho Saudável',
+};
+
+function toPtLabel(raw: string): string {
+  return CLASS_LABELS_PT[raw] ?? raw;
+}
+
 function focusColor(afs: number): string {
   if (afs >= 0.7) return COLORS.SUCCESS;
   if (afs >= 0.4) return COLORS.WARNING;
@@ -54,7 +65,7 @@ export function MetricsPanel({
 
   return (
     <View style={styles.card}>
-      <Text style={styles.prediction}>{prediction}</Text>
+      <Text style={styles.prediction}>{toPtLabel(prediction)}</Text>
       <Text style={styles.confidence}>Confiança: {pct(confidence)}</Text>
 
       <View style={styles.metricBlock}>

@@ -3,7 +3,7 @@
  * Central export point for all application services
  */
 
-export { analysisService, apiClient, createFormDataHeaders, handleApiError, wrapApiResponse } from './api';
+export { apiClient, createFormDataHeaders, handleApiError, wrapApiResponse } from './api';
 export type { ApiResponse } from './api';
 
 export { databaseService } from './storage';
