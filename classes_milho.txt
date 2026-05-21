@@ -1,0 +1,32 @@
+AgroVision — Classes de doencas do milho
+==========================================
+
+| Inglês (classKey)  | Português (label)   | Nome cientifico            |
+|--------------------|---------------------|----------------------------|
+| Blight             | Helmintosporiose    | Exserohilum turcicum       |
+| Common_Rust        | Ferrugem-Comum      | Puccinia sorghi            |
+| Gray_Leaf_Spot     | Mancha-Cinzenta     | Cercospora zeae-maydis     |
+| Healthy            | Milho Saudavel      | (sem doenca visivel)       |
+
+
+Sintomas rapidos para identificacao visual:
+-------------------------------------------
+
+Helmintosporiose (Blight)
+  - Lesoes alongadas cinza-esverdeadas a marrons
+  - Formato eliptico ao longo da folha
+  - Favorecida por noites frias e umidas
+
+Ferrugem-Comum (Common_Rust)
+  - Pustulas marrom-alaranjadas (uredias)
+  - Presentes em ambas as faces da folha
+  - Pico no estagio V6-VT do milho
+
+Mancha-Cinzenta (Gray_Leaf_Spot)
+  - Lesoes retangulares cinza a marrons
+  - Delimitadas pelas nervuras da folha
+  - Comum em monocultura sem rotacao
+
+Milho Saudavel (Healthy)
+  - Folha verde uniforme, sem manchas
+  - Sem pustulas, lesoes ou descoloracao
