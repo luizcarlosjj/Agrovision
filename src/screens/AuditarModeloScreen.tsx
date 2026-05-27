@@ -18,7 +18,7 @@ import {
 } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-import { SafeAreaWrapper, HeatmapOverlay, MetricsPanel } from '@components';
+import { SafeAreaWrapper, HeatmapOverlay, MetricsPanel, AuditExplanation } from '@components';
 import { Header } from '@components/common/Header';
 import { analyzeWithXAIWS, XAIProgressCallback } from '@services/ml/xaiService';
 import { databaseService } from '@services/storage';
@@ -222,6 +222,14 @@ export function AuditarModeloScreen({ route, navigation }: Props) {
             processingTimeMs={result.processingTimeMs}
             bboxStrategy={result.bboxStrategy}
             layerUsed={result.layerUsed}
+          />
+
+          {/* Texto explicativo dinâmico */}
+          <AuditExplanation
+            prediction={result.prediction}
+            confidence={result.confidence}
+            afs={result.afs}
+            al={result.al}
           />
 
           {/* Rótulo de enquadramento */}

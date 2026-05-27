@@ -22,4 +22,5 @@ export {
 export {
   HeatmapOverlay,
   MetricsPanel,
+  AuditExplanation,
 } from './xai';
