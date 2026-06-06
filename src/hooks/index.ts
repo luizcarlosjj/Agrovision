@@ -5,4 +5,3 @@
 
 export { useAnalysis } from './useAnalysis';
 export { useCamera } from './useCamera';
-export { useHistory } from './useHistory';

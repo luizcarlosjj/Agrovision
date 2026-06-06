@@ -20,25 +20,6 @@ export type {
   AnalysisResultType,
 } from './analysis';
 
-// Plant Types
-export type {
-  Plant,
-  PlantCareInstructions,
-  PlantCharacteristics,
-  PlantHealthStatus,
-  PlantImage,
-} from './plant';
-
-// History Types
-export type {
-  AnalysisHistory,
-  AnalysisStatistics,
-  HistoryFilterOptions,
-  PaginatedHistory,
-  HistoryEntryMetadata,
-  ExportedHistory,
-} from './history';
-
 // Institutional Types
 export type {
   WikiArticle,

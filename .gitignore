@@ -24,9 +24,7 @@ build/
 *.swn
 .DS_Store
 
-# Expo
-.expo/
-.expo-shared/
+# Expo (já coberto acima)
 dist/
 npm-debug.*
 *.jks
@@ -50,8 +48,16 @@ npm-debug.log*
 Thumbs.db
 .DS_Store
 
-# Claude Code (configurações locais de agente)
+# Claude Code (configurações locais de agente — NUNCA commitar)
 .claude/
+
+# Variáveis de ambiente reais (somente .example pode ser commitado)
+agrovision-ml-service/.env
+agrovision-ml-service/.env.local
+
+# Expo (gerado localmente, não vai ao repo)
+.expo/
+.expo-shared/
 
 # Python / ML backend (agrovision-ml-service)
 agrovision-ml-service/venv_agro/
