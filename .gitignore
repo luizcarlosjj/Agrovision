@@ -37,10 +37,9 @@ npm-debug.*
 *.orig.*
 web-build/
 
-# Babel
+# Babel (cache files only — babel.config.js precisa estar no repo para aliases funcionarem)
 .babelrc
 .babelrc.js
-babel.config.js
 
 # Misc
 *.log
