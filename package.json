@@ -4,8 +4,8 @@
   "description": "AgroVision Mobile - Agricultural Diagnosis using Computer Vision",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "eject": "expo eject",
     "test": "jest",
@@ -13,7 +13,7 @@
     "lint": "eslint src --ext .ts,.tsx"
   },
   "dependencies": {
-    "@react-native-async-storage/async-storage": "^3.0.2",
+    "@react-native-async-storage/async-storage": "2.2.0",
     "@react-navigation/bottom-tabs": "^6.6.0",
     "@react-navigation/native": "^6.1.0",
     "@react-navigation/native-stack": "^6.11.0",
@@ -21,10 +21,10 @@
     "axios": "^1.6.0",
     "expo": "^54.0.0",
     "expo-camera": "^17.0.0",
-    "expo-file-system": "^17.0.0",
-    "expo-image-picker": "^15.0.0",
-    "expo-sharing": "^12.0.0",
-    "expo-sqlite": "^15.0.0",
+    "expo-file-system": "~19.0.23",
+    "expo-image-picker": "~17.0.11",
+    "expo-sharing": "~14.0.8",
+    "expo-sqlite": "~16.0.10",
     "react": "19.1.0",
     "react-native": "0.81.5",
     "react-native-gesture-handler": "~2.28.0",
@@ -37,7 +37,7 @@
     "@types/react": "~19.1.10",
     "@types/uuid": "^9.0.0",
     "babel-plugin-module-resolver": "^5.0.0",
-    "babel-preset-expo": "^11.0.0",
+    "babel-preset-expo": "~54.0.10",
     "typescript": "^5.3.0"
   },
   "private": true,

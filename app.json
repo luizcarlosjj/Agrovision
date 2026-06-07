@@ -27,8 +27,7 @@
         "android.permission.WRITE_EXTERNAL_STORAGE"
       ]
     },
-    "web": {
-    },
+    "web": {},
     "plugins": [
       [
         "expo-camera",
@@ -36,7 +35,8 @@
           "cameraPermission": "AgroVision needs access to your camera to analyze plants",
           "recordAudioAndroid": false
         }
-      ]
+      ],
+      "expo-sqlite"
     ]
   }
 }
