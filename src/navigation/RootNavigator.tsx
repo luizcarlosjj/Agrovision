@@ -18,6 +18,7 @@ import {
   CategoryScreen,
   ArticleScreen,
   TestModeScreen,
+  HistoryScreen,
 } from '@screens';
 import { RootStackParamList } from './types';
 import { COLORS } from '@utils/constants';
@@ -99,6 +100,19 @@ function AnalysisNavigator() {
   );
 }
 
+function HistoryNavigator() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        cardStyle: { backgroundColor: COLORS.BACKGROUND },
+      }}
+    >
+      <Stack.Screen name="History" component={HistoryScreen} />
+    </Stack.Navigator>
+  );
+}
+
 
 /**
  * Institutional Stack Navigator
@@ -176,6 +190,16 @@ export function RootNavigator() {
               navigation.navigate('Home');
             },
           })}
+        />
+
+        <Tab.Screen
+          name="HistoryTab"
+          component={HistoryNavigator}
+          options={{
+            title: 'Histórico',
+            tabBarLabel: 'Histórico',
+            tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>📋</Text>,
+          }}
         />
 
         <Tab.Screen

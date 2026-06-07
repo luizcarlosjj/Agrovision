@@ -9,7 +9,7 @@
  * que o AnalysisContext funcione sem alterações no esquema do SQLite.
  */
 
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { logger } from '@utils/logger';
 
 const BASE_URL   = (process.env.EXPO_PUBLIC_API_URL ?? 'https://agrovision-production-bdc3.up.railway.app').replace(/\/+$/, '');

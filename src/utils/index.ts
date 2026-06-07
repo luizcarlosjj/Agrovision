@@ -19,6 +19,9 @@ export {
   formatFileSize,
 } from './format';
 
+// Excel export
+export { exportLogsToExcel } from './excelExport';
+
 // Constants
 export {
   ANALYSIS_DESCRIPTIONS,

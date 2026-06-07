@@ -5,7 +5,7 @@
  * opens the system share sheet so the user can save it / send it elsewhere.
  */
 
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import { XAITestRecord } from '@models';
 import { logger } from '@utils/logger';

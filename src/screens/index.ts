@@ -12,3 +12,4 @@ export { CategoryScreen } from './CategoryScreen';
 export { ArticleScreen } from './ArticleScreen';
 export { AuditarModeloScreen } from './AuditarModeloScreen';
 export { TestModeScreen } from './TestModeScreen';
+export { HistoryScreen } from './HistoryScreen';

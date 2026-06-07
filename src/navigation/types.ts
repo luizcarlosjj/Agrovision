@@ -31,6 +31,8 @@ export type RootStackParamList = {
     confidence: number;
   };
   TestMode: undefined;
+  History: undefined;
+  HistoryTab: undefined;
   InstitutionalHome: undefined;
   InstitutionalCategory: {
     category: Category;

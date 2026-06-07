@@ -226,6 +226,22 @@ class DatabaseService {
     }
   }
 
+  async getAllAnalysesUnlimited(): Promise<Analysis[]> {
+    if (!this.db) throw new Error('Database not initialized');
+    const results = await this.db.getAllAsync<any>(
+      `SELECT * FROM analyses ORDER BY timestamp DESC`,
+    );
+    return results.map((row) => this.mapRowToAnalysis(row));
+  }
+
+  async getAllXAITestsUnlimited(): Promise<XAITestRecord[]> {
+    if (!this.db) throw new Error('Database not initialized');
+    const rows = await this.db.getAllAsync<any>(
+      `SELECT * FROM xai_tests ORDER BY createdAt DESC`,
+    );
+    return rows.map((r) => this.mapRowToXAITest(r));
+  }
+
   /**
    * Get analyses by type
    */
