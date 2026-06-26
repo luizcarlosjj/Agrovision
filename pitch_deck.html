@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>AgroVision — Pitch Deck · AgroStartup 2026</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --g1: #0D1F14;
+  --g2: #1B5E35;
+  --g3: #2D7A4F;
+  --g4: #4CAF50;
+  --pale: #E8F5E0;
+  --border: #D1E8D8;
+  --surf: #F7FAF8;
+  --text: #0D1F14;
+  --muted: #5A7060;
+  --white: #fff;
+  --warn: #E65100;
+  --red: #B71C1C;
+}
+
+body { font-family:'Inter',system-ui,sans-serif; background:#d1d5db; }
+
+/* ── slide base ─────────────────── */
+.slide {
+  width: 297mm;
+  min-height: 167mm;
+  background: var(--white);
+  margin: 14px auto;
+  padding: 48px 56px 44px;
+  page-break-after: always;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 24px rgba(0,0,0,.12);
+}
+
+/* barra verde esquerda */
+.slide::before {
+  content:'';
+  position:absolute; left:0; top:0; bottom:0; width:7px;
+  background: linear-gradient(180deg, var(--g4) 0%, var(--g2) 100%);
+}
+
+/* rodapé */
+.foot {
+  position:absolute; bottom:14px; left:56px; right:24px;
+  display:flex; justify-content:space-between; align-items:center;
+}
+.foot-brand { font-size:11px; font-weight:700; color:var(--g3); }
+.foot-num   { font-size:11px; color:#bbb; font-weight:500; }
+
+/* ── tipo ───────────────────────── */
+.label {
+  font-size:11px; font-weight:700; letter-spacing:2.5px;
+  text-transform:uppercase; color:var(--g3); margin-bottom:14px;
+}
+h1 { font-size:50px; font-weight:900; line-height:1.05; color:var(--text); letter-spacing:-1.5px; }
+h2 { font-size:32px; font-weight:800; line-height:1.15; color:var(--text); letter-spacing:-0.5px; }
+.hl { color:var(--g3); }
+.sub { font-size:17px; color:var(--muted); font-weight:400; margin-top:8px; line-height:1.5; }
+
+/* ── layout ─────────────────────── */
+.row  { display:flex; gap:24px; flex:1; }
+.col  { flex:1; display:flex; flex-direction:column; }
+.col2 { flex:2; display:flex; flex-direction:column; }
+
+/* ── card ───────────────────────── */
+.card {
+  background:var(--surf); border:1.5px solid var(--border);
+  border-radius:16px; padding:24px; flex:1;
+}
+.card.green { background:var(--pale); border-color:var(--g4); }
+.card.dark  { background:var(--g1);  border-color:var(--g2); }
+
+/* ── big stat ───────────────────── */
+.stat { text-align:center; }
+.stat-n { font-size:44px; font-weight:900; line-height:1; margin-bottom:6px; }
+.stat-l { font-size:12px; color:var(--muted); font-weight:600; line-height:1.4; }
+.red    { color:var(--red); }
+.orange { color:var(--warn); }
+.green-c{ color:var(--g3); }
+
+/* ── bullet ─────────────────────── */
+.blist { list-style:none; display:flex; flex-direction:column; gap:14px; margin-top:16px; }
+.blist li { display:flex; gap:12px; font-size:15px; color:#2D3B32; line-height:1.5; }
+.blist li .d { width:8px; height:8px; border-radius:50%; background:var(--g4); flex-shrink:0; margin-top:7px; }
+
+/* ── steps ──────────────────────── */
+.steps { display:flex; gap:0; margin-top:32px; flex:1; align-items:stretch; }
+.step  { flex:1; display:flex; flex-direction:column; align-items:center; text-align:center; padding:20px 12px; position:relative; }
+.step:not(:last-child)::after {
+  content:'→'; position:absolute; right:-10px; top:28px;
+  font-size:20px; color:var(--g4); font-weight:900;
+}
+.step-e { font-size:42px; margin-bottom:12px; }
+.step-t { font-size:13px; font-weight:700; color:var(--g2); margin-bottom:6px; text-transform:uppercase; letter-spacing:.5px; }
+.step-d { font-size:12px; color:var(--muted); line-height:1.5; }
+.badge  { display:inline-block; background:var(--g2); color:#fff; font-size:10px; font-weight:700; padding:3px 10px; border-radius:99px; margin-top:10px; }
+
+/* ── market ─────────────────────── */
+.mrow { display:flex; gap:0; margin-top:28px; flex:1; }
+.mcol { flex:1; padding:20px 24px; display:flex; flex-direction:column; justify-content:center; }
+.mcol:not(:last-child) { border-right:1.5px solid var(--border); }
+.m-tag { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+.m-val { font-size:30px; font-weight:900; line-height:1; margin-bottom:4px; }
+.m-sub { font-size:12px; color:var(--muted); line-height:1.4; }
+
+/* ── personas ───────────────────── */
+.persona { border-radius:14px; padding:22px 20px; border:2px solid var(--border); flex:1; display:flex; flex-direction:column; }
+.persona-e { font-size:36px; margin-bottom:10px; }
+.persona-t { font-size:16px; font-weight:800; color:var(--text); margin-bottom:4px; }
+.persona-s { font-size:12px; color:var(--muted); margin-bottom:14px; font-weight:500; }
+.persona-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:auto; }
+.tag { font-size:11px; font-weight:600; padding:3px 10px; border-radius:99px; background:var(--pale); color:var(--g2); border:1px solid var(--g4); }
+.tag.gray { background:#f3f4f6; color:#6b7280; border-color:#e5e7eb; }
+
+/* ── plans ──────────────────────── */
+.plans { display:flex; gap:14px; flex:1; margin-top:24px; }
+.plan { flex:1; border:2px solid var(--border); border-radius:16px; padding:22px 18px; display:flex; flex-direction:column; position:relative; }
+.plan.feat { border-color:var(--g2); background:var(--pale); }
+.plan-badge { position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:var(--g2); color:#fff; font-size:10px; font-weight:700; padding:3px 14px; border-radius:99px; white-space:nowrap; }
+.plan-name  { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:1px; }
+.plan-price { font-size:34px; font-weight:900; color:var(--g2); margin:8px 0 2px; line-height:1; }
+.plan-price sub { font-size:14px; }
+.plan-period{ font-size:11px; color:var(--muted); margin-bottom:16px; }
+.plan-feat  { list-style:none; display:flex; flex-direction:column; gap:8px; flex:1; }
+.plan-feat li { font-size:12px; color:#2D3B32; display:flex; gap:8px; line-height:1.4; }
+.plan-feat li::before { content:'✓'; color:var(--g3); font-weight:700; flex-shrink:0; }
+
+/* ── roadmap ────────────────────── */
+.tl { display:flex; flex-direction:column; gap:0; margin-top:24px; flex:1; }
+.tl-row { display:flex; gap:20px; }
+.tl-l { display:flex; flex-direction:column; align-items:center; width:32px; flex-shrink:0; }
+.tl-dot { width:14px; height:14px; border-radius:50%; flex-shrink:0; margin-top:3px; border:3px solid var(--pale); }
+.dot-done   { background:var(--g4); }
+.dot-soon   { background:var(--g2); }
+.dot-future { background:var(--border); border-color:var(--white); }
+.tl-line { flex:1; width:2px; background:var(--border); min-height:24px; }
+.tl-r { padding-bottom:24px; flex:1; }
+.tl-period{ font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--g3); margin-bottom:3px; }
+.tl-title { font-size:15px; font-weight:700; color:var(--text); margin-bottom:8px; }
+.tl-tags  { display:flex; flex-wrap:wrap; gap:6px; }
+
+/* ── validações ─────────────────── */
+.vgrid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; flex:1; margin-top:20px; }
+.vcard { background:var(--surf); border:1.5px solid var(--border); border-radius:14px; padding:16px; display:flex; flex-direction:column; gap:10px; }
+.vsrc  { font-size:10px; font-weight:700; color:var(--g3); text-transform:uppercase; letter-spacing:1px; }
+.vph   { flex:1; min-height:80px; background:#f0f4f2; border:2px dashed #c8ddd0; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:11px; color:#9ca3af; font-weight:600; text-align:center; padding:10px; line-height:1.5; }
+.vq    { font-size:12px; color:var(--muted); font-style:italic; line-height:1.5; }
+
+/* ── CAPA ───────────────────────── */
+.cover {
+  background:linear-gradient(135deg, #0D1F14 0%, #1B5E35 55%, #2D7A4F 100%);
+  justify-content:center; padding:52px 64px;
+}
+.cover::before { background:rgba(255,255,255,.12); }
+.cover-logo  { font-size:64px; margin-bottom:16px; }
+.cover-brand { font-size:62px; font-weight:900; color:#fff; line-height:1; letter-spacing:-2px; }
+.cover-tag   { font-size:20px; color:rgba(255,255,255,.68); font-weight:400; margin-top:10px; margin-bottom:40px; }
+.cover-pill  { display:inline-flex; align-items:center; gap:10px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22); border-radius:99px; padding:9px 22px; }
+.cover-pill-t{ font-size:14px; color:rgba(255,255,255,.85); font-weight:600; }
+.cover-stats { display:flex; gap:20px; margin-top:44px; }
+.cs          { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18); border-radius:14px; padding:16px 24px; }
+.cs-n        { font-size:26px; font-weight:900; color:#fff; }
+.cs-l        { font-size:11px; color:rgba(255,255,255,.6); margin-top:3px; font-weight:500; }
+
+/* ── print ──────────────────────── */
+@media print {
+  body { background:#fff; }
+  .slide { margin:0; box-shadow:none; page-break-after:always; page-break-inside:avoid; }
+  @page { size:A4 landscape; margin:0; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- 1 · CAPA                                       -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="slide cover">
+  <div class="cover-logo">🌾</div>
+  <div class="cover-brand">AgroVision</div>
+  <div class="cover-tag">Diagnóstico vegetal por IA — direto no campo</div>
+
+  <div class="cover-pill">
+    <span style="font-size:16px">🚀</span>
+    <span class="cover-pill-t">Desafio AgroStartup 2026 · SENAR/GO &amp; SEBRAE/GO</span>
+  </div>
+
+  <div class="cover-stats">
+    <div class="cs"><div class="cs-n">&lt; 1s</div><div class="cs-l">Diagnóstico</div></div>
+    <div class="cs"><div class="cs-n">4 doenças</div><div class="cs-l">detectadas</div></div>
+    <div class="cs"><div class="cs-n">IA Mobile</div><div class="cs-l">iOS + Android</div></div>
+  </div>
+
+  <div class="foot" style="position:absolute; bottom:14px; left:56px; right:24px;">
+    <span style="font-size:11px; color:rgba(255,255,255,.35); font-weight:700;">AgroVision · Pitch 2026</span>
+    <span style="font-size:11px; color:rgba(255,255,255,.25);">1 / 8</span>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- 2 · PROBLEMA                                   -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="label">O Problema</div>
+  <h2>Diagnóstico tardio <span class="hl">custa caro</span> ao produtor</h2>
+
+  <div class="row" style="margin-top:28px; align-items:stretch; gap:20px;">
+    <div class="col">
+      <div class="card" style="background:#FFF5F5; border-color:#FFCDD2; text-align:center; padding:24px;">
+        <div class="stat-n red">R$&nbsp;280bi</div>
+        <div class="stat-l">perdas anuais por<br>doenças e pragas no Brasil</div>
+        <div style="margin-top:10px; font-size:10px; color:#bbb; font-weight:600;">Fonte: EMBRAPA + CNA, 2023</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card" style="background:#FFF8F0; border-color:#FFE0B2; text-align:center; padding:24px;">
+        <div class="stat-n orange">5–10 dias</div>
+        <div class="stat-l">tempo médio de espera<br>por laudo técnico presencial</div>
+        <div style="margin-top:10px; font-size:10px; color:#bbb; font-weight:600;">Fonte: SENAR-GO, pesquisa de campo 2024</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card" style="background:#FFF5F5; border-color:#FFCDD2; text-align:center; padding:24px;">
+        <div class="stat-n red">5,07M</div>
+        <div class="stat-l">propriedades rurais sem<br>acesso a assistência técnica</div>
+        <div style="margin-top:10px; font-size:10px; color:#bbb; font-weight:600;">Fonte: IBGE, Censo Agropecuário 2017</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:18px; background:var(--surf); border:1.5px solid var(--border); border-radius:14px; padding:14px 20px;">
+    <p style="font-size:14px; color:var(--muted); line-height:1.6;">
+      Enquanto o produtor espera, a doença avança para novos talhões. Diagnóstico errado = defensivo errado = prejuízo dobrado.
+    </p>
+  </div>
+
+  <div class="foot"><span class="foot-brand">AgroVision · 2026</span><span class="foot-num">2 / 8</span></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- 3 · SOLUÇÃO                                    -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="label">A Solução</div>
+
+  <div class="row" style="gap:32px; align-items:flex-start; flex:0; margin-bottom:20px;">
+    <div style="flex:1;">
+      <h2>Fotografe a folha.<br><span class="hl">Saiba a doença em 1 segundo.</span></h2>
+    </div>
+    <div style="flex:1; background:var(--pale); border:1.5px solid var(--g4); border-radius:14px; padding:14px 18px;">
+      <div style="font-size:11px; font-weight:700; color:var(--g3); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:8px;">Hoje detecta</div>
+      <div style="display:flex; flex-wrap:wrap; gap:8px;">
+        <span style="background:var(--g2); color:#fff; font-size:12px; font-weight:700; padding:4px 12px; border-radius:99px;">🌽 Helmintosporiose</span>
+        <span style="background:var(--g2); color:#fff; font-size:12px; font-weight:700; padding:4px 12px; border-radius:99px;">🌽 Ferrugem-Comum</span>
+        <span style="background:var(--g2); color:#fff; font-size:12px; font-weight:700; padding:4px 12px; border-radius:99px;">🌽 Mancha-Cinzenta</span>
+        <span style="background:var(--g4); color:#fff; font-size:12px; font-weight:700; padding:4px 12px; border-radius:99px;">✅ Planta Saudável</span>
+      </div>
+      <div style="font-size:11px; color:var(--muted); margin-top:8px; font-weight:500;">+ novas culturas no roadmap</div>
+    </div>
+  </div>
+
+  <div class="steps" style="flex:1;">
+    <div class="step">
+      <div class="step-e">📸</div>
+      <div class="step-t">Fotografe</div>
+      <div class="step-d">Câmera ou galeria — direto do campo, sem precisar de sinal</div>
+      <span class="badge">2 segundos</span>
+    </div>
+    <div class="step">
+      <div class="step-e">🧠</div>
+      <div class="step-t">IA Analisa</div>
+      <div class="step-d">Visão computacional identifica a doença com alta precisão</div>
+      <span class="badge">&lt; 1 segundo</span>
+    </div>
+    <div class="step">
+      <div class="step-e">💊</div>
+      <div class="step-t">Tratamento</div>
+      <div class="step-d">Qual fungicida aplicar, quando e como — na mesma tela</div>
+      <span class="badge">Agora</span>
+    </div>
+    <div class="step">
+      <div class="step-e">📊</div>
+      <div class="step-t">Histórico</div>
+      <div class="step-d">Análises salvas, exportáveis em Excel para laudos técnicos</div>
+      <span class="badge">Excel / PDF</span>
+    </div>
+  </div>
+
+  <div class="foot"><span class="foot-brand">AgroVision · 2026</span><span class="foot-num">3 / 8</span></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- 4 · MERCADO                                    -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="label">Mercado</div>
+  <h2>Brasil: maior mercado agrícola <span class="hl">do hemisfério sul</span></h2>
+
+  <div style="background:var(--surf); border:1.5px solid var(--border); border-radius:16px; overflow:hidden; flex:1; margin-top:20px; display:flex; flex-direction:column;">
+    <div class="mrow" style="margin:0; flex:1;">
+      <div class="mcol" style="align-items:center;">
+        <div class="m-tag">TAM · Mercado Total Disponível</div>
+        <div class="m-val green-c">US$&nbsp;24bi</div>
+        <div class="m-sub" style="text-align:center;">AgTech diagnóstico digital<br>global (2028)</div>
+      </div>
+      <div class="mcol" style="align-items:center;">
+        <div class="m-tag">SAM · Mercado Endereçável</div>
+        <div class="m-val" style="color:var(--g2);">R$&nbsp;2,1bi</div>
+        <div class="m-sub" style="text-align:center;">Diagnóstico agrícola<br>digital no Brasil</div>
+      </div>
+      <div class="mcol" style="align-items:center;">
+        <div class="m-tag">SOM · Mercado Obtenível</div>
+        <div class="m-val" style="color:var(--g4);">R$&nbsp;180mi</div>
+        <div class="m-sub" style="text-align:center;">Produtores de grãos<br>e técnicos — Centro-Oeste</div>
+      </div>
+    </div>
+    <div style="padding:10px 24px; border-top:1.5px solid var(--border); background:#f0f8f2;">
+      <span style="font-size:10px; color:var(--muted); font-weight:600; letter-spacing:.5px;">
+        TAM = todo o mercado global da categoria &nbsp;·&nbsp; SAM = parte que podemos alcançar no Brasil &nbsp;·&nbsp; SOM = meta realista nos próximos 18 meses
+      </span>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top:16px; gap:14px; flex:0;">
+    <div style="flex:1; background:var(--pale); border:1.5px solid var(--g4); border-radius:12px; padding:14px 18px; text-align:center;">
+      <div style="font-size:22px; font-weight:900; color:var(--g2);">137M t</div>
+      <div style="font-size:11px; color:var(--muted);">milho produzido por safra</div>
+    </div>
+    <div style="flex:1; background:var(--pale); border:1.5px solid var(--g4); border-radius:12px; padding:14px 18px; text-align:center;">
+      <div style="font-size:22px; font-weight:900; color:var(--g2);">87%</div>
+      <div style="font-size:11px; color:var(--muted);">das prop. rurais têm smartphone</div>
+    </div>
+    <div style="flex:1; background:var(--pale); border:1.5px solid var(--g4); border-radius:12px; padding:14px 18px; text-align:center;">
+      <div style="font-size:22px; font-weight:900; color:var(--g2);">+25%/ano</div>
+      <div style="font-size:11px; color:var(--muted);">crescimento do mercado AgTech</div>
+    </div>
+  </div>
+
+  <div class="foot"><span class="foot-brand">AgroVision · 2026</span><span class="foot-num">4 / 8</span></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- 5 · PÚBLICO-ALVO                              -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="label">Público-Alvo</div>
+  <h2>Quem resolve o problema <span class="hl">com a gente</span></h2>
+
+  <div class="row" style="margin-top:20px;">
+    <!-- Persona 1 -->
+    <div class="persona" style="border-top:4px solid var(--g4);">
+      <div class="persona-e">🌽</div>
+      <div class="persona-t">Produtor de Grãos</div>
+      <div class="persona-s">Milho, soja, feijão · pequeno e médio porte</div>
+      <ul class="blist" style="gap:10px;">
+        <li><span class="d"></span>Maior cadeia do programa Senar Mais</li>
+        <li><span class="d"></span>Alta frequência de doenças foliares</li>
+        <li><span class="d"></span>Quer decidir rápido sem esperar técnico</li>
+      </ul>
+      <div class="persona-tags" style="margin-top:auto; padding-top:14px;">
+        <span class="tag">Grãos</span>
+        <span class="tag gray">Free → Pro</span>
+      </div>
+    </div>
+
+    <!-- Persona 2 -->
+    <div class="persona" style="border-top:4px solid var(--g3);">
+      <div class="persona-e">🍅</div>
+      <div class="persona-t">Produtor de Horticultura<br>e Fruticultura</div>
+      <div class="persona-s">Alto valor por hectare · margem sensível a perdas</div>
+      <ul class="blist" style="gap:10px;">
+        <li><span class="d"></span>Doenças causam perda total da safra</li>
+        <li><span class="d"></span>Ciclos curtos exigem diagnóstico rápido</li>
+        <li><span class="d"></span>Potencial de expansão imediata do modelo</li>
+      </ul>
+      <div class="persona-tags" style="margin-top:auto; padding-top:14px;">
+        <span class="tag">Horticultura</span>
+        <span class="tag">Fruticultura</span>
+        <span class="tag gray">Pro</span>
+      </div>
+    </div>
+
+    <!-- Persona 3 -->
+    <div class="persona" style="border-top:4px solid #F9A825;">
+      <div class="persona-e">🧑‍🔬</div>
+      <div class="persona-t">Técnico Agrônomo<br>e Cooperativa</div>
+      <div class="persona-s">Assistência técnica · dezenas de produtores atendidos</div>
+      <ul class="blist" style="gap:10px;">
+        <li><span class="d"></span>Precisa de laudos rápidos e exportáveis</li>
+        <li><span class="d"></span>Distribui para sua base de produtores</li>
+        <li><span class="d"></span>Canal de crescimento B2B natural</li>
+      </ul>
+      <div class="persona-tags" style="margin-top:auto; padding-top:14px;">
+        <span class="tag">B2B</span>
+        <span class="tag gray">Enterprise</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span class="foot-brand">AgroVision · 2026</span><span class="foot-num">5 / 8</span></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- 6 · MODELO DE NEGÓCIO                         -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="label">Modelo de Negócio</div>
+  <h2>Freemium + SaaS — <span class="hl">receita previsível</span></h2>
+
+  <div class="plans">
+    <!-- FREE -->
+    <div class="plan">
+      <div class="plan-name">Free</div>
+      <div class="plan-price">R$&nbsp;0</div>
+      <div class="plan-period">sempre gratuito · isca de aquisição</div>
+      <ul class="plan-feat">
+        <li>5 análises / mês</li>
+        <li>Resultado + recomendação básica</li>
+        <li>Histórico últimos 7 dias</li>
+      </ul>
+    </div>
+
+    <!-- PRO -->
+    <div class="plan feat">
+      <div class="plan-badge">✨ Foco de receita</div>
+      <div class="plan-name">Produtor Pro</div>
+      <div class="plan-price">R$&nbsp;39<sub>/mês</sub></div>
+      <div class="plan-period">ou R$&nbsp;390/ano — 2 meses grátis</div>
+      <ul class="plan-feat">
+        <li>Análises ilimitadas</li>
+        <li>Histórico completo + exportação Excel</li>
+        <li>Recomendações detalhadas de manejo</li>
+        <li>Todas as culturas disponíveis</li>
+        <li>Suporte via WhatsApp</li>
+      </ul>
+    </div>
+
+    <!-- AGRÔNOMO -->
+    <div class="plan feat" style="border-color:var(--g3); background:#F0FAF4;">
+      <div class="plan-badge" style="background:var(--g3);">👨‍🔬 Para técnicos</div>
+      <div class="plan-name">Agrônomo</div>
+      <div class="plan-price" style="color:var(--g3);">R$&nbsp;89<sub>/mês</sub></div>
+      <div class="plan-period">por técnico · gerencia até 10 produtores</div>
+      <ul class="plan-feat">
+        <li>Tudo do Produtor Pro</li>
+        <li>Painel de produtores vinculados</li>
+        <li>Relatório consolidado por produtor</li>
+        <li>Laudos exportáveis com assinatura</li>
+      </ul>
+    </div>
+
+    <!-- COOPERATIVA -->
+    <div class="plan" style="border-color:#F9A825; background:#FFFDE7;">
+      <div class="plan-name" style="color:#E65100;">Cooperativa</div>
+      <div class="plan-price" style="color:#E65100;">R$&nbsp;249<sub>/mês</sub></div>
+      <div class="plan-period">até 5 técnicos incluídos</div>
+      <ul class="plan-feat">
+        <li>Tudo do plano Agrônomo</li>
+        <li>Dashboard centralizado da equipe</li>
+        <li>Onboarding e treinamento presencial</li>
+        <li>Suporte prioritário</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="foot"><span class="foot-brand">AgroVision · 2026</span><span class="foot-num">6 / 8</span></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- 7 · ESCALABILIDADE                            -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="label">Escalabilidade</div>
+  <h2>De milho para o <span class="hl">agro completo</span> — em 24 meses</h2>
+
+  <div class="row" style="margin-top:8px;">
+    <div class="col2">
+      <div class="tl">
+        <div class="tl-row">
+          <div class="tl-l"><div class="tl-dot dot-done"></div><div class="tl-line"></div></div>
+          <div class="tl-r">
+            <div class="tl-period">✅ Concluído · 2025</div>
+            <div class="tl-title">MVP funcionando — milho, iOS + Android</div>
+            <div class="tl-tags">
+              <span class="tag">App publicado</span>
+              <span class="tag">IA embarcada</span>
+              <span class="tag">Diagnóstico em &lt;1s</span>
+            </div>
+          </div>
+        </div>
+        <div class="tl-row">
+          <div class="tl-l"><div class="tl-dot dot-soon"></div><div class="tl-line"></div></div>
+          <div class="tl-r">
+            <div class="tl-period">📅 2º Sem 2025 — Monetização</div>
+            <div class="tl-title">Lançar planos pagos · primeiras novas culturas · 100 pagantes</div>
+            <div class="tl-tags">
+              <span class="tag">Planos Pro</span>
+              <span class="tag">Novas culturas</span>
+              <span class="tag">Receita recorrente</span>
+            </div>
+          </div>
+        </div>
+        <div class="tl-row">
+          <div class="tl-l"><div class="tl-dot dot-future"></div><div class="tl-line"></div></div>
+          <div class="tl-r">
+            <div class="tl-period">📅 2026 — B2B + Tecnologia</div>
+            <div class="tl-title">Cooperativas · operação 100% offline · integração IoT</div>
+            <div class="tl-tags">
+              <span class="tag gray">Cooperativas</span>
+              <span class="tag gray">Offline total</span>
+              <span class="tag gray">Sensores IoT</span>
+            </div>
+          </div>
+        </div>
+        <div class="tl-row">
+          <div class="tl-l"><div class="tl-dot dot-future"></div></div>
+          <div class="tl-r">
+            <div class="tl-period">📅 2027+ — Escala</div>
+            <div class="tl-title">Mais culturas · dados viram produto · EMBRAPA</div>
+            <div class="tl-tags">
+              <span class="tag gray">Inteligência de mercado</span>
+              <span class="tag gray">EMBRAPA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col" style="gap:14px;">
+      <div class="card green" style="padding:20px;">
+        <div style="font-size:18px; margin-bottom:8px;">📈</div>
+        <div style="font-size:13px; font-weight:700; color:var(--g2); margin-bottom:8px;">Por que escala?</div>
+        <ul class="blist" style="margin:0; gap:10px;">
+          <li><span class="d"></span><span style="font-size:13px;">Novo modelo por cultura custa &lt; R$&nbsp;500</span></li>
+          <li><span class="d"></span><span style="font-size:13px;">Custo marginal por usuário ≈ zero</span></li>
+          <li><span class="d"></span><span style="font-size:13px;">Dados geram inteligência de mercado</span></li>
+        </ul>
+      </div>
+      <div class="card" style="padding:20px; text-align:center;">
+        <div style="font-size:28px; font-weight:900; color:var(--g2);">400M ha</div>
+        <div style="font-size:12px; color:var(--muted); margin-top:4px;">terras agrícolas<br>na América Latina</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span class="foot-brand">AgroVision · 2026</span><span class="foot-num">7 / 8</span></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- 8 · VALIDAÇÕES                                 -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="label">Validações</div>
+  <h2>O campo já aprovou — <span class="hl">veja o que dizem</span></h2>
+
+  <div class="vgrid">
+    <div class="vcard">
+      <div class="vsrc">👨‍🌾 Produtor · MS</div>
+      <div class="vph">📸 cole aqui<br>o print / print do app</div>
+      <div class="vq">"..."</div>
+    </div>
+    <div class="vcard">
+      <div class="vsrc">👩‍🔬 Agrônoma · GO</div>
+      <div class="vph">📸 cole aqui<br>o print / print do app</div>
+      <div class="vq">"..."</div>
+    </div>
+    <div class="vcard">
+      <div class="vsrc">🏢 Cooperativa · MT</div>
+      <div class="vph">📸 cole aqui<br>o print / print do app</div>
+      <div class="vq">"..."</div>
+    </div>
+    <div class="vcard">
+      <div class="vsrc">📱 App / Play Store</div>
+      <div class="vph">📸 print da<br>avaliação / nota</div>
+      <div class="vq">"..."</div>
+    </div>
+    <div class="vcard">
+      <div class="vsrc">🎓 Prof. / Pesquisador</div>
+      <div class="vph">📸 print de<br>e-mail ou mensagem</div>
+      <div class="vq">"..."</div>
+    </div>
+
+    <!-- encerramento -->
+    <div style="background:var(--g2); border-radius:14px; padding:22px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px;">
+      <span style="font-size:44px;">🌾</span>
+      <div style="font-size:22px; font-weight:900; color:#fff; letter-spacing:-0.5px;">AgroVision</div>
+      <div style="font-size:12px; color:rgba(255,255,255,.75); line-height:1.6;">Diagnóstico vegetal por IA<br>em menos de 1 segundo</div>
+      <div style="margin-top:6px; background:rgba(255,255,255,.15); border-radius:99px; padding:6px 16px; font-size:11px; color:#fff; font-weight:700;">🚀 Inovar para Cuidar · 2026</div>
+    </div>
+  </div>
+
+  <div class="foot"><span class="foot-brand">AgroVision · 2026</span><span class="foot-num">8 / 8</span></div>
+</div>
+
+</body>
+</html>

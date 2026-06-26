@@ -95,18 +95,12 @@ const genId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
 // ─── Railway WebSocket ─────────────────────────────────────────────────────────
 
-async function classifyViaRailway(
-  imageUri: string,
+function openWsConnection(
+  b64: string,
   analysisType: string,
+  t0: number,
   onProgress?: ProgressCallback,
 ): Promise<ClassifyResult> {
-  const t0 = Date.now();
-
-  // Lê o arquivo como base64
-  const b64 = await FileSystem.readAsStringAsync(imageUri, {
-    encoding: FileSystem.EncodingType.Base64,
-  });
-
   return new Promise<ClassifyResult>((resolve, reject) => {
     const wsUrl = `${toWsUrl(BASE_URL)}/ws/classify?api_key=${encodeURIComponent(API_KEY)}`;
     const ws = new WebSocket(wsUrl);
@@ -116,7 +110,7 @@ async function classifyViaRailway(
       if (!settled) {
         settled = true;
         ws.close();
-        reject(new Error('Railway classify timeout'));
+        reject(new Error('timeout'));
       }
     }, WS_TIMEOUT);
 
@@ -164,18 +158,66 @@ async function classifyViaRailway(
       if (!settled) {
         settled = true;
         clearTimeout(timer);
-        reject(new Error('WebSocket connection error'));
+        reject(new Error('connection_error'));
       }
     };
 
-    ws.onclose = () => {
+    ws.onclose = (ev) => {
       if (!settled) {
         settled = true;
         clearTimeout(timer);
-        reject(new Error('WebSocket closed unexpectedly'));
+        // código 4003 = chave de API rejeitada pelo servidor
+        if (ev.code === 4003) {
+          reject(new Error('invalid_api_key'));
+        } else {
+          reject(new Error('connection_error'));
+        }
       }
     };
   });
+}
+
+async function classifyViaRailway(
+  imageUri: string,
+  analysisType: string,
+  onProgress?: ProgressCallback,
+): Promise<ClassifyResult> {
+  const t0 = Date.now();
+
+  const b64 = await FileSystem.readAsStringAsync(imageUri, {
+    encoding: FileSystem.EncodingType.Base64,
+  });
+
+  try {
+    return await openWsConnection(b64, analysisType, t0, onProgress);
+  } catch (err) {
+    const code = err instanceof Error ? err.message : '';
+
+    if (code === 'invalid_api_key') {
+      throw new Error('Chave de API inválida. Verifique as configurações do servidor.');
+    }
+
+    if (code !== 'connection_error' && code !== 'timeout') {
+      // erro vindo do servidor (ex.: imagem corrompida) — não retentar
+      throw err;
+    }
+
+    // O Railway hiberna após inatividade e pode levar alguns segundos para acordar.
+    // Aguarda 4 s e tenta uma segunda vez antes de falhar definitivamente.
+    logger.warn('[ClassifyService] Conexão falhou — servidor pode estar acordando. Tentando novamente em 4 s...');
+    onProgress?.('Aguardando servidor...', 5);
+
+    await new Promise<void>((r) => setTimeout(r, 4_000));
+
+    try {
+      return await openWsConnection(b64, analysisType, t0, onProgress);
+    } catch {
+      throw new Error(
+        'Não foi possível conectar ao servidor de IA.\n' +
+        'Verifique sua conexão com a internet e tente novamente.',
+      );
+    }
+  }
 }
 
 // ─── Ponto de entrada público ──────────────────────────────────────────────────
