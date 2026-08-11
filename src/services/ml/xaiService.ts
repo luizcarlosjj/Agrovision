@@ -3,7 +3,7 @@
  *
  * Dois modos:
  *   analyzeWithXAIWS   — WebSocket com progresso em tempo real (preferido)
- *   analyzeWithXAI     — HTTP multipart (fallback / compatibilidade)
+ *   analyzeWithXAI     — HTTP multipart (usado pelo TestMode em lote)
  *   checkXAIBackendHealth — verifica disponibilidade do backend
  */
 

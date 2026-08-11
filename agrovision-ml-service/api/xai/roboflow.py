@@ -1,12 +1,11 @@
 """
 Roboflow classification proxy.
 
-Calls the Roboflow Serverless Inference API for classification and returns a
-normalised result dict.
+Chama a Roboflow Serverless Inference API e devolve um dict normalizado.
 
-Required Railway env vars:
-    ROBOFLOW_API_KEY   — e.g. "nCS2G2BqZxMZoEJxLKGZ"
-    ROBOFLOW_MODEL_ID  — workspace/model-slug/version  e.g. "apscivil/corn-maize-leaf-disease-kmpiq/2"
+Env vars obrigatórias:
+    ROBOFLOW_API_KEY   — chave da conta Roboflow (não commitar)
+    ROBOFLOW_MODEL_ID  — formato "workspace/model-slug/version" (ou "slug/version")
 """
 
 from __future__ import annotations

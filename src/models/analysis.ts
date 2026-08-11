@@ -1,19 +1,16 @@
 /**
- * Analysis Domain Models
- * Core data structures for plant analysis
+ * Analysis Domain Models — resultado de diagnóstico de doenças do milho.
  */
 
 import { AnalysisType } from './api';
 
-/**
- * Complete analysis result stored in database
- */
+/** Resultado completo persistido no SQLite. */
 export interface Analysis {
   id: string;
   type: AnalysisType;
   result: string;
   classKey: string;
-  source: 'roboflow' | 'local' | 'tflite';
+  source: 'roboflow';
   confidence: number;
   description: string;
   recommendations: string[];
@@ -24,9 +21,7 @@ export interface Analysis {
   updatedAt: string;
 }
 
-/**
- * Simplified analysis for history display
- */
+/** Item resumido usado na lista de histórico. */
 export interface AnalysisHistoryItem {
   id: string;
   type: AnalysisType;
@@ -36,9 +31,6 @@ export interface AnalysisHistoryItem {
   thumbnail?: string;
 }
 
-/**
- * Analysis state for context management
- */
 export interface AnalysisState {
   currentAnalysis: Analysis | null;
   isLoading: boolean;
@@ -47,9 +39,6 @@ export interface AnalysisState {
   lastAnalysisType?: AnalysisType;
 }
 
-/**
- * Actions for analysis reducer
- */
 export type AnalysisAction =
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ANALYSIS'; payload: Analysis }
@@ -60,55 +49,3 @@ export type AnalysisAction =
   | { type: 'CLEAR_ERROR' }
   | { type: 'DELETE_FROM_HISTORY'; payload: string }
   | { type: 'RESET' };
-
-/**
- * Disease detection specific data
- */
-export interface DiseaseResult {
-  type: 'disease';
-  diseaseName: string;
-  affectedAreas: string[];
-  severity: 'mild' | 'moderate' | 'severe';
-  treatment: string[];
-}
-
-/**
- * Pest detection specific data
- */
-export interface PestResult {
-  type: 'pest';
-  pestName: string;
-  pestType: 'insect' | 'arachnid' | 'nematode' | 'disease_vector';
-  severity: 'low' | 'medium' | 'high';
-  treatment: string[];
-}
-
-/**
- * Species identification specific data
- */
-export interface SpeciesResult {
-  type: 'species';
-  scientificName: string;
-  commonName: string;
-  family: string;
-  careInstructions: string[];
-}
-
-/**
- * Nutrient deficiency detection specific data
- */
-export interface NutrientResult {
-  type: 'nutrient';
-  deficientNutrient: string;
-  symptoms: string[];
-  recommendation: string[];
-}
-
-/**
- * Union type for any analysis result
- */
-export type AnalysisResultType =
-  | DiseaseResult
-  | PestResult
-  | SpeciesResult
-  | NutrientResult;

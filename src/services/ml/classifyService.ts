@@ -1,12 +1,11 @@
 /**
- * Classification Service — online-first com fallback TFLite.
+ * Classification Service — 100% online via Roboflow (proxy Railway).
  *
  * Fluxo:
- *   1. Tenta WebSocket /ws/classify no Railway (progresso em tempo real)
- *   2. Em caso de falha/timeout (10 s), cai no TFLite local (offline)
- *
- * O resultado tem o mesmo shape que o analysisService retornava, permitindo
- * que o AnalysisContext funcione sem alterações no esquema do SQLite.
+ *   1. Abre WebSocket /ws/classify no backend Railway com progresso em tempo real
+ *   2. O backend encaminha a imagem para o modelo publicado no Roboflow e retorna
+ *      a classe prevista (Blight, Common_Rust, Gray_Leaf_Spot, Healthy) + confiança
+ *   3. Sem fallback local — se a rede/servidor falhar, o app mostra erro ao usuário
  */
 
 import * as FileSystem from 'expo-file-system/legacy';
@@ -16,12 +15,11 @@ const BASE_URL   = (process.env.EXPO_PUBLIC_API_URL ?? 'https://agrovision-produ
 const API_KEY    = process.env.EXPO_PUBLIC_API_KEY ?? '';
 const WS_TIMEOUT = 12_000; // ms
 
-// Converte https:// → wss://, http:// → ws://
 function toWsUrl(url: string): string {
   return url.replace(/^https?/, (m) => (m === 'https' ? 'wss' : 'ws'));
 }
 
-export type ClassifySource = 'roboflow' | 'local' | 'tflite';
+export type ClassifySource = 'roboflow';
 
 export interface ClassifyResult {
   id: string;
@@ -38,7 +36,7 @@ export interface ClassifyResult {
 
 export type ProgressCallback = (step: string, pct: number) => void;
 
-// ─── Descrições e recomendações por classe (mesmo conteúdo do tfliteService) ─
+// ─── Descrições e recomendações por classe ────────────────────────────────────
 
 const CLASS_INFO: Record<string, { label: string; description: string; recommendations: string[] }> = {
   Blight: {
@@ -140,7 +138,7 @@ function openWsConnection(
             recommendations: info.recommendations,
             timestamp: new Date().toISOString(),
             processingTime: Date.now() - t0,
-            source: (msg.source === 'roboflow' ? 'roboflow' : 'local') as ClassifySource,
+            source: 'roboflow',
           });
         } else if (msg.event === 'error') {
           if (settled) return;

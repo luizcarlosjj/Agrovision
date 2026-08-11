@@ -1,91 +1,95 @@
-# AgroVision - Species Identification App
+# AgroVision
 
-Aplicativo offline-first para identificação de espécies de plantas usando inteligência artificial.
+Aplicativo mobile para **diagnóstico de doenças foliares do milho** por visão
+computacional. TCC em Ciência da Computação, com ênfase em **Inteligência
+Artificial Explicável (XAI)**.
 
-## Quick Start
+- Classificação: 100% online via **Roboflow**
+- Explicabilidade: **Grad-CAM** + **Attention Leakage (AL)** e **Attention Focus Score (AFS)**
+  computados em backend próprio (FastAPI)
 
-**Novo no projeto?** Comece por aqui: [COMECE_AQUI.md](COMECE_AQUI.md)
+Documentação completa e didática: [PROJETO.md](PROJETO.md).
 
-## Documentação
-
-- **[COMECE_AQUI.md](COMECE_AQUI.md)** - Guia de início rápido (português)
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Arquitetura geral do projeto
-- **[PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)** - Estrutura de pastas e arquivos
-
-## Overview
+## Arquitetura
 
 ```
-App (React Native/Expo)
-  ├─ TFLite Inference (100% offline)
-  │  └─ Identifica espécies de plantas
-  │
-  ├─ Modo Científico / XAI (opt-in, online)
-  │  └─ Grad-CAM + Attention Leakage via backend Python
-  │
-  └─ Institutional Tab (Biblioteca agronômica)
-     └─ AGRIS + OpenAgriData
+Mobile (React Native + Expo)
+   │
+   │  imagem (base64) via WebSocket
+   ▼
+Backend (FastAPI, Railway)
+   │
+   ├── /ws/classify → Roboflow Serverless API → classe + confiança
+   └── /ws/gradcam  → Modelo Keras local     → Grad-CAM + AL/AFS
 ```
 
-## Requisitos
+## Doenças detectadas
+- Blight — Helmintosporiose (*Exserohilum turcicum*)
+- Common_Rust — Ferrugem-comum (*Puccinia sorghi*)
+- Gray_Leaf_Spot — Mancha-cinzenta (*Cercospora zeae-maydis*)
+- Healthy — Folha saudável
 
-- Node.js 18+
-- Expo CLI
-- Python 3.8+ (para ML training)
+## Rodar localmente
 
-## Instalação Rápida
-
-```bash
-# Frontend
-npm install
-npx expo start
-
-# ML Training (em agrovision-ml-service/)
-pip install -r requirements.txt
-python train_species.py
-```
-
-## Features
-
-✅ Identificação de espécies 100% offline
-✅ Modelo TFLite (~12MB)
-✅ Interface em português
-✅ Sem internet necessária
-✅ Rápido (<500ms por análise)
-
-## Status
-
-- ✅ Frontend refatorado
-- ✅ ML training pipeline
-- ✅ TFLite integration
-- ✅ Offline-first architecture
-- ✅ Modo Científico com Grad-CAM + Attention Leakage (backend opcional)
-
-## Modo Científico (XAI)
-
-O app tem um card "🔬 Modo Científico" na Home que roda **Grad-CAM** sobre o
-modelo Keras original (não o TFLite) e calcula **Attention Leakage (AL)** e
-**Attention Focus Score (AFS)** para avaliar quanto o modelo foca
-corretamente na planta.
-
-Como é feature opt-in e requer gradientes (impossível no TFLite), há um
-backend Python separado em [`agrovision-ml-service/api/`](agrovision-ml-service/api/README.md).
-
-```bash
-# Treine o modelo (gera .keras + .tflite + labels.json)
+### 1. Backend
+```powershell
 cd agrovision-ml-service
-python train_species.py
-
-# Suba o backend XAI
+pip install -r requirements.txt
+$env:AGROVISION_API_KEY = "chave-forte-min-16-chars"
+$env:ROBOFLOW_API_KEY   = "sua-chave-roboflow"
+$env:ROBOFLOW_MODEL_ID  = "workspace/modelo/versao"
 uvicorn api.server:app --host 0.0.0.0 --port 5000 --reload
-
-# No app, configure a URL do backend antes do expo start:
-#   EXPO_PUBLIC_XAI_URL=http://<IP-da-máquina>:5000
 ```
 
-## Contribuindo
+### 2. App mobile
+```powershell
+npm install
+Copy-Item .env.example .env.local
+# edite .env.local com EXPO_PUBLIC_API_URL e EXPO_PUBLIC_API_KEY
+npx expo start
+```
+Abra pelo Expo Go (Android/iOS) escaneando o QR Code.
 
-Para alterações significativas, atualize a documentação em `ARCHITECTURE.md`.
+## Estrutura do repositório
 
----
+```
+Agrovision/
+├── src/                       # App React Native
+│   ├── screens/               # Home, Camera, Processing, Result, Auditar, TestMode, History, About
+│   ├── components/            # ui/, common/, xai/
+│   ├── services/              # ml/ (Roboflow + Grad-CAM), storage/ (SQLite), camera/
+│   ├── context/               # AppContext + AnalysisContext
+│   ├── models/                # tipos de domínio (analysis, api, xai)
+│   ├── navigation/            # RootNavigator + tipos
+│   └── utils/                 # constants, format, logger, csv/excel export
+├── agrovision-ml-service/     # Backend FastAPI (Roboflow proxy + XAI)
+│   ├── api/
+│   │   ├── server.py          # endpoints REST + WebSocket
+│   │   └── xai/               # gradcam, mask, metrics, overlay, roboflow
+│   ├── model_species.keras    # modelo Keras (usado só para Grad-CAM)
+│   └── labels_species.json
+├── TCC-docs/                  # 10 documentos acadêmicos do TCC
+├── PROJETO.md                 # Documentação didática para leigos
+└── README.md
+```
 
-**Dúvidas?** Veja [COMECE_AQUI.md](COMECE_AQUI.md) para mais instruções.
+## Deploy
+
+- **Backend:** Railway — `Procfile` pronto; configure as env vars em
+  Settings → Variables (`AGROVISION_API_KEY`, `ROBOFLOW_API_KEY`, `ROBOFLOW_MODEL_ID`).
+- **App:** EAS Build (`npx eas build`) para gerar APK/IPA.
+
+## Segurança
+
+- Autenticação via API key compartilhada (header `X-API-Key` no HTTP, query
+  param `?api_key=` no WebSocket).
+- Comparação em tempo constante (`hmac.compare_digest`).
+- Backend recusa qualquer request se `AGROVISION_API_KEY` não estiver
+  configurada (fail-closed).
+- CORS explícito (nenhuma origem permitida por default; ajuste
+  `AGROVISION_CORS_ORIGINS` se for expor um cliente web).
+- Limite de tamanho de imagem (`AGROVISION_MAX_IMAGE_MB`, default 5 MB).
+
+## Licença
+
+MIT.

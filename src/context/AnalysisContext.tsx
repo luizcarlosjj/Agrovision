@@ -101,7 +101,6 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
 
         logger.log(`[AnalysisContext] Starting analysis: ${type}`);
 
-        // Online-first: Railway WS → TFLite fallback
         const classifyResult = await classify(imageUri, type);
 
         const analysis: Analysis = {

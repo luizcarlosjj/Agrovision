@@ -76,18 +76,12 @@ export function capitalizeFirst(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-/**
- * Convert analysis type to readable label
- */
-export function getAnalysisTypeLabel(type: 'species'): string {
-  return 'Identificar Espécie';
+export function getAnalysisTypeLabel(_type: 'disease'): string {
+  return 'Doença do Milho';
 }
 
-/**
- * Get emoji for analysis type
- */
-export function getAnalysisTypeEmoji(type: 'species'): string {
-  return '🌱';
+export function getAnalysisTypeEmoji(_type: 'disease'): string {
+  return '🌽';
 }
 
 /**

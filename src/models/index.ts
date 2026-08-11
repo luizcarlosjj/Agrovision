@@ -13,19 +13,7 @@ export type {
   AnalysisHistoryItem,
   AnalysisState,
   AnalysisAction,
-  DiseaseResult,
-  PestResult,
-  SpeciesResult,
-  NutrientResult,
-  AnalysisResultType,
 } from './analysis';
-
-// Institutional Types
-export type {
-  WikiArticle,
-  CategoryItem,
-  Category,
-} from './institutional';
 
 // XAI (Grad-CAM + Attention Leakage) Types
 export type {

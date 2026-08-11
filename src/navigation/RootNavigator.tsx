@@ -1,6 +1,5 @@
 /**
- * Root Navigator
- * Main navigation structure with Bottom Tab Navigator
+ * Root Navigator — Bottom Tabs + Stack.
  */
 
 import React from 'react';
@@ -14,153 +13,52 @@ import {
   ProcessingScreen,
   ResultScreen,
   AuditarModeloScreen,
-  InstitutionalScreen,
-  CategoryScreen,
-  ArticleScreen,
   TestModeScreen,
   HistoryScreen,
+  AboutScreen,
 } from '@screens';
 import { RootStackParamList } from './types';
 import { COLORS } from '@utils/constants';
 
-/**
- * Create navigators
- */
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<RootStackParamList>();
 
-/**
- * Analysis Stack Navigator
- */
 function AnalysisNavigator() {
   return (
     <Stack.Navigator
       initialRouteName="Home"
       screenOptions={{
         headerShown: false,
-        cardStyle: {
-          backgroundColor: COLORS.BACKGROUND,
-        },
+        cardStyle: { backgroundColor: COLORS.BACKGROUND },
         animationEnabled: true,
       }}
     >
-      <Stack.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{
-          title: 'AgroVision',
-        }}
-      />
-
-      <Stack.Screen
-        name="Camera"
-        component={CameraScreen}
-        options={{
-          title: 'Capturar Imagem',
-          animationEnabled: true,
-        }}
-      />
-
-      <Stack.Screen
-        name="Processing"
-        component={ProcessingScreen}
-        options={{
-          title: 'Processando',
-          animationEnabled: false,
-          gestureEnabled: false,
-        }}
-      />
-
-      <Stack.Screen
-        name="Result"
-        component={ResultScreen}
-        options={{
-          title: 'Resultado',
-          animationEnabled: true,
-        }}
-      />
-
-      <Stack.Screen
-        name="AuditarModelo"
-        component={AuditarModeloScreen}
-        options={{
-          title: 'Auditar Modelo',
-          animationEnabled: true,
-        }}
-      />
-
-      <Stack.Screen
-        name="TestMode"
-        component={TestModeScreen}
-        options={{
-          title: 'Modo Científico (lote)',
-        }}
-      />
+      <Stack.Screen name="Home"          component={HomeScreen}          options={{ title: 'AgroVision' }} />
+      <Stack.Screen name="Camera"        component={CameraScreen}        options={{ title: 'Capturar Imagem' }} />
+      <Stack.Screen name="Processing"    component={ProcessingScreen}    options={{ title: 'Processando', gestureEnabled: false, animationEnabled: false }} />
+      <Stack.Screen name="Result"        component={ResultScreen}        options={{ title: 'Resultado' }} />
+      <Stack.Screen name="AuditarModelo" component={AuditarModeloScreen} options={{ title: 'Auditar Modelo' }} />
+      <Stack.Screen name="TestMode"      component={TestModeScreen}      options={{ title: 'Modo Científico (lote)' }} />
     </Stack.Navigator>
   );
 }
 
 function HistoryNavigator() {
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: false,
-        cardStyle: { backgroundColor: COLORS.BACKGROUND },
-      }}
-    >
+    <Stack.Navigator screenOptions={{ headerShown: false, cardStyle: { backgroundColor: COLORS.BACKGROUND } }}>
       <Stack.Screen name="History" component={HistoryScreen} />
     </Stack.Navigator>
   );
 }
 
-
-/**
- * Institutional Stack Navigator
- */
-function InstitutionalNavigator() {
+function AboutNavigator() {
   return (
-    <Stack.Navigator
-      initialRouteName="InstitutionalHome"
-      screenOptions={{
-        headerShown: false,
-        cardStyle: {
-          backgroundColor: COLORS.BACKGROUND,
-        },
-        animationEnabled: true,
-      }}
-    >
-      <Stack.Screen
-        name="InstitutionalHome"
-        component={InstitutionalScreen}
-        options={{
-          title: 'Biblioteca Agronômica',
-        }}
-      />
-
-      <Stack.Screen
-        name="InstitutionalCategory"
-        component={CategoryScreen}
-        options={{
-          title: 'Categoria',
-          animationEnabled: true,
-        }}
-      />
-
-      <Stack.Screen
-        name="InstitutionalArticle"
-        component={ArticleScreen}
-        options={{
-          title: 'Artigo',
-          animationEnabled: true,
-        }}
-      />
+    <Stack.Navigator screenOptions={{ headerShown: false, cardStyle: { backgroundColor: COLORS.BACKGROUND } }}>
+      <Stack.Screen name="About" component={AboutScreen} />
     </Stack.Navigator>
   );
 }
 
-/**
- * Root navigator component with Bottom Tabs
- */
 export function RootNavigator() {
   return (
     <NavigationContainer>
@@ -182,7 +80,7 @@ export function RootNavigator() {
           options={{
             title: 'Análise',
             tabBarLabel: 'Análise',
-            tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🌾</Text>,
+            tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🌽</Text>,
           }}
           listeners={({ navigation }) => ({
             tabPress: (e) => {
@@ -203,12 +101,12 @@ export function RootNavigator() {
         />
 
         <Tab.Screen
-          name="Institutional"
-          component={InstitutionalNavigator}
+          name="AboutTab"
+          component={AboutNavigator}
           options={{
-            title: 'Institucional',
-            tabBarLabel: 'Institucional',
-            tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>📚</Text>,
+            title: 'Sobre',
+            tabBarLabel: 'Sobre',
+            tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>ℹ️</Text>,
           }}
         />
       </Tab.Navigator>

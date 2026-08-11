@@ -33,7 +33,7 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
         </View>
         <View>
           <Text style={styles.brandName}>AgroVision</Text>
-          <Text style={styles.brandTagline}>Diagnóstico vegetal por IA</Text>
+          <Text style={styles.brandTagline}>Diagnóstico de doenças do milho por IA</Text>
         </View>
       </View>
 
@@ -41,15 +41,15 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
         {/* ── Main Action Card ── */}
         <TouchableOpacity
           activeOpacity={0.82}
-          onPress={() => navigation.navigate('Camera', { analysisType: 'species' })}
+          onPress={() => navigation.navigate('Camera', { analysisType: 'disease' })}
           style={styles.mainCard}
         >
           <View style={styles.mainCardTopBar} />
           <View style={styles.mainCardBody}>
-            <Text style={styles.mainCardEmoji}>🌱</Text>
-            <Text style={styles.mainCardTitle}>Identificar Espécie</Text>
+            <Text style={styles.mainCardEmoji}>🌽</Text>
+            <Text style={styles.mainCardTitle}>Diagnosticar Doença</Text>
             <Text style={styles.mainCardDesc}>
-              Fotografe uma folha e a IA identifica a espécie, detecta doenças e sugere tratamento em segundos.
+              Fotografe uma folha de milho e a IA identifica a doença e sugere o manejo em segundos.
             </Text>
             <View style={styles.mainCardCta}>
               <Text style={styles.mainCardCtaText}>Iniciar análise →</Text>

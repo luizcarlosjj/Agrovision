@@ -3,7 +3,7 @@
  * Definitions for API requests and responses
  */
 
-export type AnalysisType = 'species';
+export type AnalysisType = 'disease';
 
 /**
  * Response from analysis service

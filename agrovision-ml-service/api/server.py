@@ -1,29 +1,39 @@
 """
-AgroVision XAI Backend (FastAPI).
+AgroVision Backend (FastAPI).
 
-REST endpoints (compatibilidade):
+Classificação de doenças do milho: 100% online via Roboflow.
+Grad-CAM / XAI: rodado localmente usando o modelo Keras (necessário para
+calcular gradientes — Roboflow não expõe essa informação).
+
+REST endpoints:
   GET  /api/health
   POST /api/xai/gradcam
 
-WebSocket endpoints (online-first, progresso em tempo real):
-  WS   /ws/classify   — classifica imagem (Roboflow → local Keras fallback)
-  WS   /ws/gradcam    — Grad-CAM + AL/AFS com progresso
+WebSocket endpoints (progresso em tempo real):
+  WS   /ws/classify   — Roboflow via proxy
+  WS   /ws/gradcam    — Grad-CAM + AL/AFS
 
 Autenticação:
   HTTP  → header X-API-Key
   WS    → query param ?api_key=...
 
-Variáveis de ambiente:
-  AGROVISION_API_KEY   — chave compartilhada com o app mobile
-  ROBOFLOW_API_KEY     — opcional, melhora classificação
-  ROBOFLOW_MODEL_ID    — opcional, id do modelo Roboflow
+Variáveis de ambiente obrigatórias:
+  AGROVISION_API_KEY   — chave compartilhada com o app mobile (mín. 16 chars)
+  ROBOFLOW_API_KEY     — chave da conta Roboflow
+  ROBOFLOW_MODEL_ID    — id do modelo publicado no Roboflow
+
+Variáveis opcionais:
+  AGROVISION_CORS_ORIGINS — origens permitidas, separadas por vírgula (default: sem CORS)
+  AGROVISION_MAX_IMAGE_MB — tamanho máximo do upload em MB (default: 5)
 """
 
 from __future__ import annotations
 
 import base64
+import hmac
 import io
 import json
+import logging
 import os
 import time
 from typing import List, Optional
@@ -44,21 +54,35 @@ from api.xai import roboflow as roboflow_mod
 from api.xai.metrics import compute_attention_leakage
 from api.xai.model_loader import registry
 
+logger = logging.getLogger("agrovision")
+
 IMG_SIZE = 224
-_API_KEY = os.environ.get("AGROVISION_API_KEY", "")
+_API_KEY = os.environ.get("AGROVISION_API_KEY", "").strip()
+_MAX_IMAGE_BYTES = int(float(os.environ.get("AGROVISION_MAX_IMAGE_MB", "5")) * 1024 * 1024)
+_CORS_ORIGINS = [
+    o.strip() for o in os.environ.get("AGROVISION_CORS_ORIGINS", "").split(",") if o.strip()
+]
+
+# Fail-closed: se a chave não estiver configurada, o backend recusa qualquer request.
+# Isso evita que um deploy sem env variável exponha os endpoints sem autenticação.
+if not _API_KEY or len(_API_KEY) < 16:
+    logger.warning(
+        "AGROVISION_API_KEY não configurada ou fraca (<16 chars). "
+        "Todos os requests serão rejeitados até que uma chave forte seja definida."
+    )
 
 app = FastAPI(
-    title="AgroVision XAI Backend",
-    description="Grad-CAM + Attention Leakage + WebSocket progress.",
+    title="AgroVision Backend",
+    description="Roboflow proxy + Grad-CAM + Attention Leakage.",
     version="2.0.0",
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_CORS_ORIGINS,
     allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST"],
+    allow_headers=["X-API-Key", "Content-Type"],
 )
 
 
@@ -67,12 +91,14 @@ def _load_model_on_startup() -> None:
     registry.load()
 
 
-# ─── Auth helpers ─────────────────────────────────────────────────────────────
+# ─── Auth helpers (fail-closed + constant-time compare) ───────────────────────
 
 def _check_api_key(key: str) -> bool:
-    if not _API_KEY:
-        return True  # não configurado → sem restrição (útil em dev local)
-    return key == _API_KEY
+    if not _API_KEY or len(_API_KEY) < 16:
+        return False
+    if not key:
+        return False
+    return hmac.compare_digest(key, _API_KEY)
 
 
 def _require_http_key(key: str) -> None:
@@ -81,6 +107,14 @@ def _require_http_key(key: str) -> None:
 
 
 # ─── Image helpers ─────────────────────────────────────────────────────────────
+
+def _check_size(data: bytes) -> None:
+    if len(data) > _MAX_IMAGE_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Image exceeds max size ({_MAX_IMAGE_BYTES // (1024 * 1024)} MB)",
+        )
+
 
 def _read_image_bytes(data: bytes) -> np.ndarray:
     try:
@@ -111,27 +145,16 @@ def _heatmap_to_gray_b64(heatmap: np.ndarray) -> str:
 # ─── Sync computation functions (executadas em threadpool) ────────────────────
 
 def _classify_sync(image_bytes: bytes) -> dict:
-    """Classifica imagem via Roboflow (prioritário). Erro sobe se Roboflow falhar."""
-    if roboflow_mod.is_configured():
-        result = roboflow_mod.classify(image_bytes)
-        return {
-            "prediction": result["prediction"],
-            "confidence": result["confidence"],
-            "source": "roboflow",
-        }
-
-    # Roboflow não configurado: usa modelo Keras local como último recurso
-    print("[classify] Roboflow not configured — using local Keras model")
-    image_bgr = _read_image_bytes(image_bytes)
-    input_tensor = _preprocess_for_model(image_bgr)
-    preds = registry.model(input_tensor, training=False).numpy()
-    pred_idx = int(np.argmax(preds[0]))
-    confidence = float(preds[0, pred_idx])
+    """Classifica imagem 100% via Roboflow. Erro sobe se Roboflow falhar."""
+    if not roboflow_mod.is_configured():
+        raise RuntimeError(
+            "Roboflow não configurado. Defina ROBOFLOW_API_KEY e ROBOFLOW_MODEL_ID."
+        )
+    result = roboflow_mod.classify(image_bytes)
     return {
-        "prediction": registry.label_for(pred_idx),
-        "predicted_index": pred_idx,
-        "confidence": confidence,
-        "source": "local",
+        "prediction": result["prediction"],
+        "confidence": result["confidence"],
+        "source": "roboflow",
     }
 
 
@@ -150,7 +173,6 @@ def _gradcam_sync(
     h, w = image_bgr.shape[:2]
     input_tensor = _preprocess_for_model(image_bgr)
 
-    # Resolve o índice de classe a partir do nome (se fornecido pelo cliente)
     class_index: Optional[int] = None
     if predicted_class:
         for idx, label in registry.labels.items():
@@ -218,6 +240,7 @@ async def ws_classify(websocket: WebSocket, api_key: str = Query(default="")):
         raw = await websocket.receive_text()
         req = json.loads(raw)
         image_bytes = base64.b64decode(req["image_b64"])
+        _check_size(image_bytes)
 
         await websocket.send_json({"event": "progress", "step": "preprocessing", "pct": 30})
         await websocket.send_json({"event": "progress", "step": "classifying", "pct": 65})
@@ -226,6 +249,11 @@ async def ws_classify(websocket: WebSocket, api_key: str = Query(default="")):
 
         await websocket.send_json({"event": "progress", "step": "done", "pct": 100})
         await websocket.send_json({"event": "result", **result})
+    except HTTPException as exc:
+        try:
+            await websocket.send_json({"event": "error", "message": exc.detail})
+        except Exception:
+            pass
     except Exception as exc:
         try:
             await websocket.send_json({"event": "error", "message": str(exc)})
@@ -248,6 +276,7 @@ async def ws_gradcam(websocket: WebSocket, api_key: str = Query(default="")):
         raw = await websocket.receive_text()
         req = json.loads(raw)
         image_bytes = base64.b64decode(req["image_b64"])
+        _check_size(image_bytes)
 
         bbox_strategy = req.get("bbox_strategy", "fixed")
         threshold     = float(req.get("threshold", 0.5))
@@ -268,6 +297,11 @@ async def ws_gradcam(websocket: WebSocket, api_key: str = Query(default="")):
         await websocket.send_json({"event": "progress", "step": "rendering_overlay",  "pct": 95})
         await websocket.send_json({"event": "progress", "step": "done",               "pct": 100})
         await websocket.send_json({"event": "result", "data": result})
+    except HTTPException as exc:
+        try:
+            await websocket.send_json({"event": "error", "message": exc.detail})
+        except Exception:
+            pass
     except Exception as exc:
         try:
             await websocket.send_json({"event": "error", "message": str(exc)})
@@ -280,7 +314,7 @@ async def ws_gradcam(websocket: WebSocket, api_key: str = Query(default="")):
             pass
 
 
-# ─── REST endpoints (compatibilidade com versão anterior) ─────────────────────
+# ─── REST endpoints ───────────────────────────────────────────────────────────
 
 class HealthResponse(BaseModel):
     status: str
@@ -333,6 +367,7 @@ async def xai_gradcam(
     raw = await image.read()
     if not raw:
         raise HTTPException(status_code=400, detail="Empty image upload")
+    _check_size(raw)
     try:
         result = await run_in_threadpool(
             _gradcam_sync,

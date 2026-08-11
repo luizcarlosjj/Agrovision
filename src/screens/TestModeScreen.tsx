@@ -1,13 +1,10 @@
 /**
  * TestModeScreen (Modo Científico XAI)
  *
- * Scientific test mode for Explainable AI. Lets the user pick one or many
- * images, runs Grad-CAM on each via the Python backend, shows the heatmap
- * overlay + Attention Leakage / Focus Score metrics, persists every run
- * to SQLite, and exports the accumulated results as CSV.
- *
- * Offline path (TFLite) is untouched — this screen is online-only because
- * Grad-CAM requires gradients from the Keras model.
+ * Modo científico para inspeção do modelo. Permite selecionar uma ou várias
+ * imagens, roda Grad-CAM em cada uma no backend Python, exibe o overlay do
+ * heatmap + métricas (Attention Leakage / Focus Score), persiste cada execução
+ * em SQLite e exporta os resultados acumulados como CSV.
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react';

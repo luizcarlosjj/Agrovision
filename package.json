@@ -1,23 +1,19 @@
 {
   "name": "agrovision-mobile",
   "version": "1.0.0",
-  "description": "AgroVision Mobile - Agricultural Diagnosis using Computer Vision",
+  "description": "AgroVision Mobile — Diagnóstico de doenças do milho por visão computacional (Roboflow + Grad-CAM)",
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "eject": "expo eject",
-    "test": "jest",
-    "type-check": "tsc --noEmit",
-    "lint": "eslint src --ext .ts,.tsx"
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-navigation/bottom-tabs": "^6.6.0",
     "@react-navigation/native": "^6.1.0",
     "@react-navigation/native-stack": "^6.11.0",
-    "@react-navigation/stack": "^6.4.0",
     "axios": "^1.6.0",
     "expo": "^54.0.0",
     "expo-camera": "^17.0.0",
@@ -42,6 +38,5 @@
     "typescript": "^5.3.0"
   },
   "private": true,
-  "author": "Your Name",
   "license": "MIT"
 }
