@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>AgroVision — Validação de Visão Computacional (explicação didática)</title>
+<style>
+  :root {
+    --bg: #FAFAF7;
+    --surface: #FFFFFF;
+    --border: #E4E1D8;
+    --text: #1F2A22;
+    --muted: #5B6660;
+    --primary: #3A7A3A;
+    --primary-dark: #2A5A2A;
+    --accent: #C0693F;
+    --warn-bg: #FFF3E0;
+    --warn-border: #FFCC80;
+    --warn-text: #5D4037;
+    --info-bg: #E8F0FE;
+    --info-border: #90CAF9;
+    --info-text: #1A3D6B;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    margin: 0;
+    padding: 40px 20px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  main { max-width: 820px; margin: 0 auto; }
+
+  header {
+    padding: 32px 32px 24px;
+    border-bottom: 2px solid var(--primary);
+    margin-bottom: 32px;
+    background: var(--surface);
+    border-radius: 14px 14px 0 0;
+    border: 1px solid var(--border);
+    border-bottom: 2px solid var(--primary);
+  }
+
+  header .kicker {
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-size: 1.9rem;
+    color: var(--primary-dark);
+    margin: 0 0 8px;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+
+  header .sub { color: var(--muted); margin: 0; font-size: 1rem; }
+
+  h2 {
+    font-size: 1.5rem;
+    color: var(--primary-dark);
+    margin: 44px 0 10px;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  h2 .section-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  h3 { font-size: 1.15rem; color: var(--text); margin: 22px 0 8px; }
+  p, li { font-size: 1rem; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 16px 0;
+  }
+
+  .title-card {
+    background: linear-gradient(135deg, #F0F5EE 0%, #E8F0E5 100%);
+    border: 1px solid #C8DDBC;
+    border-left: 4px solid var(--primary);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin: 14px 0;
+  }
+
+  .title-card .label {
+    font-size: 0.78rem;
+    color: var(--primary-dark);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+
+  .title-card .title-text {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    line-height: 1.4;
+  }
+
+  .step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--primary);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 12px 0;
+  }
+
+  .step-num {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
+  .step-body h3 { margin: 0 0 4px; color: var(--primary-dark); }
+  .step-body p { margin: 4px 0 0; color: var(--muted); }
+
+  .quote {
+    background: #F4F1EA;
+    border-left: 4px solid var(--muted);
+    padding: 10px 18px;
+    margin: 12px 0;
+    font-style: italic;
+    color: var(--text);
+    border-radius: 0 8px 8px 0;
+  }
+
+  .question {
+    background: #FFF8E7;
+    border: 1px solid #F0D689;
+    border-left: 4px solid var(--accent);
+    padding: 12px 18px;
+    margin: 10px 0;
+    border-radius: 0 8px 8px 0;
+    font-weight: 600;
+    color: #5A3A0F;
+  }
+
+  .metric {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 26px;
+    margin: 20px 0;
+  }
+
+  .metric-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 10px;
+  }
+
+  .metric-title .emoji { font-size: 1.4rem; }
+  .metric-sub { color: var(--muted); font-size: 0.95rem; margin: 0 0 12px; }
+
+  ul.check { list-style: none; padding: 0; margin: 12px 0; }
+  ul.check li { padding: 6px 0 6px 26px; position: relative; }
+  ul.check li::before { position: absolute; left: 0; top: 6px; font-size: 1rem; }
+  ul.check li.ok::before { content: "✅"; }
+  ul.check li.warn::before { content: "⚠️"; }
+  ul.check li.dot::before { content: "•"; color: var(--primary); font-weight: 700; }
+
+  ul.numbered { counter-reset: item; list-style: none; padding: 0; }
+  ul.numbered > li {
+    counter-increment: item;
+    padding: 8px 0 8px 34px;
+    position: relative;
+  }
+  ul.numbered > li::before {
+    content: counter(item);
+    position: absolute;
+    left: 0;
+    top: 6px;
+    width: 24px;
+    height: 24px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 24px;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.97rem;
+  }
+
+  th { background: #F4F1EA; font-weight: 700; color: var(--primary-dark); }
+  tr:last-child td { border-bottom: none; }
+
+  .callout {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    color: var(--warn-text);
+    padding: 16px 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+    font-size: 0.98rem;
+  }
+  .callout strong { color: var(--warn-text); }
+
+  .info {
+    background: var(--info-bg);
+    border: 1px solid var(--info-border);
+    color: var(--info-text);
+    padding: 16px 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+    font-size: 0.98rem;
+  }
+  .info strong { color: var(--info-text); }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+  code, .k {
+    font-family: "SF Mono", Consolas, "Roboto Mono", monospace;
+    background: #EFEBE0;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.92em;
+    color: var(--primary-dark);
+  }
+
+  pre {
+    background: #EFEBE0;
+    padding: 14px 18px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.9em;
+    line-height: 1.5;
+    margin: 12px 0;
+  }
+
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin: 20px 0 32px;
+  }
+
+  .toc-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0 0 10px;
+  }
+
+  .toc ol { margin: 0; padding-left: 22px; columns: 2; column-gap: 24px; }
+  .toc li { font-size: 0.94rem; margin: 2px 0; break-inside: avoid; }
+  .toc a { color: var(--text); text-decoration: none; }
+  .toc a:hover { color: var(--primary); text-decoration: underline; }
+
+  footer {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.88rem;
+    text-align: center;
+  }
+
+  @media print {
+    body { background: white; padding: 24px; }
+    .card, .step, .metric, table, .title-card { box-shadow: none; break-inside: avoid; }
+    h2 { break-after: avoid; }
+    .toc { break-after: page; }
+    header { border-bottom-color: #333; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <div class="kicker">TCC · Ciência da Computação</div>
+  <h1>Validação de Visão Computacional: a IA está mesmo olhando para o objeto de interesse?</h1>
+  <p class="sub">
+    Documento didático para apresentação e escrita do TCC. Foco na metodologia
+    de validação; o diagnóstico de doenças do milho é o estudo de caso que
+    instancia e valida empiricamente a proposta.
+  </p>
+</header>
+
+<div class="toc">
+  <p class="toc-title">Sumário</p>
+  <ol>
+    <li><a href="#titulo">Título do TCC</a></li>
+    <li><a href="#dor">O problema científico (dor)</a></li>
+    <li><a href="#solucao">Nossa solução metodológica</a></li>
+    <li><a href="#intervencao">Intervenção científica</a></li>
+    <li><a href="#resumo">Resumo do projeto</a></li>
+    <li><a href="#estudo">Estudo de caso: milho</a></li>
+    <li><a href="#metrica">As métricas explicadas</a></li>
+    <li><a href="#analogia">Analogia final</a></li>
+  </ol>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<h2 id="titulo"><span class="section-num">1</span> Título do TCC</h2>
+<p>
+  O trabalho é sobre <strong>validar visão computacional</strong> — não sobre
+  "fazer um app de milho". O milho aparece só como campo de prova. Três
+  opções de título alinhadas com esse foco:
+</p>
+
+<div class="title-card">
+  <div class="label">Opção A — direta ao ponto (recomendada)</div>
+  <div class="title-text">
+    Validação de Modelos de Visão Computacional via Análise Quantitativa de
+    Aderência à Região de Interesse: Um Estudo de Caso em Diagnóstico de
+    Doenças Foliares
+  </div>
+</div>
+
+<div class="title-card">
+  <div class="label">Opção B — foco no método</div>
+  <div class="title-text">
+    Métricas Quantitativas para Verificação de Atenção em Redes Neurais
+    Convolucionais: Auditando se a Predição Considera a Região Correta da
+    Imagem
+  </div>
+</div>
+
+<div class="title-card">
+  <div class="label">Opção C — enxuta</div>
+  <div class="title-text">
+    AgroVision: Uma Metodologia de Validação de Visão Computacional Baseada em
+    Explicabilidade Quantificada
+  </div>
+</div>
+
+<p style="color: var(--muted); font-size: 0.95rem;">
+  A opção A é a mais forte porque comunica os <strong>três pilares</strong> do
+  trabalho: (1) validação de VC, (2) método quantitativo baseado em ROI, (3)
+  estudo de caso concreto que dá credibilidade experimental.
+</p>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<h2 id="dor"><span class="section-num">2</span> O problema científico</h2>
+
+<p>
+  Redes neurais convolucionais atingem hoje níveis de acurácia altíssimos em
+  tarefas de classificação de imagem. Mas <strong>uma acurácia alta em
+  benchmark não garante que o modelo esteja tomando a decisão pelo motivo
+  correto</strong>.
+</p>
+
+<h3>As três perguntas centrais do TCC</h3>
+<div class="question">
+  ❓ A IA está verificando e definindo o resultado <em>da forma correta</em>?
+</div>
+<div class="question">
+  ❓ Ela delimitou o <em>objeto de interesse</em> na região certa da imagem, ou
+  se apoiou em pistas espúrias do fundo?
+</div>
+<div class="question">
+  ❓ Como <em>validar</em>, de forma reprodutível e automatizada, se o
+  processamento atendeu à região de interesse na geração do resultado?
+</div>
+
+<h3>Por que isso é um problema real e sem solução padronizada</h3>
+
+<ul class="check">
+  <li class="dot">
+    <strong>Shortcut learning.</strong> Redes neurais frequentemente aprendem
+    "atalhos" — pistas irrelevantes no fundo, marca-d'água, iluminação típica
+    de uma classe. Elas acertam a resposta pelo motivo errado. Quando o dado
+    de produção muda ligeiramente, o modelo despenca.
+  </li>
+  <li class="dot">
+    <strong>Ground truth manual é caro.</strong> Métodos de validação como
+    <em>Intersection over Union (IoU)</em> exigem que alguém anote
+    manualmente onde está o objeto em cada imagem de teste. Inviável em
+    escala.
+  </li>
+  <li class="dot">
+    <strong>Métricas binárias são limitadas.</strong> O <em>Pointing Game</em>
+    (Zhang et al., 2016) responde apenas <em>sim/não</em>: o pico do mapa de
+    atenção caiu dentro da caixa? Perde a granularidade necessária para
+    comparar dois modelos ambos "acertadores".
+  </li>
+  <li class="dot">
+    <strong>Grad-CAM é qualitativo.</strong> Ele mostra <em>onde</em> a rede
+    olhou, mas exige inspeção visual humana. Não escala para milhares de
+    imagens e não gera número comparável entre modelos.
+  </li>
+</ul>
+
+<div class="callout">
+  <strong>A lacuna:</strong> falta uma métrica <em>contínua, automatizada e
+  sem anotação manual</em> que responda "quanto da atenção do modelo caiu no
+  objeto de interesse?" — permitindo auditar predições individualmente, em
+  lote, e comparar modelos objetivamente.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<h2 id="solucao"><span class="section-num">3</span> Nossa solução metodológica</h2>
+
+<p>
+  Uma <strong>pipeline de validação em três estágios</strong> que combina
+  métodos existentes com uma métrica proposta neste trabalho. O pipeline é
+  <em>independente do domínio</em> — funciona para qualquer classificação de
+  objeto natural cuja região de interesse (ROI) seja segmentável
+  automaticamente.
+</p>
+
+<ul class="numbered">
+  <li>
+    <strong>Extração de mapa de atenção</strong> — aplica Grad-CAM
+    (Selvaraju et al., 2017) na última camada convolucional da rede para
+    obter, por imagem, um mapa <em>H(x, y) ∈ [0, 1]</em> que quantifica a
+    contribuição de cada pixel para a decisão.
+  </li>
+  <li>
+    <strong>Segmentação automática da região de interesse (ROI)</strong> —
+    aplica limiarização no espaço HSV combinada com morfologia matemática
+    (open/close) e análise de componentes conectados para gerar uma máscara
+    binária <em>M(x, y) ∈ {0, 1}</em> indicando "onde o objeto realmente
+    está" — sem anotação humana.
+  </li>
+  <li>
+    <strong>Cálculo das métricas de aderência (AFS e AL)</strong> —
+    integra as ativações do mapa dentro e fora da máscara, aplicando um
+    limiar de intensidade para descartar ruído, e produz dois valores
+    contínuos em <em>[0, 1]</em>.
+  </li>
+</ul>
+
+<p>
+  Como demonstração empírica, aplicamos o pipeline a um caso concreto de
+  interesse agrícola: diagnóstico de doenças foliares do milho. Mas
+  <strong>a metodologia não é específica desse domínio</strong> — o TCC
+  argumenta e demonstra sua aplicabilidade genérica.
+</p>
+
+<h3>Ferramenta que instancia o método</h3>
+<p>
+  Um <strong>aplicativo mobile (React Native)</strong> conectado a um
+  <strong>backend Python (FastAPI)</strong> hospedado na nuvem. O app permite
+  ao usuário auditar uma imagem individualmente e também rodar o pipeline em
+  lote sobre um conjunto de imagens, exportando os resultados em CSV para
+  análise estatística.
+</p>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<h2 id="intervencao"><span class="section-num">4</span> Intervenção científica</h2>
+
+<p>
+  A contribuição original do trabalho está claramente delimitada. Deixamos
+  explícito o que é <em>reprodução da literatura</em> e o que é
+  <em>construção nova</em>.
+</p>
+
+<div class="card">
+  <h3 style="margin-top: 0;">Camada 1 — Reprodução da literatura</h3>
+  <p>
+    Implementação fiel do Grad-CAM (Selvaraju et al., 2017) sobre a rede
+    subjacente. Sem modificação do algoritmo original. Isso é reprodução
+    metodológica — não é a contribuição do TCC, mas é infraestrutura
+    necessária.
+  </p>
+</div>
+
+<div class="card">
+  <h3 style="margin-top: 0;">Camada 2 — Engenharia aplicada</h3>
+  <p>
+    Pipeline de segmentação de ROI sem supervisão manual, combinando
+    limiarização HSV + morfologia + componentes conectados. Não são técnicas
+    inéditas isoladamente (constam em Gonzalez &amp; Woods, Szeliski), mas
+    sua <em>orquestração automatizada</em> para gerar máscaras de referência
+    em tempo de inferência é uma decisão de engenharia da qual o método
+    depende.
+  </p>
+</div>
+
+<div class="card">
+  <h3 style="margin-top: 0;">Camada 3 — Contribuição original (o coração do TCC)</h3>
+  <p>
+    Definição, formalização e validação empírica de duas métricas contínuas
+    para auditar a aderência entre atenção do modelo e ROI:
+  </p>
+  <ul class="check">
+    <li class="dot">
+      <strong>AFS (Attention Focus Score)</strong> — proporção da ativação
+      total do mapa que incide sobre a ROI segmentada, após limiarização.
+    </li>
+    <li class="dot">
+      <strong>AL (Attention Leakage)</strong> — complemento de AFS; proporção
+      da ativação total que vaza para fora da ROI.
+    </li>
+  </ul>
+  <pre>active  = np.where(heatmap >= threshold, heatmap, 0.0)
+inside  = (active * mask).sum()
+outside = (active * (1.0 - mask)).sum()
+AL  = outside / (inside + outside)
+AFS = 1.0 - AL</pre>
+
+  <p><strong>Propriedades relevantes das métricas propostas:</strong></p>
+  <ul class="check">
+    <li class="dot">
+      <strong>Contínuas</strong> — retornam valor em [0, 1], não apenas
+      sim/não como o Pointing Game.
+    </li>
+    <li class="dot">
+      <strong>Sensíveis à intensidade</strong> — ponderam pela força da
+      ativação, não apenas por presença/ausência de pico.
+    </li>
+    <li class="dot">
+      <strong>Automáticas</strong> — não requerem anotação humana de bounding
+      box, apenas segmentação automática da ROI (que herda o custo do
+      pipeline HSV, não do trabalho manual).
+    </li>
+    <li class="dot">
+      <strong>Parametrizáveis</strong> — o limiar de intensidade controla
+      sensibilidade a ruído, permitindo estudo de trade-off.
+    </li>
+    <li class="dot">
+      <strong>Comparáveis</strong> — dois modelos podem ser ordenados pela
+      média de AFS sobre um conjunto de teste sem necessidade de ground truth
+      pixel-a-pixel.
+    </li>
+  </ul>
+</div>
+
+<div class="info">
+  <strong>Posicionamento na literatura:</strong> AFS/AL herdam a filosofia do
+  Pointing Game (Zhang et al., 2016) — "a atenção caiu no lugar certo?" — mas
+  substituem o teste binário sobre o pico por uma integração ponderada sobre
+  toda a distribuição de ativação. Herdam também a filosofia das métricas
+  <em>insertion/deletion</em> de RISE (Petsiuk et al., 2018) — quantificar
+  contribuição — mas dispensam a manipulação da imagem de entrada.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<h2 id="resumo"><span class="section-num">5</span> Resumo do projeto</h2>
+
+<p>
+  Base para o <em>abstract</em> (adapte para o limite de palavras da sua
+  instituição — geralmente 150 a 250 palavras).
+</p>
+
+<div class="card">
+  <p>
+    Modelos de visão computacional baseados em redes neurais convolucionais
+    atingem elevada acurácia em benchmarks de classificação, mas alcançar
+    boa acurácia não garante que o modelo tome sua decisão com base na
+    <strong>região de interesse (ROI) correta</strong> da imagem. Métodos
+    tradicionais de validação de atenção — como <em>Intersection over Union</em>
+    e <em>Pointing Game</em> — exigem anotação manual do objeto ou fornecem
+    respostas apenas binárias, limitando a auditabilidade sistemática de
+    modelos em produção.
+  </p>
+  <p>
+    Este trabalho propõe uma <strong>metodologia quantitativa e automatizada
+    para verificação de aderência entre atenção do modelo e ROI</strong>,
+    baseada em três estágios: (i) extração do mapa de ativação
+    classe-discriminativo via <strong>Grad-CAM</strong>, (ii) segmentação
+    automática da ROI por limiarização HSV e morfologia matemática, e
+    (iii) cálculo de duas métricas contínuas propostas —
+    <strong>Attention Focus Score (AFS)</strong> e <strong>Attention Leakage
+    (AL)</strong> — que integram, respectivamente, a fração da ativação
+    incidente sobre a ROI e sobre o plano de fundo.
+  </p>
+  <p>
+    A metodologia foi implementada em um aplicativo mobile
+    (<strong>AgroVision</strong>) integrado a um backend em FastAPI, com
+    suporte a auditoria por imagem individual e análise em lote com exportação
+    em CSV. A validação empírica utiliza o diagnóstico de doenças foliares
+    do milho como estudo de caso, dada a disponibilidade de datasets públicos
+    e a relevância aplicada. O pipeline proposto é agnóstico ao domínio e
+    pode ser reaplicado a qualquer tarefa de classificação cujo ROI seja
+    segmentável automaticamente.
+  </p>
+  <p>
+    <strong>Palavras-chave:</strong> visão computacional; validação de
+    modelos; inteligência artificial explicável (XAI); Grad-CAM; região de
+    interesse; métricas de atenção; redes neurais convolucionais.
+  </p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<h2 id="estudo"><span class="section-num">6</span> Estudo de caso: milho</h2>
+
+<p>
+  O milho aparece no TCC como <strong>bancada experimental</strong>. Escolha
+  justificada por três motivos objetivos:
+</p>
+
+<ul class="check">
+  <li class="dot">
+    <strong>Existência de datasets públicos e rotulados</strong> —
+    permite treinar/usar modelos sem esforço de anotação.
+  </li>
+  <li class="dot">
+    <strong>ROI segmentável por cor</strong> — folhas verdes se separam bem
+    do fundo por limiarização HSV, o que permite instanciar o pipeline
+    proposto sem anotação manual.
+  </li>
+  <li class="dot">
+    <strong>Aplicação com impacto social real</strong> — diagnóstico agrícola
+    é um problema legítimo, o que adiciona relevância prática ao trabalho
+    experimental sem desviar o foco metodológico.
+  </li>
+</ul>
+
+<p>
+  <strong>Importante para a defesa:</strong> em nenhum momento afirmamos que
+  este TCC é "um app para produtores de milho". Ele é
+  <em>uma metodologia de validação de VC demonstrada no caso do milho</em>.
+  Qualquer classificação com ROI segmentável (peças industriais em esteira,
+  células em lâmina histológica, embalagens em prateleira) poderia ser o
+  campo de prova.
+</p>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<h2 id="metrica"><span class="section-num">7</span> As métricas na prática</h2>
+
+<div class="metric">
+  <div class="metric-title">
+    <span class="emoji">🔥</span>
+    <span>Grad-CAM — <em>onde</em> a rede olhou</span>
+  </div>
+  <p class="metric-sub">
+    Base qualitativa da análise. Gera um mapa de calor sobre a imagem, com
+    tons vermelhos indicando alta contribuição para a decisão e tons frios
+    indicando baixa. Sozinho, exige inspeção humana.
+  </p>
+</div>
+
+<div class="metric">
+  <div class="metric-title">
+    <span class="emoji">🎯</span>
+    <span>AFS — quanto da atenção caiu na ROI</span>
+  </div>
+  <p class="metric-sub">
+    Métrica proposta pelo TCC. Valor em [0, 1] — quanto mais próximo de 1,
+    mais o modelo concentrou atenção no objeto de interesse.
+  </p>
+  <ul class="check">
+    <li class="ok"><strong>AFS ≥ 0,80</strong> — validação bem-sucedida; o modelo atendeu a ROI adequadamente</li>
+    <li class="warn"><strong>AFS &lt; 0,50</strong> — falha de validação; predição sob suspeita</li>
+  </ul>
+</div>
+
+<div class="metric">
+  <div class="metric-title">
+    <span class="emoji">💧</span>
+    <span>AL — quanto vazou para fora da ROI</span>
+  </div>
+  <p class="metric-sub">
+    Complemento direto de AFS. Útil para reportagem científica, permite frases
+    como "o modelo apresentou vazamento médio de 22% da atenção".
+  </p>
+  <p><span class="k">AFS + AL = 1</span> por definição.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<h2 id="analogia"><span class="section-num">8</span> Analogia final</h2>
+
+<p>
+  Imagine que a IA é um estudante fazendo uma prova de identificação. Você
+  pede pra ele apontar "onde está o gato na foto". Ele responde: "está aqui,
+  92% de certeza".
+</p>
+
+<table>
+  <thead>
+    <tr><th>Etapa</th><th>Analogia</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Predição</strong></td>
+      <td>"Tem gato na imagem, 92% de certeza."</td>
+    </tr>
+    <tr>
+      <td><strong>Grad-CAM</strong></td>
+      <td>Pedimos que ele <em>circule</em> na foto onde ele olhou pra decidir.</td>
+    </tr>
+    <tr>
+      <td><strong>Segmentação da ROI</strong></td>
+      <td>Nós, avaliadores, marcamos <em>onde o gato realmente está</em> — sem depender do estudante.</td>
+    </tr>
+    <tr>
+      <td><strong>AFS / AL</strong></td>
+      <td>Medimos quanto do que ele circulou coincide com a região do gato. Se coincide muito → validado. Se ele circulou o sofá atrás → suspeita.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout">
+  <strong>A intervenção científica deste TCC</strong> é essa "régua" — as
+  métricas AFS e AL, que convertem a explicação visual (subjetiva) em número
+  contínuo (objetivo), permitindo <em>validar visão computacional em escala</em>
+  sem anotação manual e sem depender do olhar de um especialista para cada
+  imagem.
+</div>
+
+<footer>
+  AgroVision · TCC em Ciência da Computação<br>
+  Validação de Visão Computacional via Métricas Quantitativas de Aderência à Região de Interesse<br>
+  <em>Estudo de caso: diagnóstico de doenças foliares em milho</em>
+</footer>
+
+</main>
+</body>
+</html>
