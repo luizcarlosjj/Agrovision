@@ -34,7 +34,7 @@ class CameraService {
       const result = await ImagePicker.launchCameraAsync({
         mediaTypes: ['images'],
         allowsEditing: false,
-        quality: 0.8,
+        quality: 0.5,
         aspect: [4, 3],
         base64: false,
       });
@@ -82,7 +82,7 @@ class CameraService {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
         allowsEditing: false,
-        quality: 0.8,
+        quality: 0.5,
         aspect: [4, 3],
         base64: false,
       });

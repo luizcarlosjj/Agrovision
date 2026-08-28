@@ -35,13 +35,14 @@ import io
 import json
 import logging
 import os
+import sys
 import time
 from typing import List, Optional
 
 import cv2
 import numpy as np
 import tensorflow as tf
-from fastapi import FastAPI, File, Form, Header, HTTPException, Query, UploadFile, WebSocket
+from fastapi import FastAPI, File, Form, Header, HTTPException, Query, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
@@ -54,6 +55,13 @@ from api.xai import roboflow as roboflow_mod
 from api.xai.metrics import compute_attention_leakage
 from api.xai.model_loader import registry
 
+# Configure logging to stderr so Railway captures it in deployment logs.
+logging.basicConfig(
+    level=logging.INFO,
+    stream=sys.stderr,
+    format="%(levelname)s [%(name)s] %(message)s",
+    force=True,
+)
 logger = logging.getLogger("agrovision")
 
 IMG_SIZE = 224
@@ -232,10 +240,12 @@ def _gradcam_sync(
 
 @app.websocket("/ws/classify")
 async def ws_classify(websocket: WebSocket, api_key: str = Query(default="")):
+    # Must accept() before close() so the 4003 close-frame is sent correctly.
+    await websocket.accept()
     if not _check_api_key(api_key):
+        logger.warning("WS /classify: rejected — invalid API key")
         await websocket.close(code=4003)
         return
-    await websocket.accept()
     try:
         raw = await websocket.receive_text()
         req = json.loads(raw)
@@ -249,12 +259,16 @@ async def ws_classify(websocket: WebSocket, api_key: str = Query(default="")):
 
         await websocket.send_json({"event": "progress", "step": "done", "pct": 100})
         await websocket.send_json({"event": "result", **result})
+    except WebSocketDisconnect:
+        logger.info("WS /classify: client disconnected during processing")
     except HTTPException as exc:
+        logger.warning("WS /classify HTTPException: %s", exc.detail)
         try:
             await websocket.send_json({"event": "error", "message": exc.detail})
         except Exception:
             pass
     except Exception as exc:
+        logger.error("WS /classify error: %s: %s", type(exc).__name__, exc, exc_info=True)
         try:
             await websocket.send_json({"event": "error", "message": str(exc)})
         except Exception:
@@ -268,10 +282,11 @@ async def ws_classify(websocket: WebSocket, api_key: str = Query(default="")):
 
 @app.websocket("/ws/gradcam")
 async def ws_gradcam(websocket: WebSocket, api_key: str = Query(default="")):
+    await websocket.accept()
     if not _check_api_key(api_key):
+        logger.warning("WS /gradcam: rejected — invalid API key")
         await websocket.close(code=4003)
         return
-    await websocket.accept()
     try:
         raw = await websocket.receive_text()
         req = json.loads(raw)
@@ -297,12 +312,16 @@ async def ws_gradcam(websocket: WebSocket, api_key: str = Query(default="")):
         await websocket.send_json({"event": "progress", "step": "rendering_overlay",  "pct": 95})
         await websocket.send_json({"event": "progress", "step": "done",               "pct": 100})
         await websocket.send_json({"event": "result", "data": result})
+    except WebSocketDisconnect:
+        logger.info("WS /gradcam: client disconnected during processing")
     except HTTPException as exc:
+        logger.warning("WS /gradcam HTTPException: %s", exc.detail)
         try:
             await websocket.send_json({"event": "error", "message": exc.detail})
         except Exception:
             pass
     except Exception as exc:
+        logger.error("WS /gradcam error: %s: %s", type(exc).__name__, exc, exc_info=True)
         try:
             await websocket.send_json({"event": "error", "message": str(exc)})
         except Exception:

@@ -13,7 +13,7 @@ import { logger } from '@utils/logger';
 
 const BASE_URL   = (process.env.EXPO_PUBLIC_API_URL ?? 'https://agrovision-production-bdc3.up.railway.app').replace(/\/+$/, '');
 const API_KEY    = process.env.EXPO_PUBLIC_API_KEY ?? '';
-const WS_TIMEOUT = 12_000; // ms
+const WS_TIMEOUT = 30_000; // ms — Roboflow can take 10-15s on cold start
 
 function toWsUrl(url: string): string {
   return url.replace(/^https?/, (m) => (m === 'https' ? 'wss' : 'ws'));
@@ -103,14 +103,19 @@ function openWsConnection(
     const wsUrl = `${toWsUrl(BASE_URL)}/ws/classify?api_key=${encodeURIComponent(API_KEY)}`;
     const ws = new WebSocket(wsUrl);
     let settled = false;
+    let timerId: ReturnType<typeof setTimeout>;
 
-    const timer = setTimeout(() => {
-      if (!settled) {
-        settled = true;
-        ws.close();
-        reject(new Error('timeout'));
-      }
-    }, WS_TIMEOUT);
+    const resetTimer = () => {
+      clearTimeout(timerId);
+      timerId = setTimeout(() => {
+        if (!settled) {
+          settled = true;
+          ws.close();
+          reject(new Error('timeout'));
+        }
+      }, WS_TIMEOUT);
+    };
+    resetTimer();
 
     ws.onopen = () => {
       ws.send(JSON.stringify({ image_b64: b64 }));
@@ -120,11 +125,12 @@ function openWsConnection(
       try {
         const msg = JSON.parse(e.data as string);
         if (msg.event === 'progress') {
+          resetTimer(); // keep alive while server is actively progressing
           onProgress?.(msg.step, msg.pct);
         } else if (msg.event === 'result') {
           if (settled) return;
           settled = true;
-          clearTimeout(timer);
+          clearTimeout(timerId);
           ws.close();
 
           const info = getClassInfo(msg.prediction);
@@ -143,7 +149,7 @@ function openWsConnection(
         } else if (msg.event === 'error') {
           if (settled) return;
           settled = true;
-          clearTimeout(timer);
+          clearTimeout(timerId);
           ws.close();
           reject(new Error(msg.message));
         }
@@ -155,7 +161,7 @@ function openWsConnection(
     ws.onerror = () => {
       if (!settled) {
         settled = true;
-        clearTimeout(timer);
+        clearTimeout(timerId);
         reject(new Error('connection_error'));
       }
     };
@@ -163,7 +169,7 @@ function openWsConnection(
     ws.onclose = (ev) => {
       if (!settled) {
         settled = true;
-        clearTimeout(timer);
+        clearTimeout(timerId);
         // código 4003 = chave de API rejeitada pelo servidor
         if (ev.code === 4003) {
           reject(new Error('invalid_api_key'));
