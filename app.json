@@ -16,7 +16,8 @@
       "infoPlist": {
         "NSCameraUsageDescription": "AgroVision needs access to your camera to analyze plants",
         "NSPhotoLibraryUsageDescription": "AgroVision needs access to your photo library",
-        "NSPhotoLibraryAddUsageDescription": "AgroVision needs permission to save photos"
+        "NSPhotoLibraryAddUsageDescription": "AgroVision needs permission to save photos",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
