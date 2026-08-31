@@ -1,0 +1,6 @@
+ios/
+android/
+agrovision-ml-service/venv*/
+agrovision-ml-service/__pycache__/
+agrovision-ml-service/**/__pycache__/
+agrovision-ml-service/datasets/
