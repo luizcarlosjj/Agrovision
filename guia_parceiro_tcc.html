@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>AgroVision — Guia Técnico para o Parceiro de TCC</title>
+<style>
+  :root {
+    --bg: #F8F9FA;
+    --surface: #FFFFFF;
+    --border: #E2E8E4;
+    --text: #1A2620;
+    --muted: #556B60;
+    --primary: #2D6A4F;
+    --primary-dark: #1B4332;
+    --accent: #B5451B;
+    --code-bg: #1E2B22;
+    --code-text: #A8D5B5;
+    --tag-bg: #D8F3DC;
+    --tag-text: #1B4332;
+    --warn-bg: #FFF8E1;
+    --warn-border: #FFD54F;
+    --info-bg: #E3F2FD;
+    --info-border: #90CAF9;
+    --info-text: #0D47A1;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 40px 20px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  main { max-width: 860px; margin: 0 auto; }
+
+  /* ── Header ───────────────────────────────── */
+  .doc-header {
+    background: linear-gradient(135deg, #1B4332 0%, #2D6A4F 100%);
+    color: #fff;
+    border-radius: 16px;
+    padding: 36px 40px;
+    margin-bottom: 40px;
+  }
+  .doc-header .kicker {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #95D5B2;
+    margin-bottom: 10px;
+  }
+  .doc-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+  .doc-header .sub {
+    color: #B7E4C7;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  .doc-header .meta {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .doc-header .badge {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+
+  /* ── Section ──────────────────────────────── */
+  .section { margin-bottom: 48px; }
+
+  .section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .section-num {
+    width: 32px; height: 32px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: var(--primary-dark);
+    letter-spacing: -0.02em;
+  }
+  .section-desc {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-top: -10px;
+    margin-bottom: 18px;
+    padding-left: 42px;
+  }
+
+  /* ── Cards ────────────────────────────────── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 26px;
+    margin-bottom: 14px;
+  }
+  .card h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 8px;
+  }
+  .card p { color: var(--muted); font-size: 0.97rem; }
+
+  .card-accent {
+    border-left: 4px solid var(--primary);
+  }
+  .card-warn {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    border-left: 4px solid #F9A825;
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin-bottom: 14px;
+  }
+  .card-info {
+    background: var(--info-bg);
+    border: 1px solid var(--info-border);
+    border-left: 4px solid #1976D2;
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin-bottom: 14px;
+    color: var(--info-text);
+  }
+  .card-green {
+    background: #F0FFF4;
+    border: 1px solid #68D391;
+    border-left: 4px solid var(--primary);
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin-bottom: 14px;
+  }
+
+  /* ── Stack grid ───────────────────────────── */
+  .stack-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 560px) { .stack-grid { grid-template-columns: 1fr; } }
+  .stack-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+  }
+  .stack-item .lang {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--primary);
+    margin-bottom: 4px;
+  }
+  .stack-item .desc { font-size: 0.88rem; color: var(--muted); }
+
+  /* ── Algorithm cards ──────────────────────── */
+  .algo {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .algo-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .algo-icon {
+    width: 44px; height: 44px;
+    background: var(--tag-bg);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+  .algo-meta h3 { font-size: 1.1rem; font-weight: 700; color: var(--primary-dark); }
+  .algo-meta .ref { font-size: 0.82rem; color: var(--muted); margin-top: 2px; }
+  .algo-tag {
+    position: absolute; top: 16px; right: 16px;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .algo table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+  .algo td { padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .algo td:first-child { font-weight: 600; color: var(--primary-dark); width: 35%; }
+  .algo tr:last-child td { border-bottom: none; }
+
+  /* ── Formula ──────────────────────────────── */
+  .formula-box {
+    background: var(--code-bg);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 16px 0;
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    color: var(--code-text);
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+  .formula-box .comment { color: #6A9F7A; font-size: 0.85rem; }
+  .formula-box .hl { color: #FFD580; font-weight: 700; }
+  .formula-box .hl2 { color: #FF8C69; font-weight: 700; }
+  .formula-box .hl3 { color: #74C7EC; }
+
+  /* ── File map ─────────────────────────────── */
+  .file-map {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .file-map-header {
+    background: #F0F5F2;
+    padding: 10px 18px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--primary-dark);
+    border-bottom: 1px solid var(--border);
+  }
+  .file-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .file-row:last-child { border-bottom: none; }
+  .file-path {
+    font-family: "SF Mono", "Fira Code", monospace;
+    font-size: 0.78rem;
+    color: var(--primary);
+    background: var(--tag-bg);
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    align-self: flex-start;
+    margin-top: 2px;
+  }
+  .file-desc { font-size: 0.9rem; color: var(--muted); }
+  .file-desc strong { color: var(--text); font-weight: 600; }
+  .file-tag {
+    display: inline-block;
+    background: #FDECEA;
+    color: #C0392B;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .file-tag.green {
+    background: var(--tag-bg);
+    color: var(--tag-text);
+  }
+
+  /* ── Highlight boxes ──────────────────────── */
+  .highlight-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .hl-box {
+    flex: 1; min-width: 160px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .hl-box .hl-val {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--primary-dark);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .hl-box .hl-lbl { font-size: 0.78rem; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+
+  /* ── Flow ─────────────────────────────────── */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 16px 0;
+  }
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 14px 0;
+    border-left: 2px solid var(--border);
+    padding-left: 20px;
+    position: relative;
+    margin-left: 14px;
+  }
+  .flow-step:last-child { border-left: 2px solid transparent; }
+  .flow-dot {
+    position: absolute;
+    left: -8px;
+    top: 18px;
+    width: 14px; height: 14px;
+    background: var(--primary);
+    border-radius: 50%;
+    border: 2px solid var(--surface);
+    flex-shrink: 0;
+  }
+  .flow-content h4 { font-size: 0.97rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 4px; }
+  .flow-content p { font-size: 0.9rem; color: var(--muted); }
+
+  /* ── Divider ──────────────────────────────── */
+  hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+
+  ul, ol { padding-left: 22px; }
+  li { margin-bottom: 6px; font-size: 0.97rem; }
+
+  code {
+    font-family: "SF Mono", "Fira Code", monospace;
+    background: #EDF2EE;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.88em;
+    color: var(--primary-dark);
+  }
+
+  .footer {
+    margin-top: 56px;
+    padding: 20px 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<main>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- HEADER                                                         -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="doc-header">
+  <div class="kicker">TCC — Ciência da Computação · Guia para o parceiro</div>
+  <h1>AgroVision: como o aplicativo funciona por dentro</h1>
+  <p class="sub">
+    Documento direto ao ponto: linguagem, algoritmos, intervenção científica e onde
+    cada parte do TCC está no código — para você explicar ao professor sem enrolação.
+  </p>
+  <div class="meta">
+    <span class="badge">React Native · FastAPI</span>
+    <span class="badge">Grad-CAM (Selvaraju et al., 2017)</span>
+    <span class="badge">Intervenção: AFS / AL</span>
+    <span class="badge">Milho · 4 doenças</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- 1. RESUMO SIMPLES                                              -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">
+    <div class="section-num">1</div>
+    <div class="section-title">Resumo simples do app</div>
+  </div>
+  <p class="section-desc">O que o app é, em uma respirada só.</p>
+
+  <div class="card card-accent">
+    <p>
+      O AgroVision é um <strong>aplicativo de celular</strong> que analisa uma foto de folha de milho,
+      identifica se ela está doente (e qual doença), e depois mostra <strong>onde o modelo de IA olhou</strong>
+      na imagem para tomar essa decisão — de forma visual, com um mapa de calor.
+    </p>
+    <p style="margin-top:10px">
+      A grande pergunta do TCC não é "o app classifica doenças?" (isso qualquer modelo de IA faz).
+      A pergunta é: <strong>"o modelo está olhando para o lugar certo?"</strong> — ou seja, a IA aprendeu
+      a reconhecer a doença pela folha, ou por algum artefato de fundo que não faz sentido?
+    </p>
+  </div>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-dot"></div>
+      <div class="flow-content">
+        <h4>1 — Usuário fotografa a folha</h4>
+        <p>App captura a foto pela câmera ou galeria.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot"></div>
+      <div class="flow-content">
+        <h4>2 — Classificação via Roboflow</h4>
+        <p>A imagem vai pela internet até o servidor Roboflow, que retorna a classe prevista
+        (Helmintosporiose, Ferrugem, Mancha-Cinzenta ou Saudável) e o percentual de confiança.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot"></div>
+      <div class="flow-content">
+        <h4>3 — Grad-CAM no servidor</h4>
+        <p>O backend Python recalcula o Grad-CAM com o modelo Keras local (precisa dos gradientes,
+        que o Roboflow não expõe). Resultado: mapa de calor mostrando onde o modelo se concentrou.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot"></div>
+      <div class="flow-content">
+        <h4>4 — Métricas AFS e AL (nossa intervenção)</h4>
+        <p>O servidor calcula se a atenção do modelo está dentro ou fora da folha (ROI).
+        Gera dois números: AFS (atenção no lugar certo) e AL (atenção vazada para o fundo).</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot"></div>
+      <div class="flow-content">
+        <h4>5 — Resultado na tela</h4>
+        <p>App mostra: doença detectada, confiança, mapa de calor colorido, AFS, AL e recomendações agrícolas.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- 2. DOR QUE O APP RESOLVE                                       -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">
+    <div class="section-num">2</div>
+    <div class="section-title">Dor que o app resolve</div>
+  </div>
+
+  <div class="card">
+    <h3>Problema prático</h3>
+    <p>
+      Produtores rurais, especialmente pequenos e médios, não têm acesso rápido a um agrônomo
+      para diagnosticar doenças em lavoura de milho. Um diagnóstico errado (tratar Ferrugem como
+      Helmintosporiose, por exemplo) desperdiça dinheiro com fungicida errado e pode comprometer
+      a safra inteira.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Problema científico (o mais relevante para o TCC)</h3>
+    <p>
+      Modelos de IA que classificam doenças em imagens existem há anos — mas ninguém garante
+      que eles estejam <em>olhando para o lugar biologicamente correto</em>. Um modelo pode
+      acertar a classe por reconhecer a cor do substrato da foto de laboratório, a régua usada
+      na imagem, ou qualquer artefato que aparece sempre junto com a doença no dataset.
+    </p>
+    <p style="margin-top:10px">
+      Sem uma métrica quantitativa, não há como distinguir um modelo que <em>entendeu a biologia</em>
+      de um que <em>memorizou detalhes do dataset</em>. Essa é a lacuna que o TCC preenche.
+    </p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- 3. LINGUAGEM E TECNOLOGIA                                      -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">
+    <div class="section-num">3</div>
+    <div class="section-title">Linguagem e tecnologia</div>
+  </div>
+  <p class="section-desc">O que está sendo usado e por quê.</p>
+
+  <div class="stack-grid">
+    <div class="stack-item">
+      <div class="lang">React Native + Expo (TypeScript)</div>
+      <div class="desc">
+        Aplicativo mobile. Roda em Android e iOS com um único código.
+        Expo abstrai câmera, sistema de arquivos e armazenamento local.
+      </div>
+    </div>
+    <div class="stack-item">
+      <div class="lang">Python + FastAPI</div>
+      <div class="desc">
+        Backend na nuvem (Railway). Recebe a imagem pelo celular via WebSocket,
+        processa Grad-CAM e calcula AFS/AL, devolve o resultado.
+      </div>
+    </div>
+    <div class="stack-item">
+      <div class="lang">TensorFlow + Keras</div>
+      <div class="desc">
+        Biblioteca de deep learning. Usada <em>apenas</em> no backend para calcular
+        o Grad-CAM — precisa dos gradientes, que só existem com o modelo Keras completo.
+      </div>
+    </div>
+    <div class="stack-item">
+      <div class="lang">Roboflow Serverless</div>
+      <div class="desc">
+        Serviço de inferência na nuvem. Faz a classificação da doença.
+        Retorna classe + confiança via API REST. Não expõe gradientes.
+      </div>
+    </div>
+    <div class="stack-item">
+      <div class="lang">OpenCV + NumPy</div>
+      <div class="desc">
+        Biblioteca de visão computacional. Usada para segmentação por cor (HSV),
+        morfologia e sobreposição do mapa de calor na imagem.
+      </div>
+    </div>
+    <div class="stack-item">
+      <div class="lang">SQLite (expo-sqlite)</div>
+      <div class="desc">
+        Banco de dados local no celular. Guarda o histórico de diagnósticos
+        para o usuário consultar offline.
+      </div>
+    </div>
+  </div>
+
+  <div class="card-info">
+    <strong>Por que dois serviços separados (Roboflow + backend próprio)?</strong><br>
+    Roboflow classifica com eficiência mas é uma caixa-preta — não devolve os pesos
+    intermediários nem gradientes. Para o Grad-CAM é preciso acesso completo ao grafo
+    computacional do modelo. Por isso o modelo Keras fica no nosso servidor e é usado
+    exclusivamente para gerar a explicação visual.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- 4. ALGORITMOS                                                   -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">
+    <div class="section-num">4</div>
+    <div class="section-title">Algoritmos — autores, o que fazem, resultado</div>
+  </div>
+  <p class="section-desc">Cada algoritmo que o sistema usa, de onde veio e o que produz.</p>
+
+  <!-- MobileNetV2 -->
+  <div class="algo">
+    <div class="algo-tag green">Classificação</div>
+    <div class="algo-header">
+      <div class="algo-icon">🧠</div>
+      <div class="algo-meta">
+        <h3>MobileNetV2</h3>
+        <div class="ref">Howard et al., 2018 — Google Brain · <em>MobileNetV2: Inverted Residuals and Linear Bottlenecks</em></div>
+      </div>
+    </div>
+    <table>
+      <tr>
+        <td>O que é</td>
+        <td>Rede neural convolucional profunda (CNN) projetada para dispositivos com recursos limitados, como celulares. Usa convoluções separáveis em profundidade para ser leve.</td>
+      </tr>
+      <tr>
+        <td>O que faz aqui</td>
+        <td>É a espinha dorsal do modelo de classificação. Recebe a imagem (224×224 pixels) e extrai 1.280 características na última camada convolucional (<code>Conv_1</code>). Essas características são o que o Grad-CAM usa.</td>
+      </tr>
+      <tr>
+        <td>Resultado</td>
+        <td>Probabilidade para cada uma das 4 classes de doença. A classe com maior probabilidade é a previsão final.</td>
+      </tr>
+      <tr>
+        <td>Transfer learning</td>
+        <td>O modelo foi pré-treinado no ImageNet (1,2 milhões de imagens gerais) e depois re-treinado (fine-tuning) com imagens de folhas de milho doentes.</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Grad-CAM -->
+  <div class="algo">
+    <div class="algo-tag">Explicabilidade</div>
+    <div class="algo-header">
+      <div class="algo-icon">🗺️</div>
+      <div class="algo-meta">
+        <h3>Grad-CAM — Gradient-weighted Class Activation Mapping</h3>
+        <div class="ref">Selvaraju et al., 2017 — <em>"Grad-CAM: Visual Explanations from Deep Networks via Gradient-based Localization"</em> · ICCV 2017</div>
+      </div>
+    </div>
+    <table>
+      <tr>
+        <td>O que é</td>
+        <td>Método de XAI (Explicabilidade de IA) que mostra visualmente quais regiões da imagem a rede neural usou para tomar sua decisão.</td>
+      </tr>
+      <tr>
+        <td>Como funciona</td>
+        <td>
+          Calcula o gradiente da pontuação da classe prevista em relação aos mapas de ativação da última camada convolucional.
+          Faz a média global desses gradientes por canal → pesos de importância.
+          Multiplica cada mapa de ativação pelo seu peso e soma tudo → mapa de calor.
+          Aplica ReLU (zera negativos) e normaliza para [0, 1].
+        </td>
+      </tr>
+      <tr>
+        <td>Resultado</td>
+        <td>Imagem em escala de calor (0 = sem atenção, 1 = máxima atenção) no mesmo tamanho da imagem original, mostrando onde o modelo "olhou".</td>
+      </tr>
+      <tr>
+        <td>Por que a última conv?</td>
+        <td>Camadas convolucionais finais têm resolução espacial suficiente para localizar regiões na imagem e ainda contêm informação semântica sobre a classe.</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- HSV -->
+  <div class="algo">
+    <div class="algo-tag green">Segmentação</div>
+    <div class="algo-header">
+      <div class="algo-icon">🎨</div>
+      <div class="algo-meta">
+        <h3>Segmentação por cor HSV + Morfologia + Componentes Conectados</h3>
+        <div class="ref">Técnicas clássicas de Visão Computacional · implementadas com OpenCV (Bradski, 2000)</div>
+      </div>
+    </div>
+    <table>
+      <tr>
+        <td>O que é</td>
+        <td>Pipeline de três etapas para encontrar automaticamente a região de interesse (a folha verde) na imagem, sem anotação manual.</td>
+      </tr>
+      <tr>
+        <td>HSV</td>
+        <td>Converte a imagem de RGB para o espaço de cor HSV (Matiz, Saturação, Valor). Nesse espaço é muito mais fácil isolar "verde" com um range de thresholds: Matiz 25–95°, Saturação e Valor mínimos para evitar capturar cinza ou branco.</td>
+      </tr>
+      <tr>
+        <td>Morfologia</td>
+        <td>Abertura (remove ruído pequeno) + Fechamento (preenche buracos) com kernel elíptico 5×5. Limpa a máscara binária gerada pelo threshold HSV.</td>
+      </tr>
+      <tr>
+        <td>Componentes Conectados</td>
+        <td>Encontra todos os "blobs" de verde na máscara. Seleciona o maior (que é a folha). Extrai seu bounding box (x, y, largura, altura).</td>
+      </tr>
+      <tr>
+        <td>Resultado</td>
+        <td>Máscara binária (0 e 1) do mesmo tamanho da imagem, com 1 dentro do bounding box da folha e 0 fora. Essa máscara é o ROI (Região de Interesse) usado nas métricas.</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- 5. INTERVENÇÃO CIENTÍFICA                                       -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">
+    <div class="section-num">5</div>
+    <div class="section-title">Intervenção científica — o que inventamos e por quê</div>
+  </div>
+  <p class="section-desc">
+    Esta é a contribuição original do TCC. O que não existia antes e que nosso trabalho propõe.
+  </p>
+
+  <div class="card-warn">
+    <strong>Por que isso era necessário?</strong><br>
+    O Grad-CAM gera um mapa de calor visual — mas visual não é suficiente para a ciência.
+    Precisamos de um <em>número</em> que responda: "quanto da atenção do modelo caiu
+    dentro da folha?". Sem número não há comparação entre modelos, não há experimento
+    repetível, não há conclusão científica robusta.
+  </div>
+
+  <div class="card-info">
+    <strong>Por que não usar métricas existentes?</strong><br>
+    As métricas mais conhecidas (Pointing Game, RISE, ROAD) exigem anotação manual de segmentos
+    por pixel ou são computacionalmente muito caras. Nossa proposta usa a própria cor da folha
+    (verde) como segmentação automática — zero anotação humana, aplicável a qualquer imagem
+    de lavoura em campo.
+  </div>
+
+  <h3 style="margin:24px 0 10px; color: var(--primary-dark);">As duas métricas que criamos</h3>
+
+  <!-- AL -->
+  <div class="algo" style="border-left: 4px solid var(--accent);">
+    <div class="algo-header">
+      <div class="algo-icon" style="background:#FDECEA;">⚡</div>
+      <div class="algo-meta">
+        <h3>AL — Attention Leakage (Vazamento de Atenção)</h3>
+        <div class="ref">Métrica original — AgroVision TCC, 2024</div>
+      </div>
+    </div>
+    <p style="font-size:0.95rem; color:var(--muted); margin-bottom:14px;">
+      Mede a fração da atenção do modelo que "vazou" para fora da região de interesse (a folha).
+      Um AL alto significa que o modelo está olhando para o fundo, não para a planta.
+    </p>
+    <div class="formula-box">
+<span class="comment"># Passo 1: aplicar threshold (eliminar atenção de baixa intensidade / ruído)</span>
+<span class="hl">active</span> = pixels do heatmap com valor ≥ <span class="hl2">threshold</span> (padrão: 0,5)
+
+<span class="comment"># Passo 2: separar atenção dentro e fora da máscara</span>
+<span class="hl">inside</span>  = Σ(active × mask)          <span class="comment"># atenção dentro da folha</span>
+<span class="hl2">outside</span> = Σ(active × (1 − mask))    <span class="comment"># atenção fora da folha (fundo)</span>
+total   = inside + outside
+
+<span class="comment"># Passo 3: calcular AL</span>
+<span class="hl2">AL</span> = outside / total              <span class="comment"># vai de 0 (nenhum vazamento) a 1 (tudo fora)</span>
+    </div>
+  </div>
+
+  <!-- AFS -->
+  <div class="algo" style="border-left: 4px solid var(--primary);">
+    <div class="algo-header">
+      <div class="algo-icon">🎯</div>
+      <div class="algo-meta">
+        <h3>AFS — Attention Focus Score (Pontuação de Foco de Atenção)</h3>
+        <div class="ref">Métrica original — AgroVision TCC, 2024</div>
+      </div>
+    </div>
+    <p style="font-size:0.95rem; color:var(--muted); margin-bottom:14px;">
+      O complemento direto do AL. Mede quanto da atenção está no lugar certo (dentro da folha).
+      AFS = 1 significa atenção perfeita; AFS = 0 significa que o modelo ignorou completamente a folha.
+    </p>
+    <div class="formula-box">
+<span class="hl3">AFS</span> = 1 − <span class="hl2">AL</span>
+
+<span class="comment"># Exemplos de interpretação:</span>
+AFS = 0,92 → 92% da atenção está na folha  →  <span class="hl">Excelente</span>
+AFS = 0,65 → 65% na folha, 35% no fundo    →  <span class="hl2">Suspeito</span>
+AFS = 0,40 → modelo olhando mais pro fundo  →  <span class="hl2">Problemático</span>
+    </div>
+  </div>
+
+  <h3 style="margin:24px 0 10px; color: var(--primary-dark);">Lógica de escolha do threshold = 0,5</h3>
+  <div class="card">
+    <p>
+      O heatmap Grad-CAM é normalizado entre 0 e 1. Regiões com valor abaixo de 0,5
+      representam atenção fraca — ruído estatístico da rede, não foco real.
+      Ao zerar esses pixels antes de calcular o AL/AFS, evitamos que ruído de fundo
+      distorça a métrica. O valor 0,5 é configurável via parâmetro da API e pode ser
+      ajustado para experimentos de sensibilidade.
+    </p>
+  </div>
+
+  <h3 style="margin:24px 0 10px; color: var(--primary-dark);">Como isso influencia o TCC</h3>
+  <div class="card-green">
+    <p>
+      As métricas AFS/AL permitem responder com número às três perguntas de pesquisa do TCC:
+    </p>
+    <ol style="margin-top:10px; padding-left:20px; color: var(--text);">
+      <li style="margin-bottom:8px"><strong>O modelo está olhando para a região biologicamente correta?</strong> → AFS médio por classe</li>
+      <li style="margin-bottom:8px"><strong>A confiança alta do modelo correlaciona com atenção correta?</strong> → correlação confiança × AFS</li>
+      <li><strong>Qual estratégia de máscara (automática por cor vs. fixada centralizada) produz métricas mais estáveis?</strong> → comparação experimental</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- 6. ONDE ESTÁ O TCC NO CÓDIGO                                   -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">
+    <div class="section-num">6</div>
+    <div class="section-title">Onde está o TCC no código</div>
+  </div>
+  <p class="section-desc">
+    Se o professor perguntar "onde isso está no app?" — use esta tabela.
+  </p>
+
+  <!-- Backend: XAI -->
+  <div class="file-map">
+    <div class="file-map-header">Backend Python — Intervenção científica (núcleo do TCC)</div>
+
+    <div class="file-row">
+      <div class="file-path">api/xai/metrics.py</div>
+      <div class="file-desc">
+        <strong>Cálculo de AL e AFS.</strong> <span class="file-tag">Intervenção</span><br>
+        Funções <code>compute_attention_leakage()</code>. Recebe o heatmap e a máscara binária,
+        aplica threshold, separa atenção dentro/fora e retorna o dataclass <code>AttentionMetrics</code>
+        com al, afs, inside_sum, outside_sum, total_sum.
+      </div>
+    </div>
+
+    <div class="file-row">
+      <div class="file-path">api/xai/mask.py</div>
+      <div class="file-desc">
+        <strong>Geração automática do ROI (máscara da folha).</strong> <span class="file-tag">Intervenção</span><br>
+        Função <code>green_segmentation_bbox()</code>: HSV threshold → morfologia (opening + closing) →
+        componentes conectados → bounding box da maior blob verde.<br>
+        Função <code>fixed_center_bbox()</code>: fallback centralizado quando não encontra verde suficiente.<br>
+        Função <code>create_mask_from_bbox()</code>: converte o bbox em máscara binária (H×W).
+      </div>
+    </div>
+
+    <div class="file-row">
+      <div class="file-path">api/xai/gradcam.py</div>
+      <div class="file-desc">
+        <strong>Implementação do Grad-CAM (Selvaraju et al., 2017).</strong> <span class="file-tag green">Algoritmo</span><br>
+        Função <code>generate_gradcam()</code>: constrói sub-modelo que expõe mapas de ativação,
+        usa <code>GradientTape</code> para calcular gradientes, faz global average pooling dos
+        gradientes, combina com mapas de ativação, aplica ReLU e normaliza.
+      </div>
+    </div>
+
+    <div class="file-row">
+      <div class="file-path">api/xai/roboflow.py</div>
+      <div class="file-desc">
+        <strong>Proxy de classificação — Roboflow Serverless API.</strong><br>
+        Função <code>classify()</code>: redimensiona a imagem, envia como base64 para a API
+        Roboflow e normaliza a resposta para o formato interno do sistema.
+      </div>
+    </div>
+
+    <div class="file-row">
+      <div class="file-path">api/xai/model_loader.py</div>
+      <div class="file-desc">
+        <strong>Singleton do modelo Keras em memória.</strong><br>
+        Classe <code>ModelRegistry</code>: carrega o <code>model_species.keras</code> uma vez
+        no startup e mantém na RAM para todos os requests de Grad-CAM. Também lê os labels
+        do <code>labels_species.json</code>.
+      </div>
+    </div>
+
+    <div class="file-row">
+      <div class="file-path">api/server.py</div>
+      <div class="file-desc">
+        <strong>Endpoints WebSocket que orquestram tudo.</strong><br>
+        <code>ws_classify</code>: recebe imagem → Roboflow → retorna classe + confiança.<br>
+        <code>ws_gradcam</code>: recebe imagem → Grad-CAM → máscara → AL/AFS → overlay → retorna tudo.<br>
+        <code>_gradcam_sync()</code>: função síncrona que executa toda a cadeia de cálculo no threadpool.
+      </div>
+    </div>
+
+    <div class="file-row">
+      <div class="file-path">model_species.keras</div>
+      <div class="file-desc">
+        <strong>Arquivo do modelo treinado.</strong><br>
+        MobileNetV2 com fine-tuning para as 4 classes de milho. Usado <em>exclusivamente</em>
+        para Grad-CAM — a classificação em produção usa o Roboflow.
+      </div>
+    </div>
+
+    <div class="file-row">
+      <div class="file-path">labels_species.json</div>
+      <div class="file-desc">
+        <strong>Mapeamento índice → nome de classe.</strong><br>
+        Ex.: <code>{"0": "Blight", "1": "Common_Rust", "2": "Gray_Leaf_Spot", "3": "Healthy"}</code>.
+        Necessário para o Grad-CAM saber qual neurônio de saída usar quando a classe é fornecida por nome.
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile -->
+  <div class="file-map">
+    <div class="file-map-header">App Mobile (TypeScript) — Interface e chamadas</div>
+
+    <div class="file-row">
+      <div class="file-path">src/services/ml/xaiService.ts</div>
+      <div class="file-desc">
+        <strong>Chamada WebSocket para o Grad-CAM + AL/AFS.</strong><br>
+        Abre conexão <code>ws_gradcam</code>, envia imagem + parâmetros (strategy, threshold, coverage),
+        recebe eventos de progresso em tempo real e o resultado final com AFS, AL, overlay_b64, heatmap_b64.
+      </div>
+    </div>
+
+    <div class="file-row">
+      <div class="file-path">src/services/ml/classifyService.ts</div>
+      <div class="file-desc">
+        <strong>Chamada WebSocket para classificação via Roboflow.</strong><br>
+        Abre <code>ws_classify</code>, envia imagem em base64, recebe classe + confiança.
+        Mapeia as classes do modelo para descrições em português e recomendações agrícolas.
+      </div>
+    </div>
+
+    <div class="file-row">
+      <div class="file-path">src/screens/ResultScreen.tsx</div>
+      <div class="file-desc">
+        <strong>Tela que exibe os resultados para o usuário.</strong><br>
+        Mostra: classe prevista, confiança, mapa de calor (overlay), AFS e AL com barra visual,
+        recomendações agrícolas e metadados técnicos (camada conv usada, tempo de processamento).
+      </div>
+    </div>
+
+    <div class="file-row">
+      <div class="file-path">src/services/storage/database.ts</div>
+      <div class="file-desc">
+        <strong>Persistência local com SQLite.</strong><br>
+        Salva cada diagnóstico no banco de dados do celular: id, timestamp, classe, confiança,
+        AFS, AL, URI da imagem. Permite histórico offline.
+      </div>
+    </div>
+  </div>
+
+  <div class="card-warn" style="margin-top:16px">
+    <strong>Dica para apresentação:</strong> Se o professor pedir para mostrar o cálculo do AFS ao vivo,
+    abra <code>agrovision-ml-service/api/xai/metrics.py</code> — são menos de 30 linhas e a lógica está
+    toda ali, comentada. É o coração matemático do TCC.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- 7. OBJETIVO DO APP                                             -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">
+    <div class="section-num">7</div>
+    <div class="section-title">Objetivo do app</div>
+  </div>
+
+  <div class="highlight-row">
+    <div class="hl-box">
+      <div class="hl-val">4</div>
+      <div class="hl-lbl">Doenças do milho</div>
+    </div>
+    <div class="hl-box">
+      <div class="hl-val">2</div>
+      <div class="hl-lbl">Métricas originais (AFS/AL)</div>
+    </div>
+    <div class="hl-box">
+      <div class="hl-val">0</div>
+      <div class="hl-lbl">Anotações manuais necessárias</div>
+    </div>
+    <div class="hl-box">
+      <div class="hl-val">100%</div>
+      <div class="hl-lbl">Online (sem fallback local)</div>
+    </div>
+  </div>
+
+  <div class="card card-accent">
+    <h3>Objetivo técnico-científico</h3>
+    <p>
+      Desenvolver e validar uma metodologia quantitativa — baseada em métricas originais
+      (AFS e AL) calculadas sobre mapas de ativação Grad-CAM — que permite avaliar se um
+      modelo de deep learning está utilizando regiões semanticamente relevantes da imagem
+      (a folha da planta) ao classificar doenças foliares de milho.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Objetivo prático</h3>
+    <p>
+      Entregar um aplicativo funcional que um produtor rural possa usar no campo:
+      fotografa a folha, recebe diagnóstico imediato da doença com recomendação agrícola,
+      e vê visualmente para onde a IA estava "olhando" — aumentando a confiança e
+      transparência do resultado.
+    </p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- 8. REFERÊNCIAS CENTRAIS                                        -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">
+    <div class="section-num">8</div>
+    <div class="section-title">Referências centrais do TCC</div>
+  </div>
+
+  <div class="card">
+    <p style="margin-bottom:10px">
+      <strong>Selvaraju, R. R. et al. (2017).</strong> Grad-CAM: Visual Explanations from Deep Networks
+      via Gradient-based Localization. <em>Proceedings of the IEEE International Conference on
+      Computer Vision (ICCV)</em>, 618–626.
+      <br><small style="color:var(--muted)">→ Base do Grad-CAM implementado em <code>api/xai/gradcam.py</code></small>
+    </p>
+    <p style="margin-bottom:10px">
+      <strong>Howard, A. G. et al. (2018).</strong> MobileNetV2: Inverted Residuals and Linear Bottlenecks.
+      <em>CVPR 2018</em>.
+      <br><small style="color:var(--muted)">→ Arquitetura da CNN usada no modelo treinado</small>
+    </p>
+    <p style="margin-bottom:10px">
+      <strong>Bradski, G. (2000).</strong> The OpenCV Library. <em>Dr. Dobb's Journal of Software Tools</em>.
+      <br><small style="color:var(--muted)">→ Biblioteca usada para HSV, morfologia e overlay em <code>api/xai/mask.py</code></small>
+    </p>
+    <p>
+      <strong>Zhou, B. et al. (2016).</strong> Learning Deep Features for Discriminative Localization.
+      <em>CVPR 2016</em>. (CAM original, precursor do Grad-CAM)
+      <br><small style="color:var(--muted)">→ Fundamento teórico do mapa de ativação de classe</small>
+    </p>
+  </div>
+</div>
+
+<div class="footer">
+  AgroVision · TCC Ciência da Computação · Documento interno para alinhamento entre os autores<br>
+  Gerado em agosto de 2026 — para uso complementar ao <em>explicacao_simples.html</em>
+</div>
+
+</main>
+</body>
+</html>
