@@ -1,0 +1,27 @@
+{
+  "cli": {
+    "version": ">= 12.0.0",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://agrovision-production-bdc3.up.railway.app",
+        "EXPO_PUBLIC_API_KEY": "352c1a2f03a354a23f954c6848493eb20cf5733f1be9a0bc19de60bdf9d48585"
+      }
+    },
+    "production": {
+      "distribution": "store",
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://agrovision-production-bdc3.up.railway.app"
+      }
+    }
+  }
+}

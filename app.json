@@ -37,6 +37,12 @@
         }
       ],
       "expo-sqlite"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "2c4d17d2-7b95-451f-89f5-fd8e7ff5f2bb"
+      }
+    },
+    "owner": "luizj18"
   }
 }
