@@ -9,7 +9,12 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "runtimeVersion": "54.0.0",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/2c4d17d2-7b95-451f-89f5-fd8e7ff5f2bb"
+    },
     "ios": {
       "supportsTabletMode": true,
       "bundleIdentifier": "com.agrovision.mobile",
