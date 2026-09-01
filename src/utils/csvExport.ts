@@ -23,8 +23,10 @@ const CSV_COLUMNS = [
   'bboxY',
   'bboxW',
   'bboxH',
+  'layerUsed',
   'label',
   'imageUri',
+  'overlayPath',
 ] as const;
 
 function escapeCsv(value: string | number): string {
@@ -49,8 +51,10 @@ function recordToRow(r: XAITestRecord): string {
     r.bbox.y,
     r.bbox.width,
     r.bbox.height,
+    r.layerUsed ?? '',
     r.label,
     r.imageUri,
+    r.overlayPath ?? '',
   ]
     .map(escapeCsv)
     .join(',');

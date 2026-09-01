@@ -73,6 +73,10 @@ export interface XAIResult {
 
 /**
  * Persisted test record (one row in the `xai_tests` SQLite table).
+ *
+ * overlayB64 is kept in-memory for display after a fresh analysis but is NOT
+ * written to SQLite. The PNG is saved to the filesystem and overlayPath stores
+ * the local URI so the database stays lightweight even for large batches.
  */
 export interface XAITestRecord {
   id: string;
@@ -85,6 +89,8 @@ export interface XAITestRecord {
   bbox: BoundingBox;
   bboxStrategy: string;
   overlayB64: string;
+  overlayPath?: string;
+  layerUsed: string;
   label: FramingLabel;
   createdAt: string;
 }

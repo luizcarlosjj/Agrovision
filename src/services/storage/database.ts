@@ -5,8 +5,11 @@
  */
 
 import * as SQLite from 'expo-sqlite';
+import * as FileSystem from 'expo-file-system/legacy';
 import { Analysis, AnalysisType, XAITestRecord, FramingLabel } from '@models';
 import { logger } from '@utils/logger';
+
+const OVERLAY_DIR = `${FileSystem.documentDirectory}xai_overlays/`;
 
 /**
  * Database service for SQLite operations
@@ -81,6 +84,8 @@ class DatabaseService {
         bboxJson TEXT NOT NULL,
         bboxStrategy TEXT NOT NULL,
         overlayB64 TEXT NOT NULL,
+        overlayPath TEXT,
+        layerUsed TEXT,
         label TEXT NOT NULL,
         createdAt TEXT NOT NULL
       );
@@ -90,16 +95,55 @@ class DatabaseService {
       CREATE INDEX IF NOT EXISTS idx_xai_tests_label ON xai_tests(label);
     `);
 
+    await this.runMigrations();
+
     logger.log('[Database] Tables created successfully');
+  }
+
+  private async runMigrations(): Promise<void> {
+    if (!this.db) return;
+    try {
+      await this.db.execAsync(`ALTER TABLE xai_tests ADD COLUMN overlayPath TEXT`);
+    } catch { /* column already exists */ }
+    try {
+      await this.db.execAsync(`ALTER TABLE xai_tests ADD COLUMN layerUsed TEXT`);
+    } catch { /* column already exists */ }
+  }
+
+  private async saveOverlayFile(id: string, b64: string): Promise<string | null> {
+    try {
+      const info = await FileSystem.getInfoAsync(OVERLAY_DIR);
+      if (!info.exists) {
+        await FileSystem.makeDirectoryAsync(OVERLAY_DIR, { intermediates: true });
+      }
+      const path = `${OVERLAY_DIR}${id}.png`;
+      await FileSystem.writeAsStringAsync(path, b64, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      return path;
+    } catch (err) {
+      logger.error('[Database] Failed to save overlay file', err);
+      return null;
+    }
+  }
+
+  private async deleteOverlayFile(path: string | undefined): Promise<void> {
+    if (!path) return;
+    try {
+      await FileSystem.deleteAsync(path, { idempotent: true });
+    } catch { /* ignore */ }
   }
 
   async saveXAITest(record: XAITestRecord): Promise<void> {
     if (!this.db) throw new Error('Database not initialized');
+    const overlayPath = record.overlayB64
+      ? await this.saveOverlayFile(record.id, record.overlayB64)
+      : null;
     await this.db.runAsync(
       `INSERT INTO xai_tests (
         id, imageUri, prediction, confidence, al, afs, threshold,
-        bboxJson, bboxStrategy, overlayB64, label, createdAt
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        bboxJson, bboxStrategy, overlayB64, overlayPath, layerUsed, label, createdAt
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         record.id,
         record.imageUri,
@@ -110,7 +154,9 @@ class DatabaseService {
         record.threshold,
         JSON.stringify(record.bbox),
         record.bboxStrategy,
-        record.overlayB64,
+        '',
+        overlayPath ?? null,
+        record.layerUsed ?? null,
         record.label,
         record.createdAt,
       ],
@@ -129,13 +175,22 @@ class DatabaseService {
 
   async deleteXAITest(id: string): Promise<void> {
     if (!this.db) throw new Error('Database not initialized');
+    const row = await this.db.getFirstAsync<{ overlayPath: string | null }>(
+      `SELECT overlayPath FROM xai_tests WHERE id = ?`,
+      [id],
+    );
     await this.db.runAsync(`DELETE FROM xai_tests WHERE id = ?`, [id]);
+    await this.deleteOverlayFile(row?.overlayPath ?? undefined);
     logger.log(`[Database] XAI test deleted: ${id}`);
   }
 
   async clearAllXAITests(): Promise<void> {
     if (!this.db) throw new Error('Database not initialized');
+    const rows = await this.db.getAllAsync<{ overlayPath: string | null }>(
+      `SELECT overlayPath FROM xai_tests WHERE overlayPath IS NOT NULL`,
+    );
     await this.db.runAsync(`DELETE FROM xai_tests`);
+    await Promise.all(rows.map((r) => this.deleteOverlayFile(r.overlayPath ?? undefined)));
     logger.log('[Database] All XAI tests cleared');
   }
 
@@ -164,7 +219,9 @@ class DatabaseService {
       threshold: row.threshold,
       bbox,
       bboxStrategy: row.bboxStrategy,
-      overlayB64: row.overlayB64,
+      overlayB64: row.overlayB64 ?? '',
+      overlayPath: row.overlayPath ?? undefined,
+      layerUsed: row.layerUsed ?? '',
       label: row.label as FramingLabel,
       createdAt: row.createdAt,
     };

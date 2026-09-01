@@ -113,6 +113,7 @@ export function AuditarModeloScreen({ route, navigation }: Props) {
         bbox: result.bboxUsed,
         bboxStrategy: result.bboxStrategy,
         overlayB64: result.overlayB64,
+        layerUsed: result.layerUsed,
         label,
         createdAt: new Date().toISOString(),
       });

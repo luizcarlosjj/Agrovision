@@ -64,6 +64,7 @@ const THRESHOLD_OPTIONS = [0.3, 0.5, 0.7];
 export function TestModeScreen() {
   const [strategy, setStrategy] = useState<BBoxStrategy>('fixed');
   const [threshold, setThreshold] = useState<number>(0.5);
+  const [batchLabel, setBatchLabel] = useState<FramingLabel>('nao_classificada');
   const [runs, setRuns] = useState<RunEntry[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [health, setHealth] = useState<XAIHealth | null | 'checking'>('checking');
@@ -107,13 +108,13 @@ export function TestModeScreen() {
         id: genId(),
         imageUri: a.uri,
         status: 'pending',
-        label: 'nao_classificada',
+        label: batchLabel,
       }));
       setRuns((prev) => [...entries, ...prev]);
     } catch (err: any) {
       Alert.alert('Erro ao abrir galeria', err?.message ?? 'Erro desconhecido');
     }
-  }, []);
+  }, [batchLabel]);
 
   const runOne = useCallback(
     async (entry: RunEntry): Promise<RunEntry> => {
@@ -134,6 +135,7 @@ export function TestModeScreen() {
           bbox: result.bboxUsed,
           bboxStrategy: result.bboxStrategy,
           overlayB64: result.overlayB64,
+          layerUsed: result.layerUsed,
           label: entry.label,
           createdAt: new Date().toISOString(),
         };
@@ -262,6 +264,27 @@ export function TestModeScreen() {
                 onPress={() => setThreshold(t)}
               />
             ))}
+          </View>
+
+          <Text style={[styles.controlLabel, { marginTop: SPACING_MD }]}>
+            Label do lote (aplicado às novas fotos selecionadas)
+          </Text>
+          <View style={styles.pillRow}>
+            <Pill
+              label="Bem enquadrada"
+              active={batchLabel === 'bem_enquadrada'}
+              onPress={() => setBatchLabel('bem_enquadrada')}
+            />
+            <Pill
+              label="Mal enquadrada"
+              active={batchLabel === 'mal_enquadrada'}
+              onPress={() => setBatchLabel('mal_enquadrada')}
+            />
+            <Pill
+              label="—"
+              active={batchLabel === 'nao_classificada'}
+              onPress={() => setBatchLabel('nao_classificada')}
+            />
           </View>
         </View>
 
