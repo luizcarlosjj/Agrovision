@@ -80,3 +80,8 @@ agrovision-ml-service/*.ckpt
 
 # Assets intermediários do gerador de PDF (regeneráveis)
 docs/_assets/
+
+# Pasta de testes do TCC (dados sensíveis e resultados gerados nunca sobem)
+testes/.env
+testes/dataset/
+testes/resultados/
