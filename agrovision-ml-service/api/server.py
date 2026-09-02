@@ -199,18 +199,23 @@ def _gradcam_sync(
     heatmap_full = np.clip(heatmap_full, 0.0, 1.0).astype(np.float32)
 
     strategy = (bbox_strategy or "fixed").lower()
-    if strategy == "green":
-        detected = mask_mod.green_segmentation_bbox(image_bgr)
-        if detected is None:
+    roi_fallback = False
+
+    if strategy in ("green", "hsv"):
+        seg_result = mask_mod.green_segmentation_mask(image_bgr)
+        if seg_result is None:
             bbox = mask_mod.fixed_center_bbox((h, w), coverage=coverage)
-            strategy = "fixed_fallback_from_green"
+            bin_mask = mask_mod.create_mask_from_bbox((h, w), bbox)
+            strategy = "fixed_fallback"
+            roi_fallback = True
         else:
-            bbox = detected
+            bin_mask, bbox = seg_result
+            strategy = "hsv"
     else:
         bbox = mask_mod.fixed_center_bbox((h, w), coverage=coverage)
+        bin_mask = mask_mod.create_mask_from_bbox((h, w), bbox)
         strategy = "fixed"
 
-    bin_mask = mask_mod.create_mask_from_bbox((h, w), bbox)
     metrics = compute_attention_leakage(heatmap_full, bin_mask, threshold=threshold)
 
     overlay_img = overlay_mod.overlay_heatmap(
@@ -233,6 +238,11 @@ def _gradcam_sync(
         "image_height": h,
         "layer_used": layer_name or "auto_last_conv",
         "processing_time_ms": elapsed_ms,
+        "roi_fallback": roi_fallback,
+        "roi_area_frac": round(metrics.roi_area_frac, 6),
+        "afs_norm": round(metrics.afs_norm, 4),
+        "pointing_hit": metrics.pointing_hit,
+        "dist_centroide": round(metrics.dist_centroide, 4),
     }
 
 
@@ -358,6 +368,11 @@ class GradCAMResponse(BaseModel):
     image_height: int
     layer_used: str
     processing_time_ms: int
+    roi_fallback: bool = False
+    roi_area_frac: float = 0.0
+    afs_norm: float = 0.0
+    pointing_hit: bool = False
+    dist_centroide: float = 1.0
 
 
 @app.get("/api/health", response_model=HealthResponse)

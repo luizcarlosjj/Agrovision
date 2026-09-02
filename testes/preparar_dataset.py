@@ -32,6 +32,7 @@ Uso:
 from __future__ import annotations
 
 import argparse
+import csv
 import os
 import random
 import sys
@@ -79,7 +80,7 @@ random.seed(42)            # reprodutibilidade
 AugType = str  # 'zoom_out' | 'offset' | 'rotate' | 'partial'
 
 
-def _aug_zoom_out(img: Image.Image) -> Image.Image:
+def _aug_zoom_out(img: Image.Image) -> tuple[Image.Image, str]:
     """Planta pequena no centro — parece que a câmera estava longe."""
     w, h = img.size
     scale = random.uniform(0.35, 0.55)
@@ -88,10 +89,10 @@ def _aug_zoom_out(img: Image.Image) -> Image.Image:
     x = (w - small.width)  // 2
     y = (h - small.height) // 2
     canvas.paste(small, (x, y))
-    return canvas
+    return canvas, f"{scale:.3f}"
 
 
-def _aug_offset(img: Image.Image) -> Image.Image:
+def _aug_offset(img: Image.Image) -> tuple[Image.Image, str]:
     """Planta empurrada para uma das bordas."""
     w, h = img.size
     scale = random.uniform(0.50, 0.70)
@@ -107,16 +108,16 @@ def _aug_offset(img: Image.Image) -> Image.Image:
     else:
         x, y = w - small.width, h - small.height
     canvas.paste(small, (x, y))
-    return canvas
+    return canvas, f"{side}_scale{scale:.3f}"
 
 
-def _aug_rotate(img: Image.Image) -> Image.Image:
+def _aug_rotate(img: Image.Image) -> tuple[Image.Image, str]:
     """Rotação forte — câmera inclinada ou folha deitada."""
     angle = random.choice([-80, -65, -50, 50, 65, 80])
-    return img.rotate(angle, expand=False, fillcolor=(30, 60, 20))
+    return img.rotate(angle, expand=False, fillcolor=(30, 60, 20)), str(angle)
 
 
-def _aug_partial(img: Image.Image) -> Image.Image:
+def _aug_partial(img: Image.Image) -> tuple[Image.Image, str]:
     """Parte da folha cortada pelo frame — câmera muito perto ou deslocada."""
     w, h = img.size
     cut_pct = random.uniform(0.25, 0.42)
@@ -130,7 +131,7 @@ def _aug_partial(img: Image.Image) -> Image.Image:
     else:
         box = (0, 0, w, int(h * (1 - cut_pct)))
     cropped = img.crop(box)
-    return cropped.resize((w, h), Image.LANCZOS)
+    return cropped.resize((w, h), Image.LANCZOS), f"{side}_{cut_pct:.3f}"
 
 
 AUG_FUNCS = {
@@ -141,13 +142,14 @@ AUG_FUNCS = {
 }
 
 
-def apply_random_augmentation(img: Image.Image) -> tuple[Image.Image, AugType]:
+def apply_random_augmentation(img: Image.Image) -> tuple[Image.Image, AugType, str, bool]:
     aug_type = random.choice(list(AUG_FUNCS.keys()))
-    result   = AUG_FUNCS[aug_type](img)
-    # leve blur opcional (simula foco ruim)
+    result, param = AUG_FUNCS[aug_type](img)
+    blur_applied = False
     if random.random() < 0.35:
         result = result.filter(ImageFilter.GaussianBlur(radius=random.uniform(0.8, 2.0)))
-    return result, aug_type
+        blur_applied = True
+    return result, aug_type, param, blur_applied
 
 
 # ─── Etapa 1: Download ────────────────────────────────────────────────────────
@@ -251,24 +253,47 @@ def gerar_mal_enquadradas(n: int = N_MAL) -> None:
 
     count_per_type: dict[str, int] = {k: 0 for k in AUG_FUNCS}
     saved = 0
+    metadata_rows: list[dict] = []
 
     for i, src_path in enumerate(pool):
         if saved >= n:
             break
         try:
             img = Image.open(src_path).convert("RGB")
-            aug_img, aug_type = apply_random_augmentation(img)
+            aug_img, aug_type, aug_param, aug_blur = apply_random_augmentation(img)
             aug_img = aug_img.resize(OUTPUT_SIZE, Image.LANCZOS)
 
             src_stem = src_path.stem.replace("bem_", "")
+            # id_par derived from bem filename number, e.g. "bem_003_..." → "003"
+            parts = src_path.stem.split("_")
+            id_par = parts[1] if len(parts) > 1 else f"{saved+1:03d}"
+
             fname = f"mal_{saved+1:03d}_{aug_type}_{src_stem[:30]}.jpg"
             aug_img.save(MAL_DIR / fname, "JPEG", quality=88)
 
             saved += 1
             count_per_type[aug_type] += 1
-            print(f"  [{saved:>3}/{n}]  ✅  {aug_type:<10}  {fname}")
+            metadata_rows.append({
+                "id_par":       id_par,
+                "bem_arquivo":  src_path.name,
+                "mal_arquivo":  fname,
+                "transformacao": aug_type,
+                "parametro":    aug_param,
+                "blur":         str(aug_blur),
+            })
+            print(f"  [{saved:>3}/{n}]  ✅  {aug_type:<10}  param={aug_param:<25}  blur={aug_blur}  {fname}")
         except Exception as exc:
             print(f"  ⚠  Erro ao processar {src_path.name}: {exc}")
+
+    # Salva metadados de rastreabilidade para análise pareada no batch_tcc.py
+    meta_path = SCRIPT_DIR / "dataset" / "aug_metadata.csv"
+    if metadata_rows:
+        with open(meta_path, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=["id_par", "bem_arquivo", "mal_arquivo",
+                                                    "transformacao", "parametro", "blur"])
+            writer.writeheader()
+            writer.writerows(metadata_rows)
+        print(f"\n  Metadados salvos em {meta_path.name}")
 
     print(f"\n  Geração concluída: {saved} imagem(ns) salvas em {MAL_DIR}")
     print(f"  Distribuição de augmentações:")
