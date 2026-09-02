@@ -9,6 +9,7 @@ Etapa 1 — Download:
 Etapa 2 — Augmentação:
     Gera 50 variantes "mal enquadradas" a partir das imagens baixadas,
     aplicando transformações que simulam erros reais de enquadramento:
+      - zoom_out    → planta pequena, fundo aparente
       - offset      → planta deslocada para uma das bordas
       - rotate      → rotação forte (40-80 graus)
       - partial     → parte da folha cortada pelo frame
