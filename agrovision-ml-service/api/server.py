@@ -205,12 +205,14 @@ def _gradcam_sync(
         seg_result = mask_mod.green_segmentation_mask(image_bgr)
         if seg_result is None:
             bbox = mask_mod.fixed_center_bbox((h, w), coverage=coverage)
-            bin_mask = mask_mod.create_mask_from_bbox((h, w), bbox)
             strategy = "fixed_fallback"
             roi_fallback = True
         else:
-            bin_mask, bbox = seg_result
+            # Use the bbox of the green component (not pixel mask) so the ROI
+            # rectangle covers the full leaf region including diseased areas.
+            _pixel_mask, bbox = seg_result
             strategy = "hsv"
+        bin_mask = mask_mod.create_mask_from_bbox((h, w), bbox)
     else:
         bbox = mask_mod.fixed_center_bbox((h, w), coverage=coverage)
         bin_mask = mask_mod.create_mask_from_bbox((h, w), bbox)

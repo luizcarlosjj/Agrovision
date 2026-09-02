@@ -167,8 +167,8 @@ def load_aug_metadata(dataset_dir: Path) -> dict[str, dict]:
     return result
 
 
-def _id_par_from_bem(filename: str) -> str:
-    """Extrai id_par de 'bem_003_Common_rust_.jpg' → '003'."""
+def _id_par_from_filename(filename: str) -> str:
+    """Extrai número sequencial de 'bem_003_...' ou 'mal_003_...' → '003'."""
     parts = Path(filename).stem.split("_")
     return parts[1] if len(parts) > 1 else ""
 
@@ -358,77 +358,74 @@ def export_excel(results: list[dict], output_path: Path, confidence_min: float) 
     _write_header(ws2, PAR_COLS)
 
     bem_by_par: dict[str, dict] = {}
-    mal_by_par: dict[str, list[dict]] = {}
+    mal_by_par: dict[str, dict] = {}
 
     for rec in results:
+        pid = _id_par_from_filename(rec["arquivo"])
+        if not pid:
+            continue
         if rec.get("label") == "bem_enquadradas":
-            pid = _id_par_from_bem(rec["arquivo"])
-            if pid:
-                bem_by_par[pid] = rec
-        elif rec.get("label") == "mal_enquadradas" and rec.get("id_par"):
-            pid = rec["id_par"]
-            mal_by_par.setdefault(pid, []).append(rec)
+            bem_by_par[pid] = rec
+        elif rec.get("label") == "mal_enquadradas":
+            mal_by_par[pid] = rec
 
     all_pars = sorted(set(bem_by_par) | set(mal_by_par))
     row_i = 2
     for pid in all_pars:
         bem = bem_by_par.get(pid)
-        mal_list = mal_by_par.get(pid, [])
-        if not mal_list:
-            mal_list = [None]
+        mal = mal_by_par.get(pid)
 
-        for mal in mal_list:
-            def g(rec, key):
-                return rec.get(key, "") if rec else ""
+        def g(rec, key):
+            return rec.get(key, "") if rec else ""
 
-            b_ok = bem is not None and bem.get("status") == "ok"
-            m_ok = mal is not None and mal.get("status") == "ok"
-            incomplete = (not b_ok) or (not m_ok)
+        b_ok = bem is not None and bem.get("status") == "ok"
+        m_ok = mal is not None and mal.get("status") == "ok"
+        incomplete = (not b_ok) or (not m_ok)
 
-            def diff(kb, km, sign=1):
-                bv = bem.get(kb) if bem else None
-                mv = mal.get(km) if mal else None
-                if isinstance(bv, (int, float)) and isinstance(mv, (int, float)):
-                    return round(sign * (bv - mv), 4)
-                return ""
+        def diff(kb, km, sign=1):
+            bv = bem.get(kb) if bem else None
+            mv = mal.get(km) if mal else None
+            if isinstance(bv, (int, float)) and isinstance(mv, (int, float)):
+                return round(sign * (bv - mv), 4)
+            return ""
 
-            par_row = {
-                "id_par":          pid,
-                "transformacao":   g(mal, "transformacao") or g(bem, "transformacao"),
-                "parametro":       g(mal, "parametro"),
-                "blur":            g(mal, "blur"),
-                "status_bem":      g(bem, "status"),
-                "pred_bem":        g(bem, "prediction"),
-                "conf_bem":        g(bem, "confidence"),
-                "al_bem":          g(bem, "al"),
-                "afs_bem":         g(bem, "afs"),
-                "afs_norm_bem":    g(bem, "afs_norm"),
-                "roi_frac_bem":    g(bem, "roi_area_frac"),
-                "hit_bem":         g(bem, "pointing_hit"),
-                "dist_bem":        g(bem, "dist_centroide"),
-                "baixa_conf_bem":  g(bem, "baixa_confianca"),
-                "status_mal":      g(mal, "status"),
-                "pred_mal":        g(mal, "prediction"),
-                "conf_mal":        g(mal, "confidence"),
-                "al_mal":          g(mal, "al"),
-                "afs_mal":         g(mal, "afs"),
-                "afs_norm_mal":    g(mal, "afs_norm"),
-                "roi_frac_mal":    g(mal, "roi_area_frac"),
-                "hit_mal":         g(mal, "pointing_hit"),
-                "dist_mal":        g(mal, "dist_centroide"),
-                "baixa_conf_mal":  g(mal, "baixa_confianca"),
-                "delta_afs":       diff("afs",          "afs"),
-                "delta_afs_norm":  diff("afs_norm",     "afs_norm"),
-                "delta_al":        diff("al",            "al", sign=-1),
-                "delta_conf":      diff("confidence",   "confidence"),
-                "delta_dist":      diff("dist_centroide", "dist_centroide", sign=-1),
-                "par_incompleto":  incomplete,
-            }
-            fill = PatternFill("solid", fgColor="FFC7CE" if incomplete else "FFFFFF")
-            for col_i, (key, _) in enumerate(PAR_COLS, 1):
-                c = ws2.cell(row=row_i, column=col_i, value=par_row.get(key, ""))
-                c.fill = fill
-            row_i += 1
+        par_row = {
+            "id_par":          pid,
+            "transformacao":   g(mal, "transformacao") or g(bem, "transformacao"),
+            "parametro":       g(mal, "parametro"),
+            "blur":            g(mal, "blur"),
+            "status_bem":      g(bem, "status"),
+            "pred_bem":        g(bem, "prediction"),
+            "conf_bem":        g(bem, "confidence"),
+            "al_bem":          g(bem, "al"),
+            "afs_bem":         g(bem, "afs"),
+            "afs_norm_bem":    g(bem, "afs_norm"),
+            "roi_frac_bem":    g(bem, "roi_area_frac"),
+            "hit_bem":         g(bem, "pointing_hit"),
+            "dist_bem":        g(bem, "dist_centroide"),
+            "baixa_conf_bem":  g(bem, "baixa_confianca"),
+            "status_mal":      g(mal, "status"),
+            "pred_mal":        g(mal, "prediction"),
+            "conf_mal":        g(mal, "confidence"),
+            "al_mal":          g(mal, "al"),
+            "afs_mal":         g(mal, "afs"),
+            "afs_norm_mal":    g(mal, "afs_norm"),
+            "roi_frac_mal":    g(mal, "roi_area_frac"),
+            "hit_mal":         g(mal, "pointing_hit"),
+            "dist_mal":        g(mal, "dist_centroide"),
+            "baixa_conf_mal":  g(mal, "baixa_confianca"),
+            "delta_afs":       diff("afs",            "afs"),
+            "delta_afs_norm":  diff("afs_norm",       "afs_norm"),
+            "delta_al":        diff("al",              "al", sign=-1),
+            "delta_conf":      diff("confidence",     "confidence"),
+            "delta_dist":      diff("dist_centroide", "dist_centroide", sign=-1),
+            "par_incompleto":  incomplete,
+        }
+        fill = PatternFill("solid", fgColor="FFC7CE" if incomplete else "FFFFFF")
+        for col_i, (key, _) in enumerate(PAR_COLS, 1):
+            c = ws2.cell(row=row_i, column=col_i, value=par_row.get(key, ""))
+            c.fill = fill
+        row_i += 1
 
     _autowidth(ws2)
 
@@ -486,8 +483,7 @@ def export_excel(results: list[dict], output_path: Path, confidence_min: float) 
         ("Pares completos",                  sum(1 for pid in all_pars
                                                 if pid in bem_by_par and pid in mal_by_par
                                                 and bem_by_par[pid].get("status") == "ok"
-                                                and any(m.get("status") == "ok"
-                                                        for m in mal_by_par.get(pid, [])))),
+                                                and mal_by_par[pid].get("status") == "ok")),
         ("Gerado em",                        datetime.now().isoformat(timespec="seconds")),
     ]:
         ws3.cell(row=cur, column=1, value=label)
@@ -603,12 +599,13 @@ def main() -> None:
             # Enriquecer com metadados de augmentação (mal_enquadradas)
             if label == "mal_enquadradas":
                 meta = aug_meta.get(img_path.name, {})
-                row["id_par"]       = meta.get("id_par", "")
+                # id_par = mal's own sequential number (positional pairing with bem)
+                row["id_par"]        = _id_par_from_filename(img_path.name)
                 row["transformacao"] = meta.get("transformacao", "")
-                row["parametro"]    = meta.get("parametro", "")
-                row["blur"]         = meta.get("blur", "")
+                row["parametro"]     = meta.get("parametro", "")
+                row["blur"]          = meta.get("blur", "")
             else:
-                row["id_par"] = _id_par_from_bem(img_path.name)
+                row["id_par"] = _id_par_from_filename(img_path.name)
 
             results.append(row)
 

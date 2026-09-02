@@ -264,9 +264,9 @@ def gerar_mal_enquadradas(n: int = N_MAL) -> None:
             aug_img = aug_img.resize(OUTPUT_SIZE, Image.LANCZOS)
 
             src_stem = src_path.stem.replace("bem_", "")
-            # id_par derived from bem filename number, e.g. "bem_003_..." → "003"
-            parts = src_path.stem.split("_")
-            id_par = parts[1] if len(parts) > 1 else f"{saved+1:03d}"
+            # id_par is the mal's own sequential number so pairing is
+            # positional: mal_003 always pairs with bem_003.
+            id_par = f"{saved+1:03d}"
 
             fname = f"mal_{saved+1:03d}_{aug_type}_{src_stem[:30]}.jpg"
             aug_img.save(MAL_DIR / fname, "JPEG", quality=88)

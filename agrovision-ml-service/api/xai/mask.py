@@ -54,8 +54,7 @@ def green_segmentation_bbox(
         return None
 
     hsv = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2HSV)
-    # Broad green band — tolerates yellowish-green to dark-green foliage.
-    lower = np.array([25, 30, 30], dtype=np.uint8)
+    lower = np.array([25, 40, 70], dtype=np.uint8)
     upper = np.array([95, 255, 255], dtype=np.uint8)
     mask = cv2.inRange(hsv, lower, upper)
 
@@ -100,7 +99,9 @@ def green_segmentation_mask(
         return None
 
     hsv = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2HSV)
-    lower = np.array([25, 30, 30], dtype=np.uint8)
+    # V_min=70 excludes the dark-green augmentation background (V=60 in OpenCV HSV).
+    # S_min=40 improves selectivity without cutting healthy leaf tissue.
+    lower = np.array([25, 40, 70], dtype=np.uint8)
     upper = np.array([95, 255, 255], dtype=np.uint8)
     mask = cv2.inRange(hsv, lower, upper)
 
