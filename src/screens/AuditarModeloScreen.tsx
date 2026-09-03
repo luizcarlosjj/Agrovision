@@ -211,7 +211,7 @@ export function AuditarModeloScreen({ route, navigation }: Props) {
       {status === 'done' && result && (
         <>
           <HeatmapOverlay
-            originalUri={imageUri}
+            imageUri={imageUri}
             overlayB64={result.overlayB64}
           />
 
