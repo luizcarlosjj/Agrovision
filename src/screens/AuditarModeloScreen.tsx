@@ -217,7 +217,7 @@ export function AuditarModeloScreen({ route, navigation }: Props) {
 
           <MetricsPanel
             prediction={result.prediction}
-            confidence={result.confidence}
+            confidence={confidence}
             al={result.al}
             afs={result.afs}
             processingTimeMs={result.processingTimeMs}

@@ -29,8 +29,7 @@ function AnalysisNavigator() {
       initialRouteName="Home"
       screenOptions={{
         headerShown: false,
-        cardStyle: { backgroundColor: COLORS.BACKGROUND },
-        animationEnabled: true,
+        contentStyle: { backgroundColor: COLORS.BACKGROUND },
       }}
     >
       <Stack.Screen name="Home"          component={HomeScreen}          options={{ title: 'AgroVision' }} />
@@ -45,7 +44,7 @@ function AnalysisNavigator() {
 
 function HistoryNavigator() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false, cardStyle: { backgroundColor: COLORS.BACKGROUND } }}>
+    <Stack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: COLORS.BACKGROUND } }}>
       <Stack.Screen name="History" component={HistoryScreen} />
     </Stack.Navigator>
   );
@@ -53,7 +52,7 @@ function HistoryNavigator() {
 
 function AboutNavigator() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false, cardStyle: { backgroundColor: COLORS.BACKGROUND } }}>
+    <Stack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: COLORS.BACKGROUND } }}>
       <Stack.Screen name="About" component={AboutScreen} />
     </Stack.Navigator>
   );

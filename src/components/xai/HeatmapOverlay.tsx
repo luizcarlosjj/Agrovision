@@ -35,6 +35,7 @@ export function HeatmapOverlay({
   return (
     <View style={styles.container}>
       <Image
+        key={showOverlay ? 'overlay' : 'original'}
         source={{ uri: currentUri }}
         style={[styles.image, { aspectRatio }]}
         resizeMode="contain"

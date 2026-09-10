@@ -3,7 +3,7 @@
     "name": "AgroVision Mobile",
     "slug": "agrovision-mobile",
     "version": "1.0.0",
-    "sdkVersion": "54.0.0",
+    "sdkVersion": "57.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "assetBundlePatterns": [
@@ -42,13 +42,14 @@
           "recordAudioAndroid": false
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-sharing"
     ],
     "extra": {
       "eas": {
         "projectId": "2c4d17d2-7b95-451f-89f5-fd8e7ff5f2bb"
       }
     },
-    "owner": "luizj18"
+    "owner": "agrovisionteam"
   }
 }
