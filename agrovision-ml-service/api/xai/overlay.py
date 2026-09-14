@@ -1,10 +1,3 @@
-"""
-Heatmap overlay rendering.
-
-Takes an original BGR image and a normalized heatmap [0, 1] (same H, W) and
-produces a PNG with the heatmap blended on top using a JET colormap.
-"""
-
 from typing import Tuple
 
 import cv2
@@ -17,11 +10,6 @@ def overlay_heatmap(
     alpha: float = 0.45,
     bbox: Tuple[int, int, int, int] | None = None,
 ) -> np.ndarray:
-    """
-    Blend a normalized [0,1] heatmap onto the given BGR image. Optionally draws
-    the bounding box used for AL computation.
-    Returns a BGR uint8 image.
-    """
     if image_bgr.shape[:2] != heatmap.shape:
         heatmap_resized = cv2.resize(
             heatmap, (image_bgr.shape[1], image_bgr.shape[0]),
@@ -30,11 +18,13 @@ def overlay_heatmap(
     else:
         heatmap_resized = heatmap
 
+    # Converte o heatmap [0,1] para colormap JET (azul=baixo, vermelho=alto)
     heatmap_uint8 = np.clip(heatmap_resized * 255.0, 0, 255).astype(np.uint8)
     colored = cv2.applyColorMap(heatmap_uint8, cv2.COLORMAP_JET)
 
     blended = cv2.addWeighted(image_bgr, 1.0 - alpha, colored, alpha, 0.0)
 
+    # Desenha o contorno da bbox usada no cálculo do AL
     if bbox is not None:
         x, y, w, h = bbox
         cv2.rectangle(blended, (x, y), (x + w, y + h), (0, 255, 0), 2)

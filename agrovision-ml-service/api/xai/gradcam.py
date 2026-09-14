@@ -1,14 +1,3 @@
-"""
-Grad-CAM implementation.
-
-Given a preprocessed input tensor of shape (1, H, W, 3) and a target conv
-layer, computes the class-activation map by combining feature maps weighted
-by the gradients of the predicted class w.r.t. those feature maps, then
-ReLU-thresholds and normalizes the result to [0, 1].
-
-Works on the full Keras model — not TFLite — because gradients are required.
-"""
-
 from typing import Optional, Tuple
 
 import numpy as np
@@ -17,7 +6,6 @@ from tensorflow import keras
 
 
 def _find_layer(model: keras.Model, name: str) -> keras.layers.Layer:
-    """Recursively find a layer by name, searching nested sub-models too."""
     for layer in model.layers:
         if layer.name == name:
             return layer
@@ -30,10 +18,7 @@ def _find_layer(model: keras.Model, name: str) -> keras.layers.Layer:
 
 
 def _pick_default_conv_layer(model: keras.Model) -> keras.layers.Layer:
-    """
-    Heuristic: pick the last Conv2D layer in the model (walking into nested
-    sub-models). For MobileNetV2 this lands on 'Conv_1' before the GAP head.
-    """
+    # Usa a última Conv2D — no MobileNetV2 isso cai na camada Conv_1, antes do GAP
     last_conv: Optional[keras.layers.Layer] = None
 
     def walk(m: keras.Model) -> None:
@@ -53,18 +38,7 @@ def _pick_default_conv_layer(model: keras.Model) -> keras.layers.Layer:
 def _build_grad_model(
     model: keras.Model, target_layer: keras.layers.Layer
 ) -> keras.Model:
-    """
-    Build a sub-model exposing (feature_maps_of_target_layer, model_output).
-
-    When the target layer is inside a nested sub-model (e.g. Conv_1 inside
-    MobileNetV2), a naïve keras.Model(outer_inputs, [conv.output, outer.output])
-    creates two disconnected graph paths — GradientTape then returns None for
-    the gradient.  The fix: build a single inner_grad model that outputs BOTH
-    the feature maps AND the sub-model output in one forward pass, then wire
-    that into a reconstructed outer model so feature_maps → predictions is one
-    connected computation.
-    """
-    # Case 1: target layer is directly inside the top-level model.
+    # Caso simples: camada alvo está diretamente no modelo principal
     if any(layer is target_layer for layer in model.layers):
         try:
             return keras.Model(
@@ -77,8 +51,9 @@ def _build_grad_model(
                 "Try specifying a different conv layer via layer_name."
             ) from exc
 
-    # Case 2: target layer lives inside a nested sub-model (common with
-    # MobileNetV2 embedded as a block).  Find the immediate parent sub-model.
+    # Caso MobileNetV2 embutido como sub-modelo: precisa de um modelo interno que
+    # exponha os feature maps E a saída do sub-modelo em um único forward pass,
+    # senão o GradientTape retorna None para o gradiente.
     parent: Optional[keras.Model] = None
     for layer in model.layers:
         if isinstance(layer, keras.Model):
@@ -92,8 +67,6 @@ def _build_grad_model(
             "direct sub-model.  Try specifying a top-level layer via layer_name."
         )
 
-    # Build an inner grad model that, in ONE forward pass, outputs both the
-    # target feature maps and the parent sub-model's final output.
     try:
         inner_grad = keras.Model(
             inputs=parent.inputs,
@@ -104,8 +77,6 @@ def _build_grad_model(
             f"Cannot build inner grad model for layer '{target_layer.name}': {exc}"
         ) from exc
 
-    # Reconstruct the outer forward pass symbolically, substituting the parent
-    # sub-model with inner_grad so that feature_maps flows into predictions.
     x = model.inputs[0] if len(model.inputs) == 1 else model.inputs
     feature_maps_sym = None
 
@@ -135,25 +106,6 @@ def generate_gradcam(
     layer_name: Optional[str] = None,
     class_index: Optional[int] = None,
 ) -> Tuple[np.ndarray, int, float]:
-    """
-    Compute a Grad-CAM heatmap.
-
-    Args:
-        input_tensor: (1, H, W, 3) float tensor in the range expected by the
-            model's first layer (MobileNetV2's preprocess_input is inside the
-            model, so raw 0..255 float is fine for this project's model).
-        model: full Keras classification model.
-        layer_name: optional name of the target conv layer. Defaults to the
-            last Conv2D in the model.
-        class_index: optional class index to target. If None, the predicted
-            (top-1) class is used.
-
-    Returns:
-        heatmap_hw: (H, W) float32 array in [0, 1] (same spatial size as the
-            input tensor — NOT the original image).
-        predicted_index: int, the class index for which the CAM was computed.
-        predicted_confidence: float in [0, 1], softmax probability of that class.
-    """
     if layer_name:
         target_layer = _find_layer(model, layer_name)
     else:
@@ -161,12 +113,14 @@ def generate_gradcam(
 
     grad_model = _build_grad_model(model, target_layer)
 
+    # Grava o forward pass para poder calcular os gradientes depois
     with tf.GradientTape() as tape:
         feature_maps, predictions = grad_model(input_tensor, training=False)
         if class_index is None:
             class_index = int(tf.argmax(predictions[0]).numpy())
         class_score = predictions[:, class_index]
 
+    # Gradiente da classe alvo em relação aos feature maps da camada escolhida
     grads = tape.gradient(class_score, feature_maps)
     if grads is None:
         raise RuntimeError(
@@ -174,28 +128,27 @@ def generate_gradcam(
             "The layer may not be on the path to the output."
         )
 
-    # Global-average the gradients to get per-channel importance weights.
-    pooled_grads = tf.reduce_mean(grads, axis=(0, 1, 2))  # (C,)
+    # Média global dos gradientes → peso de importância por canal
+    pooled_grads = tf.reduce_mean(grads, axis=(0, 1, 2))
 
-    # Weight feature maps by their importance and sum across channels.
-    feature_maps_0 = feature_maps[0]  # (Hf, Wf, C)
-    cam = tf.reduce_sum(feature_maps_0 * pooled_grads, axis=-1)  # (Hf, Wf)
+    # Cada canal dos feature maps é multiplicado pelo seu peso e somado
+    feature_maps_0 = feature_maps[0]
+    cam = tf.reduce_sum(feature_maps_0 * pooled_grads, axis=-1)
 
-    # ReLU + normalize to [0, 1].
+    # ReLU remove ativações negativas; normaliza para [0, 1]
     cam = tf.nn.relu(cam)
     cam_max = tf.reduce_max(cam)
     if cam_max > 0:
         cam = cam / cam_max
     cam_np = cam.numpy().astype(np.float32)
 
-    # Upsample to the input tensor's spatial size.
+    # Redimensiona o CAM para o tamanho da imagem de entrada
     input_h = int(input_tensor.shape[1])
     input_w = int(input_tensor.shape[2])
     cam_resized = tf.image.resize(
         cam_np[..., None], size=(input_h, input_w), method="bilinear"
     ).numpy().squeeze(-1)
 
-    # Renormalize after resize (bilinear can drop peak slightly).
     cam_max2 = float(cam_resized.max())
     if cam_max2 > 0:
         cam_resized = cam_resized / cam_max2

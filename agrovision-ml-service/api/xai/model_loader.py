@@ -1,11 +1,3 @@
-"""
-Model loader singleton for the XAI backend.
-
-Loads the Keras model (.keras or .h5) once and keeps it in memory for
-subsequent inference + Grad-CAM computation. Labels are loaded from the
-JSON mapping produced by train_species.py.
-"""
-
 import json
 import os
 from pathlib import Path
@@ -75,6 +67,7 @@ class ModelRegistry:
         labels_path = self._resolve_labels_path()
 
         print(f"[XAI] Loading Keras model from {model_path} ...")
+        # compile=False evita recompilar otimizadores desnecessários para inferência
         self._model = keras.models.load_model(model_path, compile=False)
         self._model_path = model_path
 
@@ -86,8 +79,7 @@ class ModelRegistry:
         self._conv_layer_names = [
             layer.name for layer in self._model.layers if isinstance(layer, keras.layers.Conv2D)
         ]
-        # When MobileNetV2 is embedded as a sub-model, conv layers are nested.
-        # Walk the graph to collect conv layer names inside nested models too.
+        # MobileNetV2 é embutido como sub-modelo; as Conv2D dele ficam aninhadas
         nested_convs: List[str] = []
         for layer in self._model.layers:
             if isinstance(layer, keras.Model):
@@ -122,4 +114,5 @@ class ModelRegistry:
         return self.labels.get(idx, f"class_{idx}")
 
 
+# Singleton — modelo carregado uma vez e reutilizado em todas as requisições
 registry = ModelRegistry()
