@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>AgroVision — Respostas para Apresentação TCC</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Mono:wght@400;500&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    line-height: 1.65;
+    color: #1a1a1a;
+    background: #fff;
+    padding: 48px 64px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  header {
+    border-bottom: 3px solid #2D7A4F;
+    padding-bottom: 20px;
+    margin-bottom: 36px;
+  }
+
+  header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #2D7A4F;
+    letter-spacing: -0.3px;
+  }
+
+  header p {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+  }
+
+  .question {
+    margin-bottom: 32px;
+    page-break-inside: avoid;
+  }
+
+  .question h2 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #2D7A4F;
+    background: #f0f7f3;
+    border-left: 4px solid #2D7A4F;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .question p {
+    margin-bottom: 8px;
+    color: #333;
+  }
+
+  .question ul, .question ol {
+    padding-left: 20px;
+    margin-bottom: 8px;
+  }
+
+  .question li {
+    margin-bottom: 4px;
+    color: #333;
+  }
+
+  code {
+    font-family: 'Fira Mono', monospace;
+    font-size: 11.5px;
+    background: #f4f4f4;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 0 4px;
+  }
+
+  pre {
+    font-family: 'Fira Mono', monospace;
+    font-size: 11.5px;
+    background: #f8f8f8;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin: 10px 0;
+    line-height: 1.7;
+    overflow-x: auto;
+  }
+
+  .tag {
+    display: inline-block;
+    background: #2D7A4F;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-right: 6px;
+    vertical-align: middle;
+    letter-spacing: 0.3px;
+  }
+
+  .highlight {
+    background: #fffbea;
+    border-left: 3px solid #F57C00;
+    padding: 8px 12px;
+    border-radius: 0 4px 4px 0;
+    margin: 10px 0;
+    font-size: 12.5px;
+    color: #444;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 12px;
+  }
+
+  th {
+    background: #2D7A4F;
+    color: #fff;
+    padding: 7px 10px;
+    text-align: left;
+    font-weight: 600;
+  }
+
+  td {
+    padding: 6px 10px;
+    border-bottom: 1px solid #e8e8e8;
+  }
+
+  tr:nth-child(even) td { background: #f9f9f9; }
+
+  footer {
+    margin-top: 40px;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 12px;
+    font-size: 11px;
+    color: #999;
+    text-align: center;
+  }
+
+  @media print {
+    body { padding: 20px 32px; }
+    .question { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>AgroVision — Respostas para Apresentação TCC</h1>
+  <p>Ciência da Computação · Diagnóstico de Doenças Foliares do Milho com IA e XAI (Grad-CAM)</p>
+</header>
+
+<!-- 1 -->
+<div class="question">
+  <h2><span class="tag">1</span> Qual o tema do trabalho?</h2>
+  <p>
+    <strong>Diagnóstico de doenças foliares do milho com Inteligência Artificial e Explicabilidade (XAI).</strong>
+  </p>
+  <p>
+    App mobile que identifica doenças em folhas de milho por foto e oferece um modo científico que explica
+    <em>onde</em> e <em>quanto</em> o modelo prestou atenção na planta durante a predição.
+  </p>
+  <p>Classes detectadas: <code>Blight</code>, <code>Common Rust</code>, <code>Gray Leaf Spot</code>, <code>Healthy</code>.</p>
+</div>
+
+<!-- 2 -->
+<div class="question">
+  <h2><span class="tag">2</span> Por que escolhemos esse tema?</h2>
+  <ul>
+    <li>Agricultores familiares não têm acesso fácil a agrônomos para diagnóstico em campo</li>
+    <li>Doenças como Blight e Ferrugem Comum destroem safras inteiras se não tratadas cedo</li>
+    <li>Modelos de IA para identificação já existem, mas são <strong>caixas-pretas</strong> — não explicam como chegaram à conclusão</li>
+    <li>O diferencial proposto é abrir essa caixa preta com XAI, dando ao pesquisador uma medida de confiabilidade do modelo</li>
+  </ul>
+</div>
+
+<!-- 3 -->
+<div class="question">
+  <h2><span class="tag">3</span> Diferencial em relação ao que já existe e a intervenção científica</h2>
+  <p>
+    Apps existentes (PlantVillage, etc.) entregam somente: <em>"é tal doença, confiança X%"</em>. Ponto final.
+  </p>
+  <div class="highlight">
+    <strong>Nossa intervenção:</strong> além da classificação, medimos numericamente <strong>se o modelo estava olhando para o lugar certo</strong>
+    na planta. O pesquisador vê o heatmap e dois números (AL e AFS) que indicam se a IA é confiável ou se "acertou por sorte".
+  </div>
+  <p>Isso é inédito na camada de aplicação — não apenas no laboratório, mas acessível via app mobile em campo.</p>
+</div>
+
+<!-- 4 -->
+<div class="question">
+  <h2><span class="tag">4</span> Como pensamos na intervenção?</h2>
+  <p>O raciocínio central foi:</p>
+  <div class="highlight">
+    "Se o modelo acertou a doença, mas estava olhando para o <strong>fundo da foto</strong> em vez da folha, ele acertou por sorte."
+  </div>
+  <p>A partir disso, propusemos medir isso quantitativamente em três passos:</p>
+  <ol>
+    <li>Gerar o heatmap do Grad-CAM — onde o modelo prestou atenção</li>
+    <li>Detectar automaticamente a região da folha na imagem</li>
+    <li>Cruzar os dois: quanto da atenção caiu <strong>dentro</strong> vs. <strong>fora</strong> da folha?</li>
+  </ol>
+</div>
+
+<!-- 5 -->
+<div class="question">
+  <h2><span class="tag">5</span> Como foi feito o mapa de calor?</h2>
+  <p>Usando <strong>Grad-CAM</strong> (Gradient-weighted Class Activation Mapping) sobre o modelo Keras (MobileNetV2):</p>
+  <ol>
+    <li>A foto passa pelo modelo em modo de gravação de gradientes (<code>GradientTape</code>)</li>
+    <li>Calcula-se o gradiente da classe predita em relação aos feature maps da última camada convolucional (<code>Conv_1</code>)</li>
+    <li>Esses gradientes são agregados por média global → viram <strong>pesos de importância por canal</strong></li>
+    <li>Os feature maps são multiplicados pelos pesos e somados → mapa de ativação bruto</li>
+    <li>ReLU remove valores negativos; normaliza para [0, 1]</li>
+    <li>O mapa é redimensionado para o tamanho da foto original</li>
+    <li>Aplica-se colormap <strong>JET</strong> (azul = baixo, vermelho/amarelo = alto) e mistura com a foto original</li>
+  </ol>
+  <p>Arquivo principal: <code>agrovision-ml-service/api/xai/gradcam.py</code></p>
+</div>
+
+<!-- 6 -->
+<div class="question">
+  <h2><span class="tag">6</span> O que é a medida numérica contínua que propomos?</h2>
+  <p>São duas métricas complementares, ambas entre 0 e 1:</p>
+
+  <table>
+    <tr>
+      <th>Métrica</th>
+      <th>Significado</th>
+      <th>Valor ideal</th>
+    </tr>
+    <tr>
+      <td><strong>AL — Attention Leakage</strong></td>
+      <td>% da atenção do modelo que "vazou" para fora da folha</td>
+      <td>0% (zero vazamento)</td>
+    </tr>
+    <tr>
+      <td><strong>AFS — Attention Focus Score</strong></td>
+      <td>% da atenção que ficou dentro da folha (= 1 − AL)</td>
+      <td>100% (foco total)</td>
+    </tr>
+    <tr>
+      <td><strong>AFS Norm</strong></td>
+      <td>AFS ÷ tamanho relativo da folha — evita viés pelo tamanho</td>
+      <td>&gt; 1,0 (foco real)</td>
+    </tr>
+    <tr>
+      <td><strong>Pointing Hit</strong></td>
+      <td>O pixel de maior ativação está dentro da folha?</td>
+      <td>true</td>
+    </tr>
+    <tr>
+      <td><strong>Dist. Centróide</strong></td>
+      <td>Distância entre centro de atenção e centro da folha</td>
+      <td>0 (alinhados)</td>
+    </tr>
+  </table>
+</div>
+
+<!-- 7 -->
+<div class="question">
+  <h2><span class="tag">7</span> Como foi feita a delimitação do objeto (a folha)?</h2>
+  <p>Via <strong>segmentação por cor HSV</strong> + análise de componentes conexos (<code>mask.py</code>):</p>
+  <ol>
+    <li>Converte a foto de BGR para espaço de cor HSV</li>
+    <li>Aplica uma máscara com a faixa de verde:
+      <code>H∈[25, 95]</code>, <code>S∈[40, 255]</code>, <code>V∈[70, 255]</code>
+      <br/><em>O V_min=70 foi calibrado para excluir o fundo verde-escuro do dataset de treino</em>
+    </li>
+    <li>Limpeza morfológica: <code>MORPH_OPEN</code> remove ruído pequeno; <code>MORPH_CLOSE</code> fecha buracos internos</li>
+    <li><code>connectedComponentsWithStats</code> encontra todos os blobs verdes</li>
+    <li>O <strong>maior blob</strong> é escolhido como a folha principal</li>
+    <li>Extrai-se a <strong>bounding box</strong> desse blob → essa é a ROI usada no cálculo das métricas</li>
+  </ol>
+  <p>Arquivo principal: <code>agrovision-ml-service/api/xai/mask.py</code></p>
+</div>
+
+<!-- 8 -->
+<div class="question">
+  <h2><span class="tag">8</span> Como é o cálculo do AFS e AL?</h2>
+  <p>Direto do código (<code>metrics.py</code>):</p>
+
+<pre># 1. Filtra ativações fracas (threshold = 0.5 — remove ruído)
+active = pixels do heatmap onde valor >= 0.5
+
+# 2. Separa dentro e fora da máscara da folha
+inside  = soma das ativações DENTRO da bbox
+outside = soma das ativações FORA da bbox
+total   = inside + outside
+
+# 3. Fórmulas centrais
+AL  = outside / total        → quanto "vazou" para fora
+AFS = 1 - AL = inside/total  → quanto ficou dentro da folha</pre>
+
+  <div class="highlight">
+    <strong>Exemplo concreto:</strong> se o heatmap tem 1.000 unidades de ativação no total e 750 estão dentro da folha:<br/>
+    → <code>AL = 250/1000 = 25%</code> — 25% da atenção vazou<br/>
+    → <code>AFS = 75%</code> — modelo focou bem na planta
+  </div>
+
+  <p>Arquivo principal: <code>agrovision-ml-service/api/xai/metrics.py</code></p>
+</div>
+
+<footer>
+  AgroVision · TCC Ciência da Computação · Gerado em outubro de 2026
+</footer>
+
+</body>
+</html>
