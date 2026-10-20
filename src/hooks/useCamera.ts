@@ -45,7 +45,8 @@ export function useCamera(): UseCameraReturn {
       return null;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Erro ao capturar foto';
-      logger.error('[useCamera] Error taking photo:', error);
+      // cameraService já registrou o erro; aqui só repassa a mensagem ao banner
+      logger.log('[useCamera] Error taking photo:', message);
       setPermissionError(message);
       return null;
     }
