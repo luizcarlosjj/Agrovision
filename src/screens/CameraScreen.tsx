@@ -3,11 +3,14 @@
  */
 
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Text, Image, TouchableOpacity, Platform } from 'react-native';
+import * as Device from 'expo-device';
 import { SafeAreaWrapper, ErrorBanner } from '@components';
 import { Header } from '@components/common/Header';
 import { CameraScreenProps } from '@navigation/types';
 import { useCamera } from '@hooks';
+
+const IS_SIMULATOR = !Device.isDevice && (Platform.OS === 'ios' || Platform.OS === 'android');
 import {
   COLORS,
   UI,
@@ -71,14 +74,29 @@ export function CameraScreen({ route, navigation }: CameraScreenProps) {
       ) : (
         /* ── Selection state ── */
         <View style={styles.flex}>
+          {/* Banner de emulador — aparece apenas em Simulator/Emulator */}
+          {IS_SIMULATOR && (
+            <View style={styles.simulatorBanner}>
+              <Text style={styles.simulatorBannerTitle}>
+                {Platform.OS === 'ios' ? '🖥  Simulador iOS detectado' : '🤖  Emulador Android detectado'}
+              </Text>
+              <Text style={styles.simulatorBannerText}>
+                {Platform.OS === 'ios'
+                  ? 'Câmera não disponível. Use "Galeria" e adicione imagens arrastando arquivos para a janela do Simulator.'
+                  : 'Se a câmera não funcionar: AVD Manager → Edit → Camera → Webcam0. Ou arraste imagens para o emulador e use a Galeria.'}
+              </Text>
+            </View>
+          )}
+
           <View style={styles.promptArea}>
             <View style={styles.promptIconWrap}>
               <Text style={styles.promptIcon}>🍃</Text>
             </View>
             <Text style={styles.promptTitle}>Escolha uma foto</Text>
             <Text style={styles.promptDesc}>
-              Capture com a câmera ou selecione da galeria.{'\n'}
-              Para melhores resultados, fotografe a folha com boa iluminação.
+              {IS_SIMULATOR
+                ? 'No emulador, use a Galeria para selecionar uma imagem.'
+                : 'Capture com a câmera ou selecione da galeria.\nPara melhores resultados, fotografe a folha com boa iluminação.'}
             </Text>
           </View>
 
@@ -292,5 +310,24 @@ const styles = StyleSheet.create({
     fontSize: FONT_SM,
     color: COLORS.TEXT_SECONDARY,
     fontWeight: '500',
+  },
+
+  simulatorBanner: {
+    backgroundColor: '#FEF9C3',
+    borderBottomWidth: 1,
+    borderBottomColor: '#FDE047',
+    paddingHorizontal: SPACING_LG,
+    paddingVertical: SPACING_SM,
+  },
+  simulatorBannerTitle: {
+    fontSize: FONT_SM,
+    fontWeight: '700',
+    color: '#854D0E',
+    marginBottom: 2,
+  },
+  simulatorBannerText: {
+    fontSize: FONT_SM - 1,
+    color: '#713F12',
+    lineHeight: 16,
   },
 });

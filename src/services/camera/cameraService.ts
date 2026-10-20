@@ -5,7 +5,12 @@
  */
 
 import * as ImagePicker from 'expo-image-picker';
+import * as Device from 'expo-device';
+import { Platform } from 'react-native';
 import { logger } from '@utils/logger';
+
+const IS_SIMULATOR =
+  !Device.isDevice && (Platform.OS === 'ios' || Platform.OS === 'android');
 
 /**
  * Camera service for handling device camera and gallery
@@ -17,9 +22,16 @@ class CameraService {
    */
   async launchCamera(): Promise<string | null> {
     try {
+      // iOS Simulator: câmera não existe — retorna erro claro em vez de cancelar silenciosamente
+      if (IS_SIMULATOR && Platform.OS === 'ios') {
+        throw new Error(
+          'Câmera não disponível no Simulador iOS.\n' +
+          'Use a opção "Galeria" e adicione imagens arrastando-as para a janela do Simulator.'
+        );
+      }
+
       logger.log('[CameraService] Requesting camera permissions');
 
-      // Request camera permission
       const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
 
       if (permissionResult.status !== 'granted') {
@@ -30,7 +42,6 @@ class CameraService {
 
       logger.log('[CameraService] Camera permission granted, launching camera');
 
-      // Launch camera
       const result = await ImagePicker.launchCameraAsync({
         mediaTypes: ['images'],
         allowsEditing: false,
@@ -39,8 +50,15 @@ class CameraService {
         base64: false,
       });
 
-      // Check if user cancelled
       if (result.canceled) {
+        // Android emulator com câmera não configurada cancela silenciosamente
+        if (IS_SIMULATOR) {
+          throw new Error(
+            'Câmera não disponível no emulador Android.\n' +
+            'No AVD Manager → Edit → Camera, selecione "Webcam0". ' +
+            'Ou use a Galeria e arraste imagens para o emulador.'
+          );
+        }
         logger.log('[CameraService] Camera capture cancelled by user');
         return null;
       }
