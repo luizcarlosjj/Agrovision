@@ -75,7 +75,12 @@ class CameraService {
       return photoUri;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Erro ao capturar foto';
-      logger.error('[CameraService] Error launching camera:', error);
+      // No simulador/emulador a falta de câmera é esperada — não é erro do app
+      if (IS_SIMULATOR) {
+        logger.warn(`[CameraService] ${message}`);
+      } else {
+        logger.error('[CameraService] Error launching camera:', error);
+      }
       throw new Error(message);
     }
   }
