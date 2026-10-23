@@ -49,17 +49,17 @@ def compute_attention_leakage(
             afs_norm=0.0, pointing_hit=False, dist_centroide=1.0,
         )
 
-    # ← OLHE AQUI: fórmulas centrais da intervenção
+    # fórmulas centrais da intervenção
     al = outside / total          # Attention Leakage
     afs = 1.0 - al                # Attention Focus Score
     afs_norm = afs / roi_area_frac if roi_area_frac > 0.0 else 0.0  # Normalizado pelo tamanho da ROI
 
-    # ← OLHE AQUI: pico de ativação dentro ou fora da folha?
+    #  pico de ativação dentro ou fora da folha?
     max_idx = int(active.argmax())
     max_row, max_col = divmod(max_idx, W)
     pointing_hit = bool(m[max_row, max_col] > 0)
 
-    # ← OLHE AQUI: distância entre centróide de atenção e centróide da folha
+    # distância entre centróide de atenção e centróide da folha
     row_grid = np.arange(H, dtype=np.float32)[:, None] * np.ones(W, dtype=np.float32)
     col_grid = np.ones(H, dtype=np.float32)[:, None] * np.arange(W, dtype=np.float32)
 
